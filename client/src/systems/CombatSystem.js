@@ -1,6 +1,6 @@
 /**
- * Combat System
- * Handles all combat logic between pets and enemies
+ * Sistema de Combate
+ * Maneja toda la lógica de combate entre mascotas y enemigos
  */
 
 export class CombatSystem {
@@ -10,7 +10,7 @@ export class CombatSystem {
     }
 
     update(delta) {
-        // Update damage numbers
+        // Actualizar números de daño
         this.damageNumbers = this.damageNumbers.filter(dn => {
             dn.lifetime -= delta;
             if (dn.lifetime <= 0) {
@@ -26,14 +26,14 @@ export class CombatSystem {
         
         const damage = pet.petData.damage + (pet.petData.level * 5);
         
-        // Apply damage
+        // Aplicar daño
         enemy.enemyData.hp -= damage;
         
-        // Visual effects
+        // Efectos visuales
         this.showAttackEffect(pet, enemy);
         this.createDamageNumber(enemy.x, enemy.y - 20, damage);
         
-        // Check enemy death
+        // Verificar muerte del enemigo
         if (enemy.enemyData.hp <= 0) {
             this.enemyDeath(enemy);
         }
@@ -44,20 +44,20 @@ export class CombatSystem {
         
         const damage = enemy.enemyData.damage;
         
-        // Apply damage
+        // Aplicar daño
         pet.petData.hp -= damage;
         
-        // Visual feedback
+        // Retroalimentación visual
         this.scene.onPetDamaged(pet, damage);
         
-        // Check pet death
+        // Verificar muerte de mascota
         if (pet.petData.hp <= 0) {
             this.petDeath(pet);
         }
     }
 
     showAttackEffect(attacker, target) {
-        // Attack animation on attacker
+        // Animación de ataque en el atacante
         this.scene.tweens.add({
             targets: attacker,
             scaleX: attacker.scaleX * 1.2,
@@ -66,7 +66,7 @@ export class CombatSystem {
             yoyo: true
         });
 
-        // Hit effect on target
+        // Efecto de impacto en el objetivo
         this.scene.tweens.add({
             targets: target,
             alpha: 0.7,
@@ -74,10 +74,10 @@ export class CombatSystem {
             yoyo: true
         });
 
-        // Particle burst at impact point
+        // Explusión de partículas en el punto de impacto
         this.scene.particleSystem.burst(target.x, target.y, 0xffff00, 5);
 
-        // Screen shake (subtle)
+        // Vibración de pantalla (sutil)
         const shakeIntensity = 2;
         this.scene.cameras.main.shake(50, shakeIntensity / 1000);
     }
@@ -95,7 +95,7 @@ export class CombatSystem {
         text.setOrigin(0.5);
         text.setDepth(100);
 
-        // Animate
+        // Animar
         this.scene.tweens.add({
             targets: [text],
             y: y - 30,
@@ -118,26 +118,26 @@ export class CombatSystem {
     enemyDeath(enemy) {
         enemy.alive = false;
         
-        // Score/XP for killer pets
+        // Puntuación/XP para mascotas asesinas
         this.scene.pets.getChildren().forEach(pet => {
             if (pet.active && pet.alive) {
                 pet.petData.xp = (pet.petData.xp || 0) + 10;
                 
-                // Level up check
+                // Verificar subida de nivel
                 if (pet.petData.xp >= pet.petData.level * 100) {
                     this.petLevelUp(pet);
                 }
             }
         });
 
-        // Death effects
+        // Efectos de muerte
         this.scene.onEnemyDeath(enemy);
     }
 
     petDeath(pet) {
         pet.alive = false;
         
-        // Remove pet
+        // Eliminar mascota
         this.scene.removePet(pet.petData.id);
     }
 
@@ -148,15 +148,15 @@ export class CombatSystem {
         pet.petData.maxHp += 10;
         pet.petData.damage += 5;
         
-        // Update level text
+        // Actualizar texto de nivel
         if (pet.levelText) {
-            pet.levelText.setText(`Lv${pet.petData.level}`);
+            pet.levelText.setText(`Nv${pet.petData.level}`);
         }
         
-        // Level up effect
+        // Efecto de subida de nivel
         this.scene.particleSystem.burst(pet.x, pet.y, 0xffff00, 15);
         
-        const levelUpText = this.scene.add.text(pet.x, pet.y - 40, `LEVEL UP! Lv${pet.petData.level}`, {
+        const levelUpText = this.scene.add.text(pet.x, pet.y - 40, `¡NIVEL ARRIBA! Nv${pet.petData.level}`, {
             fontSize: '20px',
             fontFamily: 'Arial Black',
             color: '#ffff00',
@@ -176,14 +176,14 @@ export class CombatSystem {
         });
     }
 
-    // Calculate damage with type advantages (future feature)
+    // Calcular daño con ventajas de tipo (función futura)
     calculateDamage(attacker, defender, baseDamage) {
-        // Type effectiveness could go here
-        // Example: fire > grass > water > fire
+        // La efectividad de tipos podría ir aquí
+        // Ejemplo: fuego > planta > agua > fuego
         
         let multiplier = 1.0;
         
-        // Critical hit chance (10%)
+        // Probabilidad de golpe crítico (10%)
         const isCritical = Math.random() < 0.1;
         if (isCritical) {
             multiplier *= 1.5;

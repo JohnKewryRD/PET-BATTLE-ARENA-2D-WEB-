@@ -1,6 +1,6 @@
 /**
- * Object Pool
- * Manages object pooling for performance optimization
+ * Pool de Objetos
+ * Gestiona la agrupación de objetos para optimización de rendimiento
  */
 
 export class ObjectPool {
@@ -12,7 +12,7 @@ export class ObjectPool {
 
     createPool(key, factory, initialSize = 10) {
         if (this.pools.has(key)) {
-            console.warn(`Pool ${key} already exists`);
+            console.warn(`El pool ${key} ya existe`);
             return this.pools.get(key);
         }
 
@@ -22,7 +22,7 @@ export class ObjectPool {
             factory: factory
         };
 
-        // Pre-populate pool
+        // Pre-poblar pool
         for (let i = 0; i < initialSize; i++) {
             const obj = factory();
             obj.active = false;
@@ -30,7 +30,7 @@ export class ObjectPool {
         }
 
         this.pools.set(key, pool);
-        console.log(`[ObjectPool] Created pool: ${key} with ${initialSize} objects`);
+        console.log(`[ObjectPool] Pool creado: ${key} con ${initialSize} objetos`);
 
         return pool;
     }
@@ -38,7 +38,7 @@ export class ObjectPool {
     get(key) {
         const pool = this.pools.get(key);
         if (!pool) {
-            console.warn(`Pool ${key} does not exist`);
+            console.warn(`El pool ${key} no existe`);
             return null;
         }
 
@@ -46,11 +46,11 @@ export class ObjectPool {
         if (pool.available.length > 0) {
             obj = pool.available.pop();
         } else if (pool.inUse.size < this.maxPoolSize) {
-            // Create new if under limit
+            // Crear nuevo si está bajo el límite
             obj = pool.factory();
         } else {
-            // Pool exhausted, return null
-            console.warn(`Pool ${key} exhausted`);
+            // Pool agotado, devolver null
+            console.warn(`Pool ${key} agotado`);
             return null;
         }
 
@@ -62,7 +62,7 @@ export class ObjectPool {
     release(key, obj) {
         const pool = this.pools.get(key);
         if (!pool) {
-            console.warn(`Pool ${key} does not exist`);
+            console.warn(`El pool ${key} no existe`);
             return;
         }
 
@@ -110,7 +110,7 @@ export class ObjectPool {
         return stats;
     }
 
-    // Utility to create particle pool
+    // Utilidad para crear pool de partículas
     createParticlePool() {
         return this.createPool('particles', () => {
             const sprite = this.scene.add.sprite(0, 0, 'particle');
@@ -120,7 +120,7 @@ export class ObjectPool {
         }, 50);
     }
 
-    // Utility to create projectile pool
+    // Utilidad para crear pool de proyectiles
     createProjectilePool() {
         return this.createPool('projectiles', () => {
             const sprite = this.scene.add.sprite(0, 0, 'projectile');

@@ -1,6 +1,6 @@
 /**
- * Game Scene
- * Main game logic - combat, spawning, particles
+ * Escena del Juego
+ * Lógica principal del juego - combate, generación, partículas
  */
 
 import { GAME_CONFIG } from '../config/GameConfig.js';
@@ -16,51 +16,51 @@ export class GameScene extends Phaser.Scene {
     }
 
     create() {
-        console.log('[GameScene] Starting...');
+        console.log('[GameScene] Iniciando...');
 
-        // Initialize systems
+        // Inicializar sistemas
         this.objectPool = new ObjectPool(this);
         this.combatSystem = new CombatSystem(this);
         this.particleSystem = new ParticleSystem(this);
         this.waveSystem = new WaveSystem(this);
 
-        // Create game world
+        // Crear mundo del juego
         this.createWorld();
 
-        // Entity groups
+        // Grupos de entidades
         this.pets = this.add.group();
         this.enemies = this.add.group();
         this.projectiles = this.add.group();
 
-        // Mega Pet state
+        // Estado de Mega Mascota
         this.isMegaPetActive = false;
         this.megaPetSprite = null;
         this.fusedPets = [];
 
-        // Create background effects
+        // Crear efectos de fondo
         this.createBackground();
 
-        // Start game loop
+        // Iniciar bucle del juego
         this.lastUpdate = 0;
         this.gameTime = 0;
 
-        console.log('[GameScene] Ready');
+        console.log('[GameScene] Listo');
     }
 
     createWorld() {
         const { width, height } = this.cameras.main;
 
-        // Arena boundaries (invisible walls)
+        // Límites del arena (paredes invisibles)
         this.physics.world.setBounds(50, 50, width - 100, height - 100);
 
-        // Arena floor with grid pattern
+        // Piso del arena con patrón de cuadrícula
         const graphics = this.add.graphics();
         
-        // Dark background
+        // Fondo oscuro
         graphics.fillStyle(0x0a0a0f, 1);
         graphics.fillRect(0, 0, width, height);
 
-        // Grid lines
+        // Líneas de cuadrícula
         graphics.lineStyle(1, 0x1a1a2e, 0.5);
         const gridSize = 50;
         
@@ -74,11 +74,11 @@ export class GameScene extends Phaser.Scene {
         }
         graphics.strokePath();
 
-        // Arena border glow
+        // Brillo del borde del arena
         graphics.lineStyle(4, 0x00ffff, 0.3);
         graphics.strokeRect(50, 50, width - 100, height - 100);
 
-        // Corner decorations
+        // Decoraciones de esquinas
         const corners = [
             { x: 50, y: 50 },
             { x: width - 50, y: 50 },
@@ -95,7 +95,7 @@ export class GameScene extends Phaser.Scene {
     createBackground() {
         const { width, height } = this.cameras.main;
 
-        // Ambient floating particles
+        // Partículas flotantes ambientales
         this.ambientParticles = [];
         for (let i = 0; i < 30; i++) {
             const particle = this.add.circle(
@@ -126,33 +126,33 @@ export class GameScene extends Phaser.Scene {
         this.gameTime += delta;
         this.lastUpdate = time;
 
-        // Update all systems
+        // Actualizar todos los sistemas
         this.combatSystem.update(delta);
         this.waveSystem.update(delta);
         this.particleSystem.update(delta);
 
-        // Update pet AI
+        // Actualizar IA de mascotas
         this.pets.getChildren().forEach(pet => {
             if (pet.active && pet.alive) {
                 this.updatePetAI(pet, delta);
             }
         });
 
-        // Update enemies
+        // Actualizar enemigos
         this.enemies.getChildren().forEach(enemy => {
             if (enemy.active && enemy.alive) {
                 this.updateEnemyAI(enemy, delta);
             }
         });
 
-        // Update mega pet
+        // Actualizar mega mascota
         if (this.isMegaPetActive && this.megaPetSprite) {
             this.updateMegaPet(delta);
         }
     }
 
     updatePetAI(pet, delta) {
-        // Find nearest enemy
+        // Encontrar enemigo más cercano
         let nearestEnemy = null;
         let nearestDist = Infinity;
 
@@ -168,12 +168,12 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
-        // Movement and attack
+        // Movimiento y ataque
         if (nearestEnemy) {
             const attackRange = pet.petData.type === 'dragon' ? 150 : 80;
             
             if (nearestDist > attackRange) {
-                // Move toward enemy
+                // Mover hacia enemigo
                 const angle = Phaser.Math.Angle.Between(
                     pet.x, pet.y, nearestEnemy.x, nearestEnemy.y
                 );
@@ -182,26 +182,26 @@ export class GameScene extends Phaser.Scene {
                 pet.x += Math.cos(angle) * speed;
                 pet.y += Math.sin(angle) * speed;
                 
-                // Face enemy
+                // Mirar hacia enemigo
                 pet.setFlipX(Math.cos(angle) < 0);
             } else {
-                // Attack
+                // Atacar
                 if (pet.attackCooldown <= 0) {
                     this.combatSystem.petAttack(pet, nearestEnemy);
-                    pet.attackCooldown = 500; // 0.5s cooldown
+                    pet.attackCooldown = 500; // 0.5s de enfriamiento
                 }
             }
         } else {
-            // Wander
+            // Vagabundear
             this.wanderPet(pet, delta);
         }
 
-        // Update cooldown
+        // Actualizar enfriamiento
         pet.attackCooldown -= delta;
     }
 
     wanderPet(pet, delta) {
-        // Random movement when no enemies
+        // Movimiento aleatorio cuando no hay enemigos
         if (!pet.wanderTimer || pet.wanderTimer <= 0) {
             pet.wanderDirection = Math.random() * Math.PI * 2;
             pet.wanderTimer = 1000 + Math.random() * 2000;
@@ -212,14 +212,14 @@ export class GameScene extends Phaser.Scene {
         pet.y += Math.sin(pet.wanderDirection) * speed;
         pet.wanderTimer -= delta;
 
-        // Keep in bounds
+        // Mantener dentro de límites
         const { width, height } = this.cameras.main;
         pet.x = Phaser.Math.Clamp(pet.x, 100, width - 100);
         pet.y = Phaser.Math.Clamp(pet.y, 100, height - 100);
     }
 
     updateEnemyAI(enemy, delta) {
-        // Find nearest pet
+        // Encontrar mascota más cercana
         let nearestPet = null;
         let nearestDist = Infinity;
 
@@ -235,7 +235,7 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
-        // Move and attack
+        // Mover y atacar
         if (nearestPet) {
             const attackRange = 60;
             
@@ -260,7 +260,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     updateMegaPet(delta) {
-        // Mega pet moves toward enemies and attacks all in range
+        // Mega mascota se mueve hacia enemigos y ataca a todos en rango
         if (!this.megaPetSprite) return;
 
         let nearestEnemy = null;
@@ -290,14 +290,14 @@ export class GameScene extends Phaser.Scene {
             this.megaPetSprite.y += Math.sin(angle) * speed;
         }
 
-        // Mass attack effect
+        // Efecto de ataque masivo
         if (this.megaPetAttackTimer <= 0) {
             this.megaPetMassAttack();
             this.megaPetAttackTimer = 300;
         }
         this.megaPetAttackTimer -= delta;
 
-        // Pulse effect
+        // Efecto de pulso
         const scale = 1 + Math.sin(this.gameTime * 0.01) * 0.1;
         this.megaPetSprite.setScale(scale);
     }
@@ -313,11 +313,11 @@ export class GameScene extends Phaser.Scene {
                 );
                 
                 if (dist < 300) {
-                    // Damage based on distance
+                    // Daño basado en distancia
                     const damage = Math.floor(50 * (1 - dist / 300));
                     enemy.enemyData.hp -= damage;
                     
-                    // Visual feedback
+                    // Retroalimentación visual
                     this.particleSystem.explosion(enemy.x, enemy.y, 0xff00ff);
                     this.tweens.add({
                         targets: enemy,
@@ -330,30 +330,30 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
-    // Public methods for spawning
+    // Métodos públicos para generación
     spawnPet(petData) {
         const { width, height } = this.cameras.main;
         
-        // Random spawn position
+        // Posición de generación aleatoria
         const x = 100 + Math.random() * (width - 200);
         const y = 100 + Math.random() * (height - 200);
 
-        // Create sprite
+        // Crear sprite
         const sprite = this.add.sprite(x, y, `pet_${petData.type}`);
         sprite.setScale(petData.scale || 1);
         sprite.setDepth(10);
 
-        // Add health bar
+        // Añadir barra de vida
         const hpBar = this.add.graphics();
         hpBar.setDepth(11);
 
-        // Store pet data
+        // Almacenar datos de mascota
         sprite.petData = petData;
         sprite.alive = true;
         sprite.attackCooldown = 0;
         sprite.wanderTimer = 0;
 
-        // Owner name
+        // Nombre del dueño
         const nameText = this.add.text(x, y - 30, petData.ownerName, {
             fontSize: '14px',
             fontFamily: 'Arial',
@@ -365,8 +365,8 @@ export class GameScene extends Phaser.Scene {
         nameText.setDepth(12);
         sprite.nameText = nameText;
 
-        // Level indicator
-        const levelText = this.add.text(x + 20, y - 20, `Lv${petData.level}`, {
+        // Indicador de nivel
+        const levelText = this.add.text(x + 20, y - 20, `Nv${petData.level}`, {
             fontSize: '12px',
             fontFamily: 'Arial',
             color: '#ffff00',
@@ -377,18 +377,18 @@ export class GameScene extends Phaser.Scene {
         levelText.setDepth(12);
         sprite.levelText = levelText;
 
-        // Physics body
+        // Cuerpo de física
         this.physics.add.existing(sprite);
         sprite.body.setCircle(20);
         sprite.body.setCollideWorldBounds(true);
 
-        // Add to group
+        // Añadir al grupo
         this.pets.add(sprite);
 
-        // Spawn effect
+        // Efecto de generación
         this.particleSystem.burst(x, y, petData.color, 10);
 
-        // Floating text
+        // Texto flotante
         this.showFloatingText(x, y - 50, `+${petData.name}`, petData.color);
 
         return sprite;
@@ -397,10 +397,10 @@ export class GameScene extends Phaser.Scene {
     removePet(petId) {
         this.pets.getChildren().forEach(pet => {
             if (pet.petData && pet.petData.id === petId) {
-                // Death effect
+                // Efecto de muerte
                 this.particleSystem.explosion(pet.x, pet.y, 0xff0000, 20);
                 
-                // Remove name text
+                // Eliminar texto de nombre
                 if (pet.nameText) pet.nameText.destroy();
                 if (pet.levelText) pet.levelText.destroy();
                 
@@ -416,7 +416,7 @@ export class GameScene extends Phaser.Scene {
     spawnEnemy(enemyData) {
         const { width, height } = this.cameras.main;
         
-        // Spawn from edges
+        // Generar desde los bordes
         const side = Math.floor(Math.random() * 4);
         let x, y;
         
@@ -442,7 +442,7 @@ export class GameScene extends Phaser.Scene {
         sprite.alive = true;
         sprite.attackCooldown = 0;
 
-        // Health bar
+        // Barra de vida
         const hpBarBg = this.add.graphics();
         hpBarBg.fillStyle(0x333333, 1);
         hpBarBg.fillRect(x - 25, y - 25, 50, 6);
@@ -455,7 +455,7 @@ export class GameScene extends Phaser.Scene {
 
         this.enemies.add(sprite);
 
-        // Spawn effect
+        // Efecto de generación
         this.particleSystem.burst(x, y, 0xff0000, 5);
 
         return sprite;
@@ -467,13 +467,13 @@ export class GameScene extends Phaser.Scene {
 
         const { width, height } = this.cameras.main;
         
-        // Create mega pet at center
+        // Crear mega mascota en el centro
         this.megaPetSprite = this.add.sprite(width / 2, height / 2, 'mega_pet');
         this.megaPetSprite.setScale(2);
         this.megaPetSprite.setDepth(100);
         this.megaPetSprite.setAlpha(0);
 
-        // Fade in
+        // Aparecer
         this.tweens.add({
             targets: this.megaPetSprite,
             alpha: 1,
@@ -482,10 +482,10 @@ export class GameScene extends Phaser.Scene {
             ease: 'Back.easeOut'
         });
 
-        // Particle storm
+        // Tormenta de partículas
         this.particleSystem.megaPetActivation(width / 2, height / 2);
 
-        // Hide fused pets temporarily
+        // Ocultar mascotas fusionadas temporalmente
         this.fusedPets = [];
         this.pets.getChildren().forEach(pet => {
             if (pet.active) {
@@ -498,15 +498,15 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
-        // Sound effect placeholder
-        console.log('[MegaPet] Sound effect would play here');
+        // Marcador de efecto de sonido
+        console.log('[MegaPet] El efecto de sonido se reproduciría aquí');
     }
 
     deactivateMegaPet() {
         this.isMegaPetActive = false;
 
         if (this.megaPetSprite) {
-            // Fade out and destroy
+            // Desvanecer y destruir
             this.tweens.add({
                 targets: this.megaPetSprite,
                 alpha: 0,
@@ -519,7 +519,7 @@ export class GameScene extends Phaser.Scene {
             });
         }
 
-        // Restore pets
+        // Restaurar mascotas
         this.fusedPets.forEach(pet => {
             this.tweens.add({
                 targets: [pet, pet.nameText, pet.levelText],
@@ -534,8 +534,8 @@ export class GameScene extends Phaser.Scene {
             if (pet.active && pet.alive) {
                 this.particleSystem.burst(pet.x, pet.y, 0xffff00, 5);
                 
-                // Level up text
-                const levelUpText = this.add.text(pet.x, pet.y - 40, `↑ Lv${pet.petData.level}`, {
+                // Texto de subida de nivel
+                const levelUpText = this.add.text(pet.x, pet.y - 40, `↑ Nv${pet.petData.level}`, {
                     fontSize: '16px',
                     fontFamily: 'Arial Black',
                     color: '#ffff00',
@@ -577,24 +577,24 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
-    // Called when enemy dies
+    // Llamado cuando el enemigo muere
     onEnemyDeath(enemy) {
-        // Update health bar reference
+        // Actualizar referencia de barra de vida
         if (enemy.hpBar) enemy.hpBar.destroy();
         if (enemy.hpBarBg) enemy.hpBarBg.destroy();
         
-        // Explosion effect
+        // Efecto de explosión
         this.particleSystem.explosion(enemy.x, enemy.y, 0xff0000, 15);
         
-        // Remove
+        // Eliminar
         this.time.delayedCall(100, () => {
             enemy.destroy();
         });
     }
 
-    // Called when pet takes damage
+    // Llamado cuando la mascota recibe daño
     onPetDamaged(pet, damage) {
-        // Flash red
+        // Parpadear en rojo
         this.tweens.add({
             targets: pet,
             tint: 0xff0000,
@@ -602,7 +602,7 @@ export class GameScene extends Phaser.Scene {
             yoyo: true
         });
 
-        // Damage number
+        // Número de daño
         const dmgText = this.add.text(pet.x, pet.y - 20, `-${damage}`, {
             fontSize: '14px',
             fontFamily: 'Arial Black',

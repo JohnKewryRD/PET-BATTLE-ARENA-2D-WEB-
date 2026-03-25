@@ -1,6 +1,6 @@
 /**
- * UI Scene
- * Handles HUD elements and overlays
+ * Escena de UI
+ * Maneja elementos HUD y superposiciones
  */
 
 export class UIScene extends Phaser.Scene {
@@ -9,8 +9,8 @@ export class UIScene extends Phaser.Scene {
     }
 
     create() {
-        // This scene runs parallel to GameScene
-        // UI elements are handled via HTML/CSS overlay in index.html
-        console.log('[UIScene] UI overlay ready');
+        // Esta escena se ejecuta en paralelo a GameScene
+        // Los elementos de UI se manejan a través de superposición HTML/CSS en index.html
+        console.log('[UIScene] Superposición de UI lista');
     }
 }

@@ -1,6 +1,6 @@
 /**
- * TikTok Live Connector
- * Uses tiktok-live-connector to capture live stream events
+ * Conector TikTok Live
+ * Usa tiktok-live-connector para capturar eventos del stream en vivo
  */
 
 const { WebcastPushConnection } = require('tiktok-live-connector');
@@ -15,7 +15,7 @@ class TikTokConnector {
 
     async connect() {
         try {
-            console.log(`[TikTok] Connecting to @${this.username}'s live stream...`);
+            console.log(`[TikTok] Conectando al stream en vivo de @${this.username}...`);
 
             this.connection = new WebcastPushConnection(this.username, {
                 sessionLengthInMinutes: 240,
@@ -25,124 +25,124 @@ class TikTokConnector {
                 livehost: undefined,
             });
 
-            // Setup event listeners
+            // Configurar escuchadores de eventos
             this.setupEventListeners();
 
-            // Connect
+            // Conectar
             await this.connection.connect();
             this.isConnected = true;
 
-            console.log(`[TikTok] Successfully connected to @${this.username}`);
+            console.log(`[TikTok] Conectado exitosamente a @${this.username}`);
             
             return true;
         } catch (error) {
-            console.error('[TikTok] Connection error:', error.message);
+            console.error('[TikTok] Error de conexión:', error.message);
             throw error;
         }
     }
 
     setupEventListeners() {
-        // Chat messages (comments)
+        // Mensajes de chat (comentarios)
         this.connection.on('chat', (data) => {
             const comment = {
                 userId: data.user?.userId || 'unknown',
                 username: data.uniqueId || data.commentUser?.uniqueId || 'anonymous',
                 text: data.comment || '',
-                // Display name from commenter
-                nickname: data.nickname || data.commentUser?.nickname || 'Anonymous',
-                // Profile picture
+                // Nombre para mostrar del comentarista
+                nickname: data.nickname || data.commentUser?.nickname || 'Anónimo',
+                // Foto de perfil
                 avatar: data.user?.avatarThumb?.urlList?.[0] || null
             };
             
             this.eventProcessor.processComment(comment);
         });
 
-        // Gift events
+        // Eventos de regalos
         this.connection.on('gift', (data) => {
             const gift = {
                 userId: data.user?.userId || 'unknown',
                 username: data.uniqueId || 'anonymous',
-                nickname: data.nickname || 'Anonymous',
-                giftName: data.giftName || 'Unknown',
+                nickname: data.nickname || 'Anónimo',
+                giftName: data.giftName || 'Desconocido',
                 giftCount: data.repeatCount || 1,
                 giftId: data.giftId,
                 diamondCount: data.diamondCount || 0,
-                // Whether this gift should trigger Mega Pet
+                // Si este regalo debe activar Mega Mascota
                 isViralGift: this.isViralGift(data.giftName, data.diamondCount)
             };
             
             this.eventProcessor.processGift(gift);
         });
 
-        // Like events
+        // Eventos de likes
         this.connection.on('like', (data) => {
             const likeEvent = {
                 userId: data.user?.userId || 'unknown',
                 username: data.uniqueId || 'anonymous',
                 likeCount: data.likeCount || 1,
-                // Cumulative likes for this stream
+                // Likes acumulativos para este stream
                 totalLikes: data.totalLikedCount || 0
             };
             
             this.eventProcessor.processLikes(likeEvent.likeCount);
         });
 
-        // Subscribe/Follow events
+        // Eventos de suscripción/seguir
         this.connection.on('subscribe', (data) => {
             const subscriber = {
                 userId: data.user?.userId || 'unknown',
                 username: data.uniqueId || 'anonymous',
-                nickname: data.nickname || 'Anonymous'
+                nickname: data.nickname || 'Anónimo'
             };
             
-            // Followers give a small buff to all pets
+            // Los seguidores dan un pequeño impulso a todas las mascotas
             this.eventProcessor.processFollow(subscriber);
         });
 
-        // Share events
+        // Eventos de compartir
         this.connection.on('share', (data) => {
             const sharer = {
                 username: data.uniqueId || 'anonymous'
             };
             
-            // Shares spawn a special helper pet
+            // Los compartidos generan una mascota helper especial
             this.eventProcessor.processShare(sharer);
         });
 
-        // Viewer's card (social peer)
+        // Tarjeta de espectador (par social)
         this.connection.on('social', (data) => {
-            console.log('[TikTok] Social event:', data);
+            console.log('[TikTok] Evento social:', data);
         });
 
-        // Stream end
+        // Fin del stream
         this.connection.on('streamEnd', () => {
-            console.log('[TikTok] Stream has ended');
+            console.log('[TikTok] El stream ha terminado');
             this.isConnected = false;
-            // Attempt reconnection
+            // Intentar reconexión
             this.reconnect();
         });
 
-        // Error handling
+        // Manejo de errores
         this.connection.on('error', (error) => {
-            console.error('[TikTok] WebSocket error:', error.message);
+            console.error('[TikTok] Error de WebSocket:', error.message);
         });
 
-        // Disconnect
+        // Desconectar
         this.connection.on('disconnect', () => {
-            console.log('[TikTok] Disconnected from live stream');
+            console.log('[TikTok] Desconectado del stream en vivo');
             this.isConnected = false;
         });
     }
 
     isViralGift(giftName, diamondCount) {
-        // Viral gifts that trigger Mega Pet mode
+        // Regalos virales que activan el modo Mega Mascota
         const viralGifts = [
             'Lion', 'Universe', 'Galaxy', 'Meteor', 
             'Dragon', 'Phoenix', 'Rainbow', 'Crown',
             'TikTok', 'Gold', 'Diamond'
         ];
 
-        // Also trigger on gifts worth 3000+ diamonds
+        // También activar en regalos de 3000+ diamantes
         const isHighValue = diamondCount >= 3000;
 
         return viralGifts.some(vg => 
@@ -151,13 +151,13 @@ class TikTokConnector {
     }
 
     async reconnect() {
-        console.log('[TikTok] Attempting to reconnect in 10 seconds...');
+        console.log('[TikTok] Intentando reconectar en 10 segundos...');
         setTimeout(async () => {
             try {
                 await this.connect();
             } catch (error) {
-                console.error('[TikTok] Reconnection failed:', error.message);
-                // Try again
+                console.error('[TikTok] Reconexión fallida:', error.message);
+                // Intentar de nuevo
                 this.reconnect();
             }
         }, 10000);
@@ -167,7 +167,7 @@ class TikTokConnector {
         if (this.connection) {
             this.connection.disconnect();
             this.isConnected = false;
-            console.log('[TikTok] Disconnected');
+            console.log('[TikTok] Desconectado');
         }
     }
 

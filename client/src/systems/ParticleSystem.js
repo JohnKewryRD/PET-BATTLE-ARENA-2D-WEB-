@@ -1,17 +1,17 @@
 /**
- * Particle System
- * Handles all visual effects and particles
+ * Sistema de Partículas
+ * Maneja todos los efectos visuales y partículas
  */
 
 export class ParticleSystem {
     constructor(scene) {
         this.scene = scene;
         this.activeParticles = [];
-        this.maxParticles = 500; // Performance limit
+        this.maxParticles = 500; // Límite de rendimiento
     }
 
     update(delta) {
-        // Clean up dead particles
+        // Limpiar partículas muertas
         this.activeParticles = this.activeParticles.filter(p => {
             if (!p.active) {
                 return false;
@@ -33,7 +33,7 @@ export class ParticleSystem {
 
     createParticle(x, y, color) {
         if (this.activeParticles.length >= this.maxParticles) {
-            // Remove oldest particle
+            // Eliminar partícula más antigua
             const oldest = this.activeParticles.shift();
             if (oldest && oldest.sprite) oldest.sprite.destroy();
         }
@@ -44,18 +44,18 @@ export class ParticleSystem {
         sprite.setAlpha(1);
         sprite.setDepth(50);
 
-        // Random velocity
+        // Velocidad aleatoria
         const angle = Math.random() * Math.PI * 2;
         const speed = 50 + Math.random() * 100;
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
 
-        // Physics
+        // Física
         this.scene.physics.add.existing(sprite);
         sprite.body.setVelocity(vx, vy);
         sprite.body.setGravityY(200);
 
-        // Fade out and shrink
+        // Desvanecer y encoger
         const lifetime = 500 + Math.random() * 500;
         
         this.scene.tweens.add({
@@ -80,7 +80,7 @@ export class ParticleSystem {
     }
 
     explosion(x, y, color, count = 20) {
-        // Ring of particles expanding outward
+        // Anillo de partículas expandiéndose hacia afuera
         for (let i = 0; i < count; i++) {
             const angle = (i / count) * Math.PI * 2;
             const speed = 100 + Math.random() * 100;
@@ -113,10 +113,10 @@ export class ParticleSystem {
     }
 
     megaPetActivation(x, y) {
-        // Massive particle explosion for mega pet activation
+        // Explosión masiva de partículas para activación de mega mascota
         const colors = [0xff00ff, 0x00ffff, 0xffff00, 0xff69b4];
         
-        // Multiple waves
+        // Múltiples oleadas
         for (let wave = 0; wave < 3; wave++) {
             this.scene.time.delayedCall(wave * 200, () => {
                 colors.forEach(color => {
@@ -125,7 +125,7 @@ export class ParticleSystem {
             });
         }
 
-        // Ring shockwave effect
+        // Efecto de onda de choque en anillo
         const shockwave = this.scene.add.circle(x, y, 50, 0xffffff, 0.5);
         shockwave.setStrokeStyle(4, 0x00ffff, 1);
         shockwave.setDepth(90);
@@ -140,7 +140,7 @@ export class ParticleSystem {
             onComplete: () => shockwave.destroy()
         });
 
-        // Screen flash
+        // Destello de pantalla
         const flash = this.scene.add.rectangle(
             this.scene.cameras.main.centerX,
             this.scene.cameras.main.centerY,
@@ -159,7 +159,7 @@ export class ParticleSystem {
     }
 
     trail(x, y, color) {
-        // Light trail effect for fast-moving objects
+        // Efecto de estela ligera para objetos que se mueven rápido
         const sprite = this.scene.add.sprite(x, y, 'particle');
         sprite.setTint(color);
         sprite.setScale(0.3);
@@ -202,7 +202,7 @@ export class ParticleSystem {
     }
 
     spawnAmbient() {
-        // Ambient floating particles for atmosphere
+        // Partículas flotantes ambientales para atmósfera
         const { width, height } = this.scene.cameras.main;
         
         const sprite = this.scene.add.sprite(
@@ -225,7 +225,7 @@ export class ParticleSystem {
             ease: 'Linear',
             onComplete: () => {
                 if (sprite.active) {
-                    // Respawn at bottom
+                    // Regenerar en la parte inferior
                     sprite.x = Math.random() * width;
                     sprite.y = height + 20;
                     sprite.alpha = 0.2;

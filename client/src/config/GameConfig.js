@@ -1,20 +1,20 @@
 /**
- * Game Configuration
- * Central configuration for all game settings
+ * Configuración del Juego
+ * Configuración central para todos los ajustes del juego
  */
 
 export const GAME_CONFIG = {
-    // Game dimensions
+    // Dimensiones del juego
     width: 1920,
     height: 1080,
 
-    // Physics
+    // Física
     physics: {
         gravity: 800,
         debug: false
     },
 
-    // Pet types with stats
+    // Tipos de mascotas con estadísticas
     petTypes: {
         gato: {
             name: 'Gato',
@@ -63,7 +63,7 @@ export const GAME_CONFIG = {
         }
     },
 
-    // Enemy configurations
+    // Configuraciones de enemigos
     enemy: {
         baseHp: 50,
         baseDamage: 10,
@@ -71,7 +71,7 @@ export const GAME_CONFIG = {
         spawnFromEdges: true
     },
 
-    // Wave settings
+    // Configuración de oleadas
     waves: {
         baseEnemyCount: 3,
         maxEnemiesPerWave: 10,
@@ -84,7 +84,7 @@ export const GAME_CONFIG = {
         }
     },
 
-    // Mega Pet event
+    // Evento de Mega Mascota
     megaPet: {
         triggerGiftValue: 3000,
         duration: 30000,
@@ -93,7 +93,7 @@ export const GAME_CONFIG = {
         baseDamage: 50
     },
 
-    // Gift tiers
+    // Niveles de regalos
     giftTiers: {
         micro: { min: 1, max: 99 },
         minor: { min: 100, max: 499 },
@@ -101,20 +101,20 @@ export const GAME_CONFIG = {
         legendary: { min: 3000, max: Infinity }
     },
 
-    // Likes system
+    // Sistema de likes
     likes: {
         upgradeThreshold: 50,
         maxLpm: 200
     },
 
-    // Combat
+    // Combate
     combat: {
         critChance: 0.1,
         critMultiplier: 1.5,
         xpPerLevel: 100
     },
 
-    // Performance
+    // Rendimiento
     performance: {
         maxPets: 200,
         maxEnemies: 50,
@@ -122,7 +122,7 @@ export const GAME_CONFIG = {
         targetFps: 60
     },
 
-    // Visual settings
+    // Configuración visual
     visuals: {
         enableScreenShake: true,
         enableParticles: true,
@@ -130,7 +130,7 @@ export const GAME_CONFIG = {
         enableFloatingText: true
     },
 
-    // Colors
+    // Colores
     colors: {
         primary: 0x00ffff,
         secondary: 0xff00ff,
@@ -141,7 +141,7 @@ export const GAME_CONFIG = {
     }
 };
 
-// Freeze config to prevent accidental modifications
+// Congelar config para prevenir modificaciones accidentales
 Object.freeze(GAME_CONFIG);
 Object.freeze(GAME_CONFIG.petTypes);
 Object.freeze(GAME_CONFIG.giftTiers);

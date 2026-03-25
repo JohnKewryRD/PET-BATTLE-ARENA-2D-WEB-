@@ -1,6 +1,6 @@
 /**
- * PET BATTLE ARENA - Server Entry Point
- * Node.js + Express + Socket.IO + TikTok Live Connector
+ * PET BATTLE ARENA - Punto de Entrada del Servidor
+ * Node.js + Express + Socket.IO + Conector TikTok Live
  */
 
 require('dotenv').config();
@@ -26,7 +26,7 @@ class PetBattleArenaServer {
         this.port = process.env.PORT || 3000;
         this.maxPets = parseInt(process.env.MAX_PETS) || 200;
 
-        // Game state
+        // Estado del juego
         this.gameState = {
             pets: new Map(),
             enemies: new Map(),
@@ -39,24 +39,24 @@ class PetBattleArenaServer {
             megaPetEndTime: 0
         };
 
-        // TikTok connection
+        // Conexión TikTok
         this.tiktokConnector = null;
         this.tiktokUsername = null;
         this.isTikTokConnected = false;
 
-        // Initialize components
+        // Inicializar componentes
         this.eventProcessor = new EventProcessor(this);
 
-        // Setup middleware
+        // Configurar middleware
         this.setupMiddleware();
 
-        // Setup routes
+        // Configurar rutas
         this.setupRoutes();
 
-        // Setup Socket.IO
+        // Configurar Socket.IO
         this.setupSocketIO();
 
-        // Start game loop
+        // Iniciar bucle del juego
         this.startGameLoop();
     }
 
@@ -64,36 +64,36 @@ class PetBattleArenaServer {
         this.app.use(cors());
         this.app.use(express.json());
         
-        // Serve static files from client directory
+        // Servir archivos estáticos del directorio cliente
         this.app.use(express.static(path.join(__dirname, '..', 'client')));
     }
 
     setupRoutes() {
-        // Connection endpoint
+        // Punto de conexión
         this.app.post('/connect', async (req, res) => {
             const { username } = req.body;
             
             if (!username) {
-                return res.status(400).json({ error: 'Username requerido' });
+                return res.status(400).json({ error: 'Nombre de usuario requerido' });
             }
 
             try {
-                // Disconnect previous connection if exists
+                // Desconectar conexión anterior si existe
                 if (this.tiktokConnector) {
                     this.tiktokConnector.disconnect();
                 }
 
                 this.tiktokUsername = username.replace('@', '');
-                console.log(`[Server] Attempting to connect to TikTok: @${this.tiktokUsername}`);
+                console.log(`[Servidor] Intentando conectar a TikTok: @${this.tiktokUsername}`);
 
-                // Create new TikTok connector
+                // Crear nuevo conector de TikTok
                 this.tiktokConnector = new TikTokConnector(this.tiktokUsername, this.eventProcessor);
                 
-                // Connect to TikTok
+                // Conectar a TikTok
                 await this.tiktokConnector.connect();
                 this.isTikTokConnected = true;
 
-                console.log(`[Server] Successfully connected to TikTok live @${this.tiktokUsername}`);
+                console.log(`[Servidor] Conectado exitosamente a TikTok live @${this.tiktokUsername}`);
 
                 res.json({ 
                     success: true, 
@@ -102,7 +102,7 @@ class PetBattleArenaServer {
                 });
 
             } catch (error) {
-                console.error('[Server] TikTok connection failed:', error.message);
+                console.error('[Servidor] Error de conexión a TikTok:', error.message);
                 this.isTikTokConnected = false;
                 res.status(500).json({ 
                     error: 'No se pudo conectar a TikTok. Asegúrate de tener un live activo.',
@@ -111,7 +111,7 @@ class PetBattleArenaServer {
             }
         });
 
-        // Status endpoint
+        // Punto de estado
         this.app.get('/status', (req, res) => {
             res.json({
                 connected: this.isTikTokConnected,
@@ -120,7 +120,7 @@ class PetBattleArenaServer {
             });
         });
 
-        // Health check
+        // Verificación de salud
         this.app.get('/health', (req, res) => {
             res.json({ status: 'ok', timestamp: Date.now() });
         });
@@ -128,46 +128,46 @@ class PetBattleArenaServer {
 
     setupSocketIO() {
         this.io.on('connection', (socket) => {
-            console.log(`[Socket.IO] Client connected: ${socket.id}`);
+            console.log(`[Socket.IO] Cliente conectado: ${socket.id}`);
 
-            // Send initial game state
+            // Enviar estado inicial del juego
             socket.emit('game:init', this.getGameState());
 
-            // Handle demo pet spawns (for testing without TikTok)
+            // Manejar generación de mascotas de demostración (para pruebas sin TikTok)
             socket.on('demo:spawn', (data) => {
                 this.eventProcessor.processDemoSpawn(data);
             });
 
             socket.on('disconnect', () => {
-                console.log(`[Socket.IO] Client disconnected: ${socket.id}`);
+                console.log(`[Socket.IO] Cliente desconectado: ${socket.id}`);
             });
         });
     }
 
     startGameLoop() {
-        // Game tick every 100ms
+        // Tick del juego cada 100ms
         setInterval(() => this.gameTick(), 100);
         
-        // Wave spawner
+        // Generador de oleadas
         const waveInterval = parseInt(process.env.WAVE_INTERVAL) || 15000;
         setInterval(() => this.spawnWave(), waveInterval);
 
-        // Likes per minute calculator
+        // Calculadora de likes por minuto
         setInterval(() => this.calculateLPM(), 60000);
 
-        console.log(`[Server] Game loop started - Port: ${this.port}`);
+        console.log(`[Servidor] Bucle del juego iniciado - Puerto: ${this.port}`);
     }
 
     gameTick() {
-        // Update game state every tick
+        // Actualizar estado del juego cada tick
         this.gameState.waveTimer += 100;
 
-        // Check Mega Pet expiration
+        // Verificar expiración de Mega Mascota
         if (this.gameState.isMegaPetActive && Date.now() > this.gameState.megaPetEndTime) {
             this.endMegaPetMode();
         }
 
-        // Broadcast game state to all clients
+        // Transmitir estado del juego a todos los clientes
         this.io.emit('game:update', this.getGameState());
     }
 
@@ -184,7 +184,7 @@ class PetBattleArenaServer {
         this.gameState.wave++;
         this.gameState.waveTimer = 0;
 
-        console.log(`[Wave] Spawned wave ${wave} with ${enemyCount} enemies`);
+        console.log(`[Oleada] Oleada ${wave} generada con ${enemyCount} enemigos`);
     }
 
     calculateDifficulty() {
@@ -197,8 +197,8 @@ class PetBattleArenaServer {
     }
 
     calculateLPM() {
-        // Reset LPM counter (will be updated by actual like events from TikTok)
-        this.gameState.likesPerMinute = Math.floor(Math.random() * 20); // Demo value, real from TikTok
+        // Reiniciar contador LPM (se actualizará con eventos reales de likes de TikTok)
+        this.gameState.likesPerMinute = Math.floor(Math.random() * 20); // Valor de demostración, real de TikTok
     }
 
     getGameState() {
@@ -244,24 +244,24 @@ class PetBattleArenaServer {
             pets: Array.from(this.gameState.pets.values())
         });
 
-        console.log(`[MegaPet] ACTIVATED by ${donorName} for ${duration}ms`);
+        console.log(`[MegaPet] ACTIVADA por ${donorName} por ${duration}ms`);
     }
 
     endMegaPetMode() {
         this.gameState.isMegaPetActive = false;
         this.io.emit('megaPet:deactivate', {});
-        console.log('[MegaPet] Deactivated');
+        console.log('[MegaPet] Desactivada');
     }
 
     start() {
         this.server.listen(this.port, () => {
             console.log(`
 ╔═══════════════════════════════════════════════════════════╗
-║           🐾 PET BATTLE ARENA - SERVER 🐾               ║
+║           🐾 PET BATTLE ARENA - SERVIDOR 🐾             ║
 ╠═══════════════════════════════════════════════════════════╣
-║  Status: RUNNING                                        ║
-║  Port: ${this.port}                                              ║
-║  Mode: TIKTOK LIVE                                     ║
+║  Estado: EJECUTÁNDOSE                                  ║
+║  Puerto: ${this.port}                                              ║
+║  Modo: TIKTOK LIVE                                     ║
 ║  Web:  http://localhost:${this.port}                           ║
 ╚═══════════════════════════════════════════════════════════╝
             `);
@@ -269,6 +269,6 @@ class PetBattleArenaServer {
     }
 }
 
-// Start server
+// Iniciar servidor
 const server = new PetBattleArenaServer();
 server.start();

@@ -1,6 +1,6 @@
 /**
- * Wave System
- * Manages enemy wave spawning and difficulty progression
+ * Sistema de Oleadas
+ * Gestiona la generación de oleadas de enemigos y progresión de dificultad
  */
 
 export class WaveSystem {
@@ -10,12 +10,12 @@ export class WaveSystem {
         this.enemiesRemaining = 0;
         this.waveInProgress = false;
         this.spawnTimer = 0;
-        this.waveDelay = 5000; // 5 seconds between waves
+        this.waveDelay = 5000; // 5 segundos entre oleadas
     }
 
     update(delta) {
         if (this.waveInProgress) {
-            // Check if wave is complete
+            // Verificar si la oleada está completa
             if (this.enemiesRemaining <= 0) {
                 this.waveComplete();
             }
@@ -28,10 +28,10 @@ export class WaveSystem {
         this.waveInProgress = true;
         this.spawnDelay = 0;
 
-        // Show wave announcement
+        // Mostrar anuncio de oleada
         this.showWaveAnnouncement(waveData.wave);
 
-        // Spawn enemies with delay
+        // Generar enemigos con retraso
         for (let i = 0; i < waveData.enemyCount; i++) {
             this.scene.time.delayedCall(i * 500, () => {
                 if (this.waveInProgress) {
@@ -46,7 +46,7 @@ export class WaveSystem {
             });
         }
 
-        // Boss wave every 5 waves
+        // Oleada de jefe cada 5 oleadas
         if (waveData.wave % 5 === 0) {
             this.scene.time.delayedCall(2000, () => {
                 this.spawnBoss(gameScene, waveData);
@@ -57,7 +57,7 @@ export class WaveSystem {
     showWaveAnnouncement(waveNumber) {
         const { width, height } = this.scene.cameras.main;
         
-        // Wave text
+        // Texto de oleada
         const waveText = this.scene.add.text(width / 2, height / 2 - 50, `OLEADA ${waveNumber}`, {
             fontSize: '72px',
             fontFamily: 'Arial Black',
@@ -69,7 +69,7 @@ export class WaveSystem {
         waveText.setAlpha(0);
         waveText.setDepth(200);
 
-        // Animate in
+        // Animar entrada
         this.scene.tweens.add({
             targets: waveText,
             alpha: 1,
@@ -90,18 +90,18 @@ export class WaveSystem {
             }
         });
 
-        // Screen flash
+        // Destello de pantalla
         this.scene.particleSystem.colorFlash(0xff00ff, 200);
 
-        // Screen shake
+        // Vibración de pantalla
         this.scene.cameras.main.shake(300, 0.005);
     }
 
     spawnBoss(gameScene, waveData) {
         const { width, height } = this.scene.cameras.main;
         
-        // Boss announcement
-        const bossText = this.scene.add.text(width / 2, height / 2, '👹 BOSS 👹', {
+        // Anuncio de jefe
+        const bossText = this.scene.add.text(width / 2, height / 2, '👹 JEFE 👹', {
             fontSize: '64px',
             fontFamily: 'Arial Black',
             color: '#ff0000',
@@ -120,7 +120,7 @@ export class WaveSystem {
             onComplete: () => bossText.destroy()
         });
 
-        // Spawn boss at center top
+        // Generar jefe en el centro superior
         const bossX = width / 2;
         const bossY = -50;
 
@@ -129,7 +129,7 @@ export class WaveSystem {
         bossSprite.setDepth(50);
         bossSprite.setTint(0xff0000);
 
-        // Boss data
+        // Datos del jefe
         bossSprite.enemyData = {
             hp: 500 * waveData.difficulty.health,
             maxHp: 500 * waveData.difficulty.health,
@@ -140,12 +140,12 @@ export class WaveSystem {
         bossSprite.alive = true;
         bossSprite.attackCooldown = 0;
 
-        // Boss health bar
+        // Barra de vida del jefe
         const bossHealthBar = this.scene.add.graphics();
         bossHealthBar.setDepth(60);
         bossSprite.healthBar = bossHealthBar;
 
-        // Drop in animation
+        // Animación de caída
         this.scene.tweens.add({
             targets: bossSprite,
             y: 150,
@@ -153,7 +153,7 @@ export class WaveSystem {
             ease: 'Bounce.easeOut'
         });
 
-        // Big entrance effect
+        // Gran efecto de entrada
         this.scene.particleSystem.explosion(bossX, 150, 0xff0000, 30);
         this.scene.particleSystem.screenShake(10);
 
@@ -168,11 +168,11 @@ export class WaveSystem {
     waveComplete() {
         this.waveInProgress = false;
         
-        // Wave complete effects
+        // Efectos de oleada completada
         const { width, height } = this.scene.cameras.main;
         
-        // Victory text
-        const victoryText = this.scene.add.text(width / 2, height / 2, 'OLEADA COMPLETADA!', {
+        // Texto de victoria
+        const victoryText = this.scene.add.text(width / 2, height / 2, '¡OLEADA COMPLETADA!', {
             fontSize: '48px',
             fontFamily: 'Arial Black',
             color: '#00ff00',
@@ -191,7 +191,7 @@ export class WaveSystem {
             onComplete: () => victoryText.destroy()
         });
 
-        // Bonus points/effects
+        // Puntos/efectos de bonificación
         this.scene.particleSystem.colorFlash(0x00ff00, 300);
     }
 

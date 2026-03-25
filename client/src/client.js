@@ -1,10 +1,10 @@
 /**
- * PET BATTLE ARENA - Complete Client
- * All-in-one JavaScript for browser compatibility
+ * PET BATTLE ARENA - Cliente Completo
+ * JavaScript todo-en-uno para compatibilidad con navegadores
  */
 
 // ============================================
-// GAME CONFIGURATION
+// CONFIGURACIÓN DEL JUEGO
 // ============================================
 const GAME_CONFIG = {
     width: 1920,
@@ -20,7 +20,7 @@ const GAME_CONFIG = {
 };
 
 // ============================================
-// GAME STATE
+// ESTADO DEL JUEGO
 // ============================================
 const GameState = {
     pets: new Map(),
@@ -36,7 +36,7 @@ const GameState = {
 };
 
 // ============================================
-// PHASER GAME CLASS
+// CLASE DEL JUEGO PHASER
 // ============================================
 class PetBattleGame extends Phaser.Scene {
     constructor() {
@@ -50,7 +50,7 @@ class PetBattleGame extends Phaser.Scene {
     }
 
     preload() {
-        // Generate all assets procedurally
+        // Generar todos los recursos proceduralmente
         this.generateAssets();
     }
 
@@ -62,23 +62,23 @@ class PetBattleGame extends Phaser.Scene {
             const size = type === 'dragon' ? 64 : type === 'perro' ? 48 : 40;
             const g = this.make.graphics({ x: 0, y: 0, add: false });
             
-            // Body
+            // Cuerpo
             g.fillStyle(colors[type], 1);
             g.fillCircle(size / 2, size / 2, size / 2 - 2);
             
-            // Eyes
+            // Ojos
             g.fillStyle(0x000000, 1);
             g.fillCircle(size / 2 - 8, size / 2 - 5, 4);
             g.fillCircle(size / 2 + 8, size / 2 - 5, 4);
             
-            // Highlight
+            // Brillo
             g.fillStyle(0xFFFFFF, 0.3);
             g.fillCircle(size / 2 - 10, size / 2 - 10, 6);
 
             g.generateTexture(`pet_${type}`, size, size);
         });
 
-        // Enemy sprites
+        // Sprites de enemigos
         const enemyColors = [0xff6b6b, 0x9b59b6, 0x3498db, 0x2ecc71];
         for (let i = 0; i < 4; i++) {
             const g = this.make.graphics({ x: 0, y: 0, add: false });
@@ -96,7 +96,7 @@ class PetBattleGame extends Phaser.Scene {
             g.generateTexture(`enemy_${i}`, size, size);
         }
 
-        // Mega pet
+        // Mega mascota
         const mg = this.make.graphics({ x: 0, y: 0, add: false });
         const mSize = 128;
         mg.fillStyle(0xff00ff, 1);
@@ -109,7 +109,7 @@ class PetBattleGame extends Phaser.Scene {
         mg.fillTriangle(mSize / 2 - 20, mSize / 2 - 30, mSize / 2, mSize / 2 - 55, mSize / 2 + 20, mSize / 2 - 30);
         mg.generateTexture('mega_pet', mSize, mSize);
 
-        // Particle
+        // Partícula
         const pg = this.make.graphics({ x: 0, y: 0, add: false });
         pg.fillStyle(0xffffff, 1);
         pg.fillCircle(4, 4, 4);
@@ -117,31 +117,31 @@ class PetBattleGame extends Phaser.Scene {
     }
 
     create() {
-        // Create world
+        // Crear mundo
         this.createWorld();
         
-        // Create groups
+        // Crear grupos
         this.pets = this.add.group();
         this.enemies = this.group;
 
-        // Ambient particles
+        // Partículas ambientales
         this.createAmbientParticles();
 
-        // Set up socket listeners
+        // Configurar listeners de socket
         this.setupSocketListeners();
 
-        console.log('[GameScene] Ready');
+        console.log('[GameScene] Listo');
     }
 
     createWorld() {
         const { width, height } = this.cameras.main;
 
-        // Background
+        // Fondo
         const bg = this.add.graphics();
         bg.fillStyle(0x0a0a0f, 1);
         bg.fillRect(0, 0, width, height);
 
-        // Grid
+        // Cuadrícula
         bg.lineStyle(1, 0x1a1a2e, 0.5);
         for (let x = 0; x < width; x += 50) {
             bg.moveTo(x, 0);
@@ -153,11 +153,11 @@ class PetBattleGame extends Phaser.Scene {
         }
         bg.strokePath();
 
-        // Border
+        // Borde
         bg.lineStyle(4, 0x00ffff, 0.3);
         bg.strokeRect(50, 50, width - 100, height - 100);
 
-        // Physics
+        // Física
         this.physics.world.setBounds(50, 50, width - 100, height - 100);
     }
 
@@ -216,21 +216,21 @@ class PetBattleGame extends Phaser.Scene {
     update(time, delta) {
         this.gameTime += delta;
 
-        // Update pets
+        // Actualizar mascotas
         this.pets.getChildren().forEach(pet => {
             if (pet.active) {
                 this.updatePetAI(pet, delta);
             }
         });
 
-        // Update enemies
+        // Actualizar enemigos
         this.enemies.getChildren().forEach(enemy => {
             if (enemy.active) {
                 this.updateEnemyAI(enemy, delta);
             }
         });
 
-        // Update mega pet
+        // Actualizar mega mascota
         if (this.isMegaPetActive && this.megaPetSprite) {
             this.updateMegaPet(delta);
         }
@@ -366,16 +366,16 @@ class PetBattleGame extends Phaser.Scene {
         sprite.petData = petData;
         sprite.attackCooldown = 0;
 
-        // Name
-        const nameText = this.add.text(x, y - 30, petData.ownerName || 'Player', {
+        // Nombre
+        const nameText = this.add.text(x, y - 30, petData.ownerName || 'Jugador', {
             fontSize: '14px', fontFamily: 'Arial', color: '#ffffff', stroke: '#000000', strokeThickness: 2
         });
         nameText.setOrigin(0.5);
         nameText.setDepth(12);
         sprite.nameText = nameText;
 
-        // Level
-        const levelText = this.add.text(x + 20, y - 20, `Lv${petData.level || 1}`, {
+        // Nivel
+        const levelText = this.add.text(x + 20, y - 20, `Nv${petData.level || 1}`, {
             fontSize: '12px', fontFamily: 'Arial', color: '#ffff00', stroke: '#000000', strokeThickness: 1
         });
         levelText.setOrigin(0.5);
@@ -413,7 +413,7 @@ class PetBattleGame extends Phaser.Scene {
             });
         }
 
-        // Boss every 5 waves
+        // Jefe cada 5 oleadas
         if (waveData.wave % 5 === 0) {
             this.time.delayedCall(2000, () => this.spawnBoss(waveData));
         }
@@ -455,7 +455,7 @@ class PetBattleGame extends Phaser.Scene {
     spawnBoss(waveData) {
         const { width, height } = this.cameras.main;
         
-        const bossText = this.add.text(width / 2, height / 2, '👹 BOSS 👹', {
+        const bossText = this.add.text(width / 2, height / 2, '👹 JEFE 👹', {
             fontSize: '64px', fontFamily: 'Arial Black', color: '#ff0000', stroke: '#000000', strokeThickness: 4
         });
         bossText.setOrigin(0.5);
@@ -526,7 +526,7 @@ class PetBattleGame extends Phaser.Scene {
 
         this.particleMegaPetActivation(width / 2, height / 2);
 
-        // Hide all pets
+        // Ocultar todas las mascotas
         this.pets.getChildren().forEach(pet => {
             if (pet.active) {
                 this.tweens.add({ targets: [pet, pet.nameText, pet.levelText], alpha: 0, duration: 500 });
@@ -576,7 +576,7 @@ class PetBattleGame extends Phaser.Scene {
         const scale = 1 + Math.sin(this.gameTime * 0.01) * 0.1;
         this.megaPetSprite.setScale(scale);
 
-        // Mass attack
+        // Ataque masivo
         this.enemies.getChildren().forEach(enemy => {
             if (enemy.active) {
                 const dist = Phaser.Math.Distance.Between(this.megaPetSprite.x, this.megaPetSprite.y, enemy.x, enemy.y);
@@ -595,11 +595,11 @@ class PetBattleGame extends Phaser.Scene {
     }
 
     updateUI(state) {
-        // Update wave
+        // Actualizar oleada
         const waveEl = document.getElementById('wave-number');
         if (waveEl) waveEl.textContent = state.wave;
 
-        // Update counts
+        // Actualizar contadores
         const petCountEl = document.getElementById('pet-count');
         if (petCountEl) petCountEl.textContent = this.pets.getChildren().length;
 
@@ -612,7 +612,7 @@ class PetBattleGame extends Phaser.Scene {
         const activePetsEl = document.getElementById('active-pets');
         if (activePetsEl) activePetsEl.textContent = this.pets.getChildren().length;
 
-        // Update likes
+        // Actualizar likes
         const likesFillEl = document.getElementById('likes-fill');
         if (likesFillEl) {
             likesFillEl.style.width = Math.min((state.likesPerMinute / 200) * 100, 100) + '%';
@@ -622,7 +622,7 @@ class PetBattleGame extends Phaser.Scene {
         if (lpmEl) lpmEl.textContent = state.likesPerMinute;
     }
 
-    // Particle effects
+    // Efectos de partículas
     particleBurst(x, y, color, count = 10) {
         for (let i = 0; i < count; i++) {
             const p = this.add.sprite(x, y, 'particle');
@@ -677,7 +677,7 @@ class PetBattleGame extends Phaser.Scene {
             });
         }
 
-        // Shockwave
+        // Onda de choque
         const ring = this.add.circle(x, y, 50, 0xffffff, 0.5);
         ring.setStrokeStyle(4, 0x00ffff, 1);
         ring.setDepth(90);
@@ -688,7 +688,7 @@ class PetBattleGame extends Phaser.Scene {
             onComplete: () => ring.destroy()
         });
 
-        // Flash
+        // Destello
         const flash = this.add.rectangle(this.cameras.main.centerX, this.cameras.main.centerY, this.cameras.main.width, this.cameras.main.height, 0xffffff, 0.5);
         flash.setDepth(200);
         this.tweens.add({ targets: flash, alpha: 0, duration: 500, onComplete: () => flash.destroy() });
@@ -726,13 +726,13 @@ class PetBattleGame extends Phaser.Scene {
 }
 
 // ============================================
-// INITIALIZATION
+// INICIALIZACIÓN
 // ============================================
 window.initGame = async function() {
-    console.log('[Game] Initializing PET BATTLE ARENA...');
+    console.log('[Juego] Inicializando PET BATTLE ARENA...');
 
     try {
-        // Connect to Socket.IO
+        // Conectar a Socket.IO
         window.socket = io(window.location.origin, {
             transports: ['websocket', 'polling'],
             reconnection: true,
@@ -740,7 +740,7 @@ window.initGame = async function() {
         });
 
         window.socket.on('connect', () => {
-            console.log('[Socket] Connected');
+            console.log('[Socket] Conectado');
             updateConnectionStatus(true);
         });
 
@@ -752,7 +752,7 @@ window.initGame = async function() {
             updateConnectionStatus(false);
         });
 
-        // Create Phaser game
+        // Crear juego Phaser
         const game = new Phaser.Game({
             type: Phaser.AUTO,
             width: GAME_CONFIG.width,
@@ -770,9 +770,9 @@ window.initGame = async function() {
             }
         });
 
-        console.log('[Game] Phaser initialized');
+        console.log('[Juego] Phaser inicializado');
     } catch (error) {
-        console.error('[Game] Failed:', error);
+        console.error('[Juego] Error:', error);
     }
 };
 

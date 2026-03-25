@@ -1,9 +1,9 @@
 /**
- * PET BATTLE ARENA - Main Client Entry Point
+ * PET BATTLE ARENA - Punto de Entrada Principal del Cliente
  * Phaser.js + Socket.IO Client
  */
 
-// Game Configuration
+// Configuración del Juego
 const CONFIG = {
     serverUrl: window.location.origin,
     gameWidth: 1920,
@@ -15,18 +15,18 @@ const CONFIG = {
     }
 };
 
-// Import scenes
+// Importar escenas
 import { BootScene } from './scenes/BootScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { UIScene } from './scenes/UIScene.js';
 
-// Socket.IO connection
+// Conexión Socket.IO
 let socket = null;
 
-// Game instance
+// Instancia del juego
 let game = null;
 
-// Connect to server
+// Conectar al servidor
 function connectToServer() {
     return new Promise((resolve, reject) => {
         socket = io(CONFIG.serverUrl, {
@@ -36,27 +36,27 @@ function connectToServer() {
             reconnectionAttempts: 10
         });
 
-        // Connection events
+        // Eventos de conexión
         socket.on('connect', () => {
-            console.log('[Socket] Connected to server');
+            console.log('[Socket] Conectado al servidor');
             updateConnectionStatus(true);
             resolve(socket);
         });
 
         socket.on('disconnect', () => {
-            console.log('[Socket] Disconnected from server');
+            console.log('[Socket] Desconectado del servidor');
             updateConnectionStatus(false);
         });
 
         socket.on('connect_error', (error) => {
-            console.error('[Socket] Connection error:', error);
+            console.error('[Socket] Error de conexión:', error);
             updateConnectionStatus(false);
             reject(error);
         });
 
-        // Game events
+        // Eventos del juego
         socket.on('game:init', (state) => {
-            console.log('[Game] Initial state received', state);
+            console.log('[Juego] Estado inicial recibido', state);
             GameState.sync(state);
         });
 
@@ -66,7 +66,7 @@ function connectToServer() {
         });
 
         socket.on('pet:added', (pet) => {
-            console.log('[Pet] Added:', pet);
+            console.log('[Mascota] Añadida:', pet);
             GameState.addPet(pet);
             if (GameScene.instance) {
                 GameScene.instance.spawnPet(pet);
@@ -81,14 +81,14 @@ function connectToServer() {
         });
 
         socket.on('wave:spawn', (data) => {
-            console.log('[Wave] Spawning:', data);
+            console.log('[Oleada] Generando:', data);
             if (GameScene.instance) {
                 GameScene.instance.spawnWave(data);
             }
         });
 
         socket.on('megaPet:activate', (data) => {
-            console.log('[MegaPet] Activated by:', data.donorName);
+            console.log('[MegaMascota] Activada por:', data.donorName);
             if (GameScene.instance) {
                 GameScene.instance.activateMegaPet(data);
             }
@@ -103,14 +103,14 @@ function connectToServer() {
         });
 
         socket.on('pets:upgrade', (data) => {
-            console.log('[Pets] All upgraded:', data);
+            console.log('[Mascotas] Todas mejoradas:', data);
             if (GameScene.instance) {
                 GameScene.instance.showUpgradeEffect(data);
             }
         });
 
         socket.on('event:follow', (data) => {
-            console.log('[Follow]', data.username);
+            console.log('[Seguir]', data.username);
             if (GameScene.instance) {
                 GameScene.instance.showFloatingText(data.username, data.message, 0xff69b4);
             }
@@ -125,7 +125,7 @@ function connectToServer() {
     });
 }
 
-// Game State Management
+// Gestión del Estado del Juego
 const GameState = {
     pets: new Map(),
     enemies: new Map(),
@@ -139,22 +139,22 @@ const GameState = {
     tiktokUsername: '',
 
     sync(state) {
-        // Sync pets
+        // Sincronizar mascotas
         const serverPetIds = new Set(state.pets.map(p => p.id));
         
-        // Remove pets that no longer exist
+        // Eliminar mascotas que ya no existen
         for (const [id] of this.pets) {
             if (!serverPetIds.has(id)) {
                 this.pets.delete(id);
             }
         }
 
-        // Update or add pets
+        // Actualizar o añadir mascotas
         for (const petData of state.pets) {
             this.pets.set(petData.id, petData);
         }
 
-        // Sync enemies
+        // Sincronizar enemigos
         const serverEnemyIds = new Set(state.enemies.map(e => e.id));
         for (const [id] of this.enemies) {
             if (!serverEnemyIds.has(id)) {
@@ -165,7 +165,7 @@ const GameState = {
             this.enemies.set(enemyData.id, enemyData);
         }
 
-        // Sync other state
+        // Sincronizar otro estado
         this.wave = state.wave;
         this.likesPerMinute = state.likesPerMinute;
         this.totalLikes = state.totalLikes;
@@ -193,40 +193,40 @@ const GameState = {
     }
 };
 
-// UI Updates
+// Actualizaciones de UI
 function updateUI(state) {
-    // Update wave number
+    // Actualizar número de oleada
     const waveEl = document.getElementById('wave-number');
     if (waveEl) waveEl.textContent = state.wave;
 
-    // Update pet count
+    // Actualizar contador de mascotas
     const petCountEl = document.getElementById('pet-count');
     if (petCountEl) petCountEl.textContent = state.pets.length;
 
-    // Update enemy count
+    // Actualizar contador de enemigos
     const enemyCountEl = document.getElementById('enemy-count');
     if (enemyCountEl) enemyCountEl.textContent = state.enemies.length;
 
-    // Update gift count
+    // Actualizar contador de regalos
     const giftCountEl = document.getElementById('gift-count');
     if (giftCountEl) giftCountEl.textContent = state.totalGifts;
 
-    // Update active pets
+    // Actualizar mascotas activas
     const activePetsEl = document.getElementById('active-pets');
     if (activePetsEl) activePetsEl.textContent = state.pets.length;
 
-    // Update max pets
+    // Actualizar máximo de mascotas
     const maxPetsEl = document.getElementById('max-pets');
     if (maxPetsEl) maxPetsEl.textContent = state.maxPets;
 
-    // Update likes bar (LPM to percentage, max 200 LPM = 100%)
+    // Actualizar barra de likes (LPM a porcentaje, máximo 200 LPM = 100%)
     const likesFillEl = document.getElementById('likes-fill');
     if (likesFillEl) {
         const percentage = Math.min((state.likesPerMinute / 200) * 100, 100);
         likesFillEl.style.width = percentage + '%';
     }
 
-    // Update LPM value
+    // Actualizar valor LPM
     const lpmEl = document.getElementById('lpm-value');
     if (lpmEl) lpmEl.textContent = state.likesPerMinute;
 }
@@ -248,7 +248,7 @@ function showMegaPetBanner(data) {
         donor.textContent = data.donorName;
         banner.classList.add('active');
         
-        // Start countdown
+        // Iniciar cuenta regresiva
         let remaining = Math.ceil((data.duration || 30000) / 1000);
         timer.textContent = remaining;
         
@@ -269,16 +269,16 @@ function hideMegaPetBanner() {
     }
 }
 
-// Initialize game (called from HTML after TikTok connection)
+// Inicializar juego (llamado desde HTML después de conexión TikTok)
 window.initGame = async function() {
-    console.log('[Game] Initializing PET BATTLE ARENA...');
+    console.log('[Juego] Inicializando PET BATTLE ARENA...');
 
     try {
-        // Connect to Socket.IO server
+        // Conectar al servidor Socket.IO
         await connectToServer();
-        console.log('[Socket] Connected successfully');
+        console.log('[Socket] Conectado exitosamente');
 
-        // Create Phaser game
+        // Crear juego Phaser
         game = new Phaser.Game({
             type: Phaser.AUTO,
             width: CONFIG.gameWidth,
@@ -293,21 +293,21 @@ window.initGame = async function() {
             }
         });
 
-        console.log('[Game] Phaser initialized');
+        console.log('[Juego] Phaser inicializado');
     } catch (error) {
-        console.error('[Game] Failed to initialize:', error);
+        console.error('[Juego] Error al inicializar:', error);
         alert('Error al conectar con el servidor. Por favor recarga la página.');
     }
 };
 
-// Handle window resize
+// Manejar cambio de tamaño de ventana
 window.addEventListener('resize', () => {
     if (game) {
         game.scale.refresh();
     }
 });
 
-// Auto-initialize if already connected to TikTok
+// Auto-inicializar si ya está conectado a TikTok
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('[App] DOM ready - waiting for TikTok connection...');
+    console.log('[App] DOM listo - esperando conexión de TikTok...');
 });

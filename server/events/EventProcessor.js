@@ -1,20 +1,20 @@
 /**
- * Event Processor
- * Processes TikTok events and converts them to game actions
+ * Procesador de Eventos
+ * Procesa eventos de TikTok y los convierte en acciones del juego
  */
 
 class EventProcessor {
     constructor(server) {
         this.server = server;
         
-        // Pet type configurations
+        // Configuraciones de tipos de mascotas
         this.petTypes = {
             'gato': {
                 name: 'Gato',
                 hp: 80,
                 damage: 15,
                 speed: 12,
-                color: 0xFF6B9D,  // Pink
+                color: 0xFF6B9D,  // Rosa
                 emoji: '🐱',
                 scale: 1.0
             },
@@ -23,7 +23,7 @@ class EventProcessor {
                 hp: 120,
                 damage: 20,
                 speed: 8,
-                color: 0xC4A484,  // Brown
+                color: 0xC4A484,  // Marrón
                 emoji: '🐕',
                 scale: 1.2
             },
@@ -32,7 +32,7 @@ class EventProcessor {
                 hp: 200,
                 damage: 40,
                 speed: 5,
-                color: 0xFF4500,  // Red-Orange
+                color: 0xFF4500,  // Rojo-Naranja
                 emoji: '🐉',
                 scale: 1.5,
                 special: 'fire'
@@ -42,15 +42,15 @@ class EventProcessor {
                 hp: 50,
                 damage: 8,
                 speed: 15,
-                color: 0xFFFFFF,  // White
+                color: 0xFFFFFF,  // Blanco
                 emoji: '🐰',
                 scale: 0.8
             }
         };
 
-        // Cooldown tracking per user
+        // Seguimiento de enfriamiento por usuario
         this.userCooldowns = new Map();
-        this.GLOBAL_COOLDOWN = 1000; // 1 second between spawns per user
+        this.GLOBAL_COOLDOWN = 1000; // 1 segundo entre generaciones por usuario
     }
 
     generatePetId() {
@@ -69,10 +69,10 @@ class EventProcessor {
     processComment(comment) {
         const { username, text, nickname } = comment;
         
-        // Normalize text
+        // Normalizar texto
         const normalizedText = text.toLowerCase().trim();
 
-        // Check for pet type triggers
+        // Verificar disparadores de tipo de mascota
         for (const [trigger, config] of Object.entries(this.petTypes)) {
             if (normalizedText.includes(trigger)) {
                 if (this.checkCooldown(username)) {
@@ -82,13 +82,13 @@ class EventProcessor {
                         type: trigger,
                         ...config
                     });
-                    console.log(`[Event] ${nickname} spawned a ${config.name}!`);
+                    console.log(`[Evento] ${nickname} generó un ${config.name}!`);
                 }
                 return;
             }
         }
 
-        // Check for emoji triggers
+        // Verificar disparadores de emoji
         if (text.includes('🔥')) {
             this.spawnPet({
                 owner: username,
@@ -121,13 +121,13 @@ class EventProcessor {
     }
 
     processPetSpawn(data) {
-        // Handle pet spawns from Socket.IO (demo mode)
+        // Manejar generación de mascotas desde Socket.IO (modo demostración)
         const { owner, type } = data;
         
         if (this.petTypes[type]) {
             this.spawnPet({
                 owner: owner || 'demo_user',
-                ownerName: owner || 'Demo User',
+                ownerName: owner || 'Usuario Demo',
                 type: type,
                 ...this.petTypes[type]
             });
@@ -153,11 +153,11 @@ class EventProcessor {
             special: config.special || null,
             level: 1,
             xp: 0,
-            // Position will be set by client
+            // Posición será establecida por el cliente
             x: 0,
             y: 0,
             createdAt: Date.now(),
-            // Combat stats
+            // Estadísticas de combate
             attackCooldown: 0,
             targetId: null,
             isAttacking: false,
@@ -171,20 +171,20 @@ class EventProcessor {
     processGift(gift) {
         const { username, nickname, giftName, giftCount, diamondCount, isViralGift } = gift;
 
-        // Update gift total
+        // Actualizar total de regalos
         this.server.gameState.totalGifts += diamondCount;
 
-        console.log(`[Gift] ${nickname} sent ${giftCount}x ${giftName} (${diamondCount} diamonds)`);
+        console.log(`[Regalo] ${nickname} envió ${giftCount}x ${giftName} (${diamondCount} diamantes)`);
 
-        // Tier-based effects
+        // Efectos basados en nivel
         if (isViralGift) {
-            // MEGA PET ACTIVATION
+            // ACTIVACIÓN DE MEGA MASCOTA
             this.server.activateMegaPet(nickname, 30000);
             return;
         }
 
         if (diamondCount >= 500) {
-            // Major gift - spawn 3 pets at once
+            // Regalo mayor - generar 3 mascotas a la vez
             const types = ['gato', 'perro', 'dragon'];
             types.forEach(type => {
                 this.spawnPet({
@@ -195,10 +195,10 @@ class EventProcessor {
                 });
             });
             
-            // Upgrade all existing pets
+            // Mejorar todas las mascotas existentes
             this.upgradeAllPets(2);
         } else if (diamondCount >= 100) {
-            // Minor gift - spawn 2 pets
+            // Regalo menor - generar 2 mascotas
             const types = ['gato', 'perro'];
             types.forEach(type => {
                 this.spawnPet({
@@ -209,7 +209,7 @@ class EventProcessor {
                 });
             });
         } else {
-            // Micro gift - spawn 1 pet
+            // Micro regalo - generar 1 mascota
             this.spawnPet({
                 owner: username,
                 ownerName: nickname,
@@ -222,20 +222,20 @@ class EventProcessor {
     processLikes(count) {
         this.server.gameState.totalLikes += count;
         
-        // Every 50 likes, upgrade all pets slightly
+        // Cada 50 likes, mejorar todas las mascotas ligeramente
         const likesMod = this.server.gameState.totalLikes % 50;
         if (likesMod < count) {
             this.upgradeAllPets(1);
-            console.log(`[Likes] Pet upgrade triggered at ${this.server.gameState.totalLikes} total likes`);
+            console.log(`[Likes] Mejora de mascotas activada en ${this.server.gameState.totalLikes} likes totales`);
         }
 
-        // Update LPM
+        // Actualizar LPM
         this.server.gameState.likesPerMinute += count;
     }
 
     processFollow(subscriber) {
-        // Follow gives a small HP boost to all pets
-        console.log(`[Follow] ${subscriber.nickname} followed!`);
+        // Seguir da un pequeño impulso de HP a todas las mascotas
+        console.log(`[Seguir] ¡${subscriber.nickname} siguió!`);
         
         this.server.io.emit('event:follow', {
             username: subscriber.nickname,
@@ -244,8 +244,8 @@ class EventProcessor {
     }
 
     processShare(sharer) {
-        // Share spawns a special rainbow pet
-        console.log(`[Share] ${sharer.username} shared the stream!`);
+        // Compartir genera una mascota especial arcoíris
+        console.log(`[Compartir] ¡${sharer.username} compartió el stream!`);
         
         this.spawnPet({
             owner: sharer.username,
@@ -255,7 +255,7 @@ class EventProcessor {
             hp: 30,
             damage: 5,
             speed: 20,
-            color: 0xFF69B4, // Rainbow pink
+            color: 0xFF69B4, // Rosa arcoíris
             emoji: '🌈',
             scale: 0.6
         });

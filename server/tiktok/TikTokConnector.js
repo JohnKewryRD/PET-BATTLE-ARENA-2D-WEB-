@@ -125,6 +125,9 @@ class TikTokConnector {
         // Manejo de errores
         this.connection.on('error', (error) => {
             console.error('[TikTok] Error de WebSocket:', error.message);
+            if (error.message.includes('not found') || error.message.includes('expired')) {
+                this.isConnected = false;
+            }
         });
 
         // Desconectar

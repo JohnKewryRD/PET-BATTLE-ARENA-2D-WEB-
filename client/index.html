@@ -469,7 +469,7 @@
             
             <div class="input-group">
                 <label for="tiktok-username">Username de TikTok (sin @)</label>
-                <input type="text" id="tiktok-username" placeholder="Ej: midu.dev" autocomplete="off">
+                <input type="text" id="tiktok-username" placeholder="Ej: pet.arena" autocomplete="off">
             </div>
             
             <button class="connect-btn" id="connect-btn" onclick="connectToTikTok()">
@@ -557,7 +557,7 @@
     <!-- Load Phaser -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="src/client.js"></script>
+    <script>document.write('<script src="src/client.js?v=' + Date.now() + '"><\/script>');</script>
     
     <script>
         // Connection variables

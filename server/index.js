@@ -30,7 +30,7 @@ class PetBattleArenaServer {
         this.gameState = {
             pets: new Map(),
             enemies: new Map(),
-            wave: 1,
+            wave: 0,
             waveTimer: 0,
             likesPerMinute: 0,
             totalLikes: 0,
@@ -145,8 +145,8 @@ class PetBattleArenaServer {
     }
 
     startGameLoop() {
-        // Tick del juego cada 100ms
-        setInterval(() => this.gameTick(), 100);
+        // Tick del juego cada 100ms (10 FPS para sincronización de estado)
+        this.tickInterval = setInterval(() => this.gameTick(), 100);
         
         // Generador de oleadas
         const waveInterval = parseInt(process.env.WAVE_INTERVAL) || 15000;
@@ -167,28 +167,34 @@ class PetBattleArenaServer {
             this.endMegaPetMode();
         }
 
-        // Transmitir estado del juego a todos los clientes
-        this.io.emit('game:update', this.getGameState());
+        // Solo transmitir si hay cambios significativos o clientes conectados
+        if (this.io.engine.clientsCount > 0) {
+            const state = this.getGameState();
+            // Optimización: Si el estado es muy grande, podrías enviar solo deltas
+            this.io.emit('game:update', state);
+        }
     }
 
     spawnWave() {
-        const wave = this.gameState.wave;
+        // `gameState.wave` representa la oleada activa/actual.
+        // Incrementamos primero para que `wave:spawn` y `game:update` queden sincronizados.
+        const wave = this.gameState.wave + 1;
+        this.gameState.wave = wave;
+
         const enemyCount = Math.min(3 + Math.floor(wave / 2), 10);
         
         this.io.emit('wave:spawn', {
             wave: wave,
             enemyCount: enemyCount,
-            difficulty: this.calculateDifficulty()
+            difficulty: this.calculateDifficulty(wave)
         });
 
-        this.gameState.wave++;
         this.gameState.waveTimer = 0;
 
         console.log(`[Oleada] Oleada ${wave} generada con ${enemyCount} enemigos`);
     }
 
-    calculateDifficulty() {
-        const wave = this.gameState.wave;
+    calculateDifficulty(wave = this.gameState.wave) {
         return {
             speed: 1 + (wave * 0.1),
             health: 1 + (wave * 0.15),

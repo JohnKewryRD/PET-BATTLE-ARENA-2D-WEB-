@@ -4,16 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🐾 PET BATTLE ARENA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ═══════════════ VARIABLES ═══════════════ */
+        :root {
+            --cyan:      #00f5ff;
+            --magenta:   #ff00cc;
+            --gold:      #ffd700;
+            --red:       #ff4757;
+            --green:     #2ed573;
+            --purple:    #7c4dff;
+            --orange:    #ff9f43;
+            --bg-deep:   #050510;
+            --bg-panel:  rgba(8, 8, 28, 0.88);
+            --border-c:  rgba(0, 245, 255, 0.22);
+            --text-dim:  #8892a4;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-deep);
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
             width: 100vw;
             height: 100vh;
@@ -22,751 +36,778 @@
             align-items: center;
         }
 
-        /* Menu Container */
+        /* ═══════════════ MENU ═══════════════════ */
         #menu-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+            background: radial-gradient(ellipse 80% 70% at 50% 50%, #0d0d2e 0%, #050510 100%);
+            overflow: hidden;
+        }
+        #menu-container.hidden { display: none; }
+
+        /* Scrolling grid */
+        #menu-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,245,255,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,245,255,0.035) 1px, transparent 1px);
+            background-size: 55px 55px;
+            animation: gridScroll 24s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes gridScroll {
+            from { background-position: 0 0, 0 0; }
+            to   { background-position: 0 55px, 55px 0; }
         }
 
-        #menu-container.hidden {
-            display: none;
+        /* Ambient orbs */
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            animation: orbFloat 9s ease-in-out infinite;
+        }
+        .bg-orb.o1 { width:460px; height:460px; background:rgba(0,245,255,0.07);  top:-100px; left:-100px; }
+        .bg-orb.o2 { width:380px; height:380px; background:rgba(255,0,204,0.07);  bottom:-80px; right:-80px; animation-delay:-4s; }
+        .bg-orb.o3 { width:300px; height:300px; background:rgba(124,77,255,0.05); top:30%; left:65%; animation-delay:-7s; }
+        @keyframes orbFloat {
+            0%,100% { transform: translate(0,0) scale(1); }
+            50%      { transform: translate(18px,-18px) scale(1.07); }
+        }
+
+        /* Floating particles */
+        .menu-particles { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+        .mp {
+            position:absolute; border-radius:50%;
+            animation: particleRise linear infinite; opacity:0;
+        }
+        @keyframes particleRise {
+            0%   { transform:translateY(0) scale(0); opacity:0; }
+            10%  { opacity:1; }
+            90%  { opacity:.6; }
+            100% { transform:translateY(-110vh) scale(1.4); opacity:0; }
+        }
+
+        /* Content wrapper */
+        .menu-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* Logo */
-        .logo {
-            font-size: 4em;
-            margin-bottom: 20px;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .title {
-            font-size: 3em;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 0 0 20px #00ffff, 0 0 40px #ff00ff;
+        .logo-wrapper {
+            position: relative;
+            width: 110px; height: 110px;
+            display: flex; align-items: center; justify-content: center;
             margin-bottom: 10px;
-            letter-spacing: 4px;
+        }
+        .logo-ring {
+            position: absolute;
+            inset: 0; border-radius: 50%;
+            border: 1.5px solid rgba(0,245,255,0.3);
+            animation: ringPulse 2.4s ease-out infinite;
+        }
+        .logo-ring:nth-child(2) { animation-delay:.85s; border-color:rgba(255,0,204,0.3); }
+        .logo-ring:nth-child(3) { animation-delay:1.7s; border-color:rgba(255,215,0,0.2); }
+        @keyframes ringPulse {
+            0%   { transform:scale(.55); opacity:1; }
+            100% { transform:scale(2.2); opacity:0; }
+        }
+        .logo-icon {
+            font-size: 4.5em;
+            position: relative;
+            z-index: 1;
+            animation: logoBob 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 18px rgba(0,245,255,.55));
+        }
+        @keyframes logoBob {
+            0%,100% { transform:scale(1) rotate(-4deg); }
+            50%      { transform:scale(1.1) rotate(4deg); filter:drop-shadow(0 0 28px rgba(255,0,204,.7)); }
         }
 
-        .subtitle {
-            font-size: 1.2em;
-            color: #888;
-            margin-bottom: 50px;
-        }
-
-        /* Form */
-        .connect-form {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 40px 60px;
-            border-radius: 20px;
-            border: 2px solid #00ffff;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
-        }
-
-        .form-title {
-            font-size: 1.5em;
-            color: #00ffff;
-            margin-bottom: 25px;
+        .game-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2em, 4.5vw, 3.4em);
+            font-weight: 900;
+            letter-spacing: 5px;
+            background: linear-gradient(90deg, var(--cyan) 0%, #fff 45%, var(--magenta) 80%, var(--cyan) 100%);
+            background-size: 220%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4.5s linear infinite;
             text-align: center;
+            margin-bottom: 5px;
+        }
+        @keyframes shimmer {
+            0%   { background-position:0%; }
+            100% { background-position:220%; }
         }
 
-        .input-group {
+        .game-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .95em;
+            font-weight: 600;
+            color: var(--text-dim);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+
+        /* Form card */
+        .connect-form {
+            background: var(--bg-panel);
+            padding: 30px 42px 28px;
+            border-radius: 18px;
+            border: 1px solid var(--border-c);
+            box-shadow:
+                0 0 0 1px rgba(0,245,255,.06),
+                0 22px 55px rgba(0,0,0,.65),
+                inset 0 1px 0 rgba(255,255,255,.05);
+            backdrop-filter: blur(18px);
+            width: min(460px, 88vw);
+        }
+        .form-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1em;
+            font-weight: 700;
+            color: var(--cyan);
+            text-align: center;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             margin-bottom: 20px;
         }
 
+        .input-group { margin-bottom: 16px; }
         .input-group label {
             display: block;
-            color: #fff;
-            margin-bottom: 8px;
-            font-size: 0.9em;
+            color: var(--text-dim);
+            font-size: .72em;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
         }
-
         .input-group input {
             width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #333;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.5);
+            padding: 12px 16px;
+            border: 1px solid rgba(255,255,255,.09);
+            border-radius: 9px;
+            background: rgba(0,0,0,.4);
             color: #fff;
-            font-size: 1.1em;
-            transition: all 0.3s ease;
+            font-size: .98em;
+            font-family: 'Inter', sans-serif;
+            transition: border-color .2s, box-shadow .2s;
         }
-
         .input-group input:focus {
             outline: none;
-            border-color: #00ffff;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0,245,255,.1);
         }
-
-        .input-group input::placeholder {
-            color: #555;
-        }
+        .input-group input::placeholder { color: #30384a; }
 
         .connect-btn {
             width: 100%;
-            padding: 15px;
+            padding: 13px;
             border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #00ffff, #00cccc);
-            color: #000;
-            font-size: 1.2em;
-            font-weight: bold;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #00c4d0, #00f5ff, #00c4d0);
+            background-size: 200%;
+            color: #020e10;
+            font-family: 'Orbitron', monospace;
+            font-size: .82em;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            box-shadow: 0 4px 18px rgba(0,245,255,.3);
+            animation: btnPulse 3s ease infinite;
+            transition: transform .2s, box-shadow .2s;
+        }
+        @keyframes btnPulse {
+            0%,100% { background-position:0%; }
+            50%      { background-position:100%; }
+        }
+        .connect-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(0,245,255,.5);
+        }
+        .connect-btn:disabled {
+            background: #1a2030; color:#334; cursor:not-allowed;
+            animation:none; box-shadow:none;
+        }
+
+        .or-divider {
+            display: flex; align-items: center; gap: 10px;
+            margin: 13px 0;
+            color: #2a3040; font-size: .72em; letter-spacing: 2px;
+        }
+        .or-divider::before, .or-divider::after {
+            content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.07);
         }
 
         .demo-btn {
             width: 100%;
-            padding: 13px;
-            border: 1px solid #3a3a3a;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #f0f0f0;
-            font-size: 1em;
+            padding: 11px;
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 9px;
+            background: rgba(255,255,255,.04);
+            color: #bbc4d2;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .9em;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.2s ease;
             letter-spacing: 1px;
+            transition: border-color .2s, background .2s, color .2s;
         }
-
-        .demo-btn:hover {
-            border-color: #00ffff;
-            background: rgba(0, 255, 255, 0.12);
+        .demo-btn:hover:not(:disabled) {
+            border-color: rgba(255,159,67,.5);
+            background: rgba(255,159,67,.08);
+            color: var(--orange);
         }
-
-        .connect-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
-        }
-
-        .connect-btn:disabled {
-            background: #333;
-            color: #666;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .demo-btn:disabled { opacity:.4; cursor:not-allowed; }
 
         .error-msg {
-            color: #ff6b6b;
-            margin-top: 15px;
-            text-align: center;
-            display: none;
+            display: none; color: var(--red);
+            margin-top: 12px; text-align: center;
+            font-size: .82em;
+            padding: 8px 12px;
+            background: rgba(255,71,87,.1);
+            border: 1px solid rgba(255,71,87,.3);
+            border-radius: 7px;
         }
-
-        .error-msg.show {
-            display: block;
-        }
-
-        /* Loading spinner */
+        .error-msg.show { display: block; }
         .spinner {
-            display: none;
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(0, 255, 255, 0.3);
-            border-top-color: #00ffff;
+            display: none; width:26px; height:26px;
+            border: 2px solid rgba(0,245,255,.2);
+            border-top-color: var(--cyan);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+            animation: spin .8s linear infinite;
+            margin: 14px auto 0;
         }
+        @keyframes spin { to { transform:rotate(360deg); } }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .how-it-works {
+            margin-top: 22px; text-align: center;
         }
-
-        /* Game Container */
-        #game-container {
-            width: 100%;
-            height: 100%;
-            display: none;
+        .how-it-works h4 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .8em; font-weight:700;
+            color: var(--cyan); letter-spacing:2px;
+            text-transform: uppercase; margin-bottom:10px;
         }
+        .how-it-works p { color:#374151; font-size:.75em; margin:4px 0; line-height:1.6; }
 
-        #game-container.active {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        /* ═══════════════ GAME ═══════════════════ */
+        #game-container { width:100%; height:100%; display:none; }
+        #game-container.active { display:flex; justify-content:center; align-items:center; }
+        canvas { display:block; }
 
-        canvas {
-            display: block;
-        }
-
-        /* UI Overlay */
+        /* ═══════════════ HUD OVERLAY ═══════════════
+         *  Layout:
+         *  ┌──────────────────────────────────────────┐
+         *  │ [Wave+TikTok col] [Likes bar]  [Stats]  │  ← top-bar
+         *  │                                [Leaderboard]│ ← right panel
+         *  │                                            │
+         *  │ [Activas]              [Admin btn]        │  ← bottom
+         *  │        [Connection status]                │
+         *  └──────────────────────────────────────────┘
+         */
         #ui-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; inset: 0;
             pointer-events: none;
             z-index: 10;
             display: none;
+            font-family: 'Inter', sans-serif;
         }
+        #ui-overlay.active { display: block; }
 
-        #ui-overlay.active {
-            display: block;
-        }
-
-        /* Top Bar */
+        /* ── Top bar: single flex row ─────────────── */
         .top-bar {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
+            top: 14px;
+            left: 14px;
+            right: 14px;
             display: flex;
-            justify-content: space-between;
             align-items: flex-start;
+            gap: 10px;
         }
 
-        .wave-info {
-            background: linear-gradient(135deg, rgba(255,107,107,0.9), rgba(78,205,196,0.9));
-            padding: 15px 25px;
-            border-radius: 15px;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 5px 20px rgba(255,107,107,0.4);
-        }
-
-        .wave-number {
-            font-size: 2em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .wave-label {
-            font-size: 0.8em;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* TikTok Info */
-        .tiktok-info {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px 25px;
-            border-radius: 15px;
-            color: white;
-        }
-
-        .tiktok-user {
-            color: #ff0050;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .live-badge {
-            background: #ff0050;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 5px;
-            font-size: 0.8em;
-            margin-left: 10px;
-            animation: livePulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes livePulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Likes Bar */
-        .likes-container {
-            background: rgba(0,0,0,0.7);
-            padding: 15px 25px;
-            border-radius: 15px;
-            min-width: 300px;
-        }
-
-        .likes-label {
-            color: #ff69b4;
-            font-size: 0.9em;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .likes-bar {
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .likes-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ffff, #ff00ff, #ffff00);
-            border-radius: 10px;
-            transition: width 0.3s ease;
-            animation: likesGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes likesGlow {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.3); }
-        }
-
-        .lpm-text {
-            color: white;
-            font-size: 0.8em;
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        /* Stats Panel */
-        .stats-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.7);
-            padding: 15px 20px;
-            border-radius: 10px;
-            color: white;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #888;
-            font-size: 0.8em;
-        }
-
-        .stat-value {
-            font-weight: bold;
-        }
-
-        .stat-value.pets { color: #4ecdc4; }
-        .stat-value.enemies { color: #ff6b6b; }
-        .stat-value.gifts { color: #ffd700; }
-
-        .leaderboard-panel {
-            position: absolute;
-            right: 20px;
-            top: 170px;
-            width: 330px;
-            background: rgba(0, 0, 0, 0.72);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            padding: 12px;
-            color: #fff;
-        }
-
-        .leaderboard-title {
-            font-size: 0.9em;
-            letter-spacing: 1px;
-            color: #ffd700;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .leaderboard-meta {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            gap: 8px;
-        }
-
-        .leaderboard-date {
-            color: #9aa0a6;
-            font-size: 0.72em;
-        }
-
-        .leaderboard-modes {
-            display: inline-flex;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 2px;
-            gap: 2px;
-        }
-
-        .leaderboard-mode-btn {
-            border: none;
-            background: transparent;
-            color: #d5d9df;
-            font-size: 0.72em;
-            border-radius: 6px;
-            padding: 4px 8px;
-            cursor: pointer;
-        }
-
-        .leaderboard-mode-btn.active {
-            background: rgba(0, 255, 255, 0.2);
-            color: #ffffff;
-        }
-
-        .leaderboard-body {
+        /* Left column: wave + tiktok */
+        .top-left {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-        }
-
-        .leaderboard-row {
-            display: grid;
-            grid-template-columns: 42px 1fr 56px 64px;
-            align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 8px;
-            padding: 6px 8px;
-            font-size: 0.85em;
+            flex-shrink: 0;
         }
 
-        .leaderboard-rank {
-            color: #f7c948;
-            font-weight: bold;
-        }
-
-        .leaderboard-name {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .leaderboard-kills {
-            color: #ff9f43;
-            text-align: right;
-        }
-
-        .leaderboard-score {
-            color: #4ecdc4;
-            text-align: right;
-            font-weight: 700;
-        }
-
-        .leaderboard-empty {
+        /* Wave badge */
+        .wave-info {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            padding: 8px 16px 10px;
+            border-radius: 12px;
+            color: #fff;
             text-align: center;
-            color: #9aa0a6;
-            padding: 12px 0;
-            font-size: 0.85em;
+            border: 1px solid rgba(255,150,130,.25);
+            box-shadow: 0 4px 16px rgba(192,57,43,.4), inset 0 1px 0 rgba(255,255,255,.12);
+            min-width: 90px;
         }
+        .wave-label {
+            font-size: .58em; font-weight:700;
+            text-transform:uppercase; letter-spacing:2px;
+            opacity:.85;
+        }
+        .wave-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 2em; font-weight:900; line-height:1.1;
+            text-shadow: 0 2px 6px rgba(0,0,0,.4);
+        }
+
+        /* TikTok live chip */
+        .tiktok-info {
+            display: flex; align-items: center; gap: 7px;
+            background: var(--bg-panel);
+            padding: 7px 12px;
+            border-radius: 9px;
+            border: 1px solid var(--border-c);
+            backdrop-filter: blur(12px);
+        }
+        .tiktok-user {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700; color: #ff3b6b; font-size:.95em;
+        }
+        .live-badge {
+            background: linear-gradient(135deg,#ff0050,#cc003d);
+            color:#fff; padding:2px 7px; border-radius:4px;
+            font-size:.65em; font-weight:700; letter-spacing:1px;
+            animation: livePulse 1.8s ease-in-out infinite;
+        }
+        @keyframes livePulse {
+            0%,100% { opacity:1; }
+            50%      { opacity:.6; }
+        }
+
+        /* Center: likes bar — grows to fill space */
+        .likes-container {
+            flex: 1;
+            background: var(--bg-panel);
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-c);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 16px rgba(0,0,0,.4);
+        }
+        .likes-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 7px;
+        }
+        .likes-label {
+            display: flex; align-items: center; gap: 5px;
+            font-size: .68em; font-weight: 600;
+            color: #ff69b4; text-transform: uppercase; letter-spacing: 1.5px;
+        }
+        .lpm-text {
+            font-size: .68em; color: var(--text-dim); font-weight: 500;
+        }
+        .lpm-text span { color:#fff; font-weight:700; }
+        .likes-bar {
+            height: 7px;
+            background: rgba(255,255,255,.07);
+            border-radius: 5px; overflow: hidden;
+        }
+        .likes-fill {
+            height: 100%;
+            background: linear-gradient(90deg,#ff69b4,#ff00cc,#00f5ff);
+            background-size: 200%;
+            border-radius: 5px;
+            transition: width .4s cubic-bezier(.4,0,.2,1);
+            animation: likesShimmer 2.5s ease-in-out infinite;
+        }
+        @keyframes likesShimmer {
+            0%,100% { background-position:0%; filter:brightness(1); }
+            50%      { background-position:100%; filter:brightness(1.3); }
+        }
+
+        /* Right: stats panel — fixed width */
+        .stats-panel {
+            flex-shrink: 0;
+            background: var(--bg-panel);
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-c);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 16px rgba(0,0,0,.4);
+            min-width: 170px;
+        }
+        .stat-title {
+            font-size:.6em; color:var(--text-dim);
+            text-transform:uppercase; letter-spacing:2px;
+            font-weight:600; margin-bottom:8px;
+        }
+        .stat-row {
+            display:flex; justify-content:space-between; align-items:center;
+            gap:14px; padding:4px 0;
+            border-bottom:1px solid rgba(255,255,255,.05);
+        }
+        .stat-row:last-child { border-bottom:none; }
+        .stat-label {
+            color:var(--text-dim); font-size:.76em;
+            display:flex; align-items:center; gap:5px;
+        }
+        .stat-value {
+            font-family:'Rajdhani',sans-serif;
+            font-size:1em; font-weight:700;
+        }
+        .stat-value.pets    { color: var(--green); }
+        .stat-value.enemies { color: var(--red); }
+        .stat-value.gifts   { color: var(--gold); }
+
+        /* ── Right side panel: Leaderboard ────────── */
+        .leaderboard-panel {
+            position: absolute;
+            right: 14px;
+            top: 128px;       /* below top-bar */
+            width: 300px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-c);
+            border-radius: 14px;
+            padding: 12px 14px;
+            color: #fff;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 28px rgba(0,0,0,.5);
+        }
+        .leaderboard-header {
+            display:flex; align-items:center;
+            justify-content:space-between; margin-bottom:8px;
+        }
+        .leaderboard-title {
+            font-family:'Rajdhani',sans-serif;
+            font-size:.82em; font-weight:700;
+            letter-spacing:2px; color:var(--gold);
+            text-transform:uppercase;
+        }
+        .leaderboard-modes {
+            display:inline-flex;
+            background:rgba(255,255,255,.06);
+            border-radius:7px; padding:2px; gap:2px;
+        }
+        .leaderboard-mode-btn {
+            border:none; background:transparent;
+            color:var(--text-dim);
+            font-size:.68em; font-family:'Inter',sans-serif;
+            font-weight:600; border-radius:5px;
+            padding:3px 9px; cursor:pointer;
+            transition:all .2s;
+        }
+        .leaderboard-mode-btn.active {
+            background:rgba(0,245,255,.15); color:var(--cyan);
+        }
+        .leaderboard-date {
+            color:var(--text-dim); font-size:.66em;
+            text-align:center; margin-bottom:7px; opacity:.7;
+        }
+        .leaderboard-body { display:flex; flex-direction:column; gap:4px; }
+        .leaderboard-row {
+            display:grid;
+            grid-template-columns: 28px 1fr 46px 58px;
+            align-items:center; gap:8px;
+            background:rgba(255,255,255,.04);
+            border-radius:7px; padding:6px 9px;
+            font-size:.8em;
+            border:1px solid rgba(255,255,255,.04);
+        }
+        .leaderboard-row:first-child {
+            background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,215,0,.04));
+            border-color:rgba(255,215,0,.15);
+        }
+        .leaderboard-rank {
+            font-family:'Orbitron',monospace; color:var(--gold);
+            font-weight:700; font-size:.8em;
+        }
+        .leaderboard-row:nth-child(2) .leaderboard-rank { color:#c0c0c0; }
+        .leaderboard-row:nth-child(3) .leaderboard-rank { color:#cd7f32; }
+        .leaderboard-name {
+            overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500;
+        }
+        .leaderboard-kills { color:var(--orange); text-align:right; font-size:.88em; }
+        .leaderboard-score {
+            color:var(--cyan); text-align:right;
+            font-weight:700; font-family:'Rajdhani',sans-serif; font-size:1em;
+        }
+        .leaderboard-empty {
+            text-align:center; color:var(--text-dim);
+            padding:14px 0; font-size:.8em; font-style:italic;
+        }
+
+        /* ── Bottom-left: active pets count ───────── */
+        .pet-count {
+            position: absolute;
+            bottom: 14px; left: 14px;
+            background: var(--bg-panel);
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(46,213,115,.2);
+            backdrop-filter: blur(12px);
+        }
+        .pet-count-label {
+            font-size:.6em; font-weight:600;
+            color:var(--green); text-transform:uppercase;
+            letter-spacing:2px; margin-bottom:2px;
+        }
+        .pet-count-value {
+            font-family:'Orbitron',monospace;
+            font-size:1.5em; font-weight:700;
+            color:var(--green); line-height:1;
+        }
+
+        /* ── Bottom-center: connection status ──────── */
+        .connection-status {
+            position:fixed; bottom:14px; left:50%;
+            transform:translateX(-50%);
+            padding:7px 18px; border-radius:20px;
+            font-size:.72em; font-weight:700;
+            letter-spacing:1px; pointer-events:auto;
+            font-family:'Rajdhani',sans-serif;
+            transition:all .3s;
+        }
+        .connection-status.connected {
+            background:rgba(46,213,115,.12);
+            border:1px solid rgba(46,213,115,.3);
+            color:var(--green);
+        }
+        .connection-status.disconnected {
+            background:rgba(255,71,87,.12);
+            border:1px solid rgba(255,71,87,.3);
+            color:var(--red);
+        }
+
+        /* ── Bottom-right: admin button + panel ────── */
+        .admin-toggle-btn {
+            position: absolute;
+            right: 14px; bottom: 14px;
+            border: 1px solid rgba(255,159,67,.35);
+            border-radius: 8px;
+            background: rgba(255,159,67,.08);
+            color: var(--orange);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700; font-size:.76em;
+            padding: 7px 13px; cursor: pointer;
+            pointer-events: auto; letter-spacing:1px;
+            transition: background .2s;
+        }
+        .admin-toggle-btn:hover { background:rgba(255,159,67,.18); }
 
         .admin-panel {
             position: absolute;
-            right: 20px;
-            bottom: 64px;
-            width: 330px;
-            background: rgba(0, 0, 0, 0.78);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            padding: 12px;
-            pointer-events: auto;
+            right: 14px; bottom: 52px;
+            width: 300px;
+            background: rgba(8,6,22,.94);
+            border: 1px solid rgba(255,159,67,.22);
+            border-radius: 13px;
+            padding: 13px; pointer-events:auto;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 28px rgba(0,0,0,.6);
         }
-
-        .admin-panel.hidden {
-            display: none;
-        }
-
-        .admin-toggle-btn {
-            position: absolute;
-            right: 20px;
-            bottom: 22px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #ff9f43, #ff7f50);
-            color: #1b1b1b;
-            font-weight: 700;
-            font-size: 0.78em;
-            padding: 8px 12px;
-            cursor: pointer;
-            pointer-events: auto;
-        }
-
+        .admin-panel.hidden { display:none; }
         .admin-title {
-            font-size: 0.82em;
-            color: #ff9f43;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            font-family:'Rajdhani',sans-serif;
+            font-size:.78em; color:var(--orange);
+            margin-bottom:10px; letter-spacing:2px;
+            text-transform:uppercase;
         }
-
-        .admin-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
+        .admin-row { display:flex; gap:7px; margin-bottom:7px; }
+        .admin-row.actions { justify-content:flex-end; }
+        .admin-input, .admin-select {
+            border:1px solid rgba(255,255,255,.09);
+            background:rgba(255,255,255,.05);
+            color:#fff; border-radius:7px;
+            padding:7px 10px;
+            font-family:'Inter',sans-serif; font-size:.76em;
+            transition:border-color .2s;
         }
-
-        .admin-row.actions {
-            justify-content: flex-end;
-        }
-
-        .admin-input {
-            flex: 1;
-            border: 1px solid #333;
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            border-radius: 8px;
-            padding: 8px;
-            font-size: 0.78em;
-        }
-
-        .admin-select {
-            border: 1px solid #333;
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            border-radius: 8px;
-            padding: 8px;
-            font-size: 0.78em;
-            min-width: 95px;
-        }
-
+        .admin-input { flex:1; }
+        .admin-select { min-width:85px; }
+        .admin-input:focus, .admin-select:focus { outline:none; border-color:var(--orange); }
         .admin-btn {
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #ff9f43, #ff7f50);
-            color: #1b1b1b;
-            font-weight: 700;
-            font-size: 0.78em;
-            padding: 8px 10px;
-            cursor: pointer;
+            border:none; border-radius:7px;
+            background:linear-gradient(135deg,var(--orange),#ff7043);
+            color:#1a1000; font-weight:700; font-size:.76em;
+            padding:7px 12px; cursor:pointer;
+            font-family:'Rajdhani',sans-serif;
+            transition:filter .2s;
         }
+        .admin-btn:hover { filter:brightness(1.15); }
+        .admin-btn.secondary { background:rgba(255,255,255,.1); color:#dde; }
+        .admin-msg { min-height:16px; font-size:.7em; color:#7888a0; margin-top:2px; }
 
-        .admin-btn.secondary {
-            background: rgba(255, 255, 255, 0.14);
-            color: #f1f5f9;
-        }
-
-        .admin-msg {
-            min-height: 18px;
-            font-size: 0.74em;
-            color: #c7d2da;
-        }
-
-        /* Pet Count */
-        .pet-count {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            padding: 15px 25px;
-            border-radius: 15px;
-            color: white;
-        }
-
-        .pet-count-label {
-            color: #4ecdc4;
-            font-size: 0.8em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .pet-count-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #4ecdc4;
-        }
-
-        /* Mega Pet Banner */
+        /* ── Mega Pet Banner ───────────────────────── */
         .mega-pet-banner {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #ff00ff, #00ffff, #ff00ff);
-            background-size: 200% 200%;
-            animation: gradientShift 2s ease infinite;
-            padding: 30px 60px;
-            border-radius: 20px;
+            position: fixed; top:50%; left:50%;
+            transform: translate(-50%,-50%);
+            background: linear-gradient(135deg,#14002a,#080018);
+            border: 2px solid var(--magenta);
+            border-radius: 22px;
             text-align: center;
-            display: none;
-            pointer-events: auto;
+            display: none; pointer-events:auto;
             z-index: 100;
-            box-shadow: 0 0 50px rgba(255,0,255,0.5);
+            padding: 28px 52px;
+            box-shadow:
+                0 0 0 1px rgba(255,0,204,.25),
+                0 0 40px rgba(255,0,204,.45),
+                0 0 90px rgba(255,0,204,.15);
         }
-
         .mega-pet-banner.active {
             display: block;
-            animation: megaPetIn 0.5s ease-out;
+            animation: megaIn .5s cubic-bezier(.34,1.56,.64,1);
+        }
+        @keyframes megaIn {
+            0%   { transform:translate(-50%,-50%) scale(.4); opacity:0; }
+            100% { transform:translate(-50%,-50%) scale(1);  opacity:1; }
+        }
+        .mega-crown {
+            font-size:2.4em;
+            animation:crownWave 2s ease-in-out infinite;
+            display:block; margin-bottom:4px;
+        }
+        @keyframes crownWave {
+            0%,100% { transform:rotate(-7deg) scale(1); }
+            50%      { transform:rotate(7deg) scale(1.14); }
+        }
+        .mega-title {
+            font-family:'Orbitron',monospace;
+            font-size:1.4em; font-weight:900;
+            color:var(--magenta);
+            text-shadow:0 0 20px rgba(255,0,204,.8);
+            letter-spacing:3px; margin-bottom:5px;
+        }
+        .mega-donor {
+            font-family:'Rajdhani',sans-serif;
+            font-size:1em; color:var(--text-dim);
+        }
+        .mega-donor span { color:var(--gold); font-weight:700; font-size:1.1em; }
+        .mega-timer {
+            font-family:'Orbitron',monospace;
+            font-size:2.2em; font-weight:900;
+            color:#fff; margin-top:8px;
+            text-shadow:0 0 16px rgba(255,255,255,.4);
+        }
+        .mega-timer-lbl {
+            font-size:.65em; color:var(--text-dim);
+            letter-spacing:2px; text-transform:uppercase; margin-top:-2px;
         }
 
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* ── Responsive ────────────────────────────── */
+        @media (max-width: 960px) {
+            .stats-panel { min-width: 140px; }
+            .leaderboard-panel { right:10px; left:10px; width:auto; top:140px; }
+            .admin-toggle-btn  { right:10px; bottom:10px; }
+            .admin-panel       { right:10px; left:10px; width:auto; bottom:50px; }
         }
-
-        @keyframes megaPetIn {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.2); }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
-
-        .mega-pet-title {
-            font-size: 3em;
-            font-weight: bold;
-            color: white;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
-            margin-bottom: 10px;
-        }
-
-        .mega-pet-donor {
-            font-size: 1.5em;
-            color: #ffd700;
-        }
-
-        .mega-pet-timer {
-            font-size: 2em;
-            color: white;
-            margin-top: 10px;
-        }
-
-        /* Connection Status */
-        .connection-status {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            pointer-events: auto;
-        }
-
-        .connection-status.connected {
-            background: rgba(78, 205, 196, 0.9);
-            color: white;
-        }
-
-        .connection-status.disconnected {
-            background: rgba(255, 107, 107, 0.9);
-            color: white;
-        }
-
-        /* Instructions */
-        .instructions {
-            margin-top: 40px;
-            text-align: center;
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .instructions h4 {
-            color: #00ffff;
-            margin-bottom: 15px;
-        }
-
-        .instructions p {
-            margin: 5px 0;
-        }
-
-        @media (max-width: 900px) {
-            .leaderboard-panel {
-                right: 12px;
-                left: 12px;
-                width: auto;
-                top: 150px;
-            }
-
-            .leaderboard-meta {
-                flex-wrap: wrap;
-                justify-content: flex-start;
-            }
-
-            .leaderboard-date {
-                width: 100%;
-            }
-
-            .admin-toggle-btn {
-                right: 12px;
-                bottom: 12px;
-            }
-
-            .admin-panel {
-                right: 12px;
-                left: 12px;
-                width: auto;
-                bottom: 54px;
-            }
+        @media (max-width: 700px) {
+            .top-bar { flex-wrap: wrap; }
+            .likes-container { min-width: 100%; order:10; }
         }
     </style>
 </head>
 <body>
-    <!-- Menu Container -->
-    <div id="menu-container">
-        <div class="logo">🐾</div>
-        <div class="title">PET BATTLE ARENA</div>
-        <div class="subtitle">Juego interactivo para TikTok Live</div>
-        
+<!-- ═══════════════ MENU ═══════════════════════════════════════════════════ -->
+<div id="menu-container">
+    <div class="bg-orb o1"></div>
+    <div class="bg-orb o2"></div>
+    <div class="bg-orb o3"></div>
+    <div class="menu-particles" id="menu-particles"></div>
+
+    <div class="menu-content">
+        <div class="logo-wrapper">
+            <div class="logo-ring"></div>
+            <div class="logo-ring"></div>
+            <div class="logo-ring"></div>
+            <span class="logo-icon">🐾</span>
+        </div>
+
+        <div class="game-title">Pet Battle Arena</div>
+        <div class="game-subtitle">Juego interactivo para TikTok Live</div>
+
         <div class="connect-form">
-            <div class="form-title">🔗 Conectar a TikTok Live</div>
-            
+            <div class="form-title">⚡ Conectar a TikTok Live</div>
+
             <div class="input-group">
                 <label for="tiktok-username">Username de TikTok (sin @)</label>
                 <input type="text" id="tiktok-username" placeholder="Ej: pet.arena" autocomplete="off">
             </div>
-            
+
             <button class="connect-btn" id="connect-btn" onclick="connectToTikTok()">
-                ▶️ CONECTAR
+                ▶ CONECTAR
             </button>
+
+            <div class="or-divider">O</div>
+
             <button class="demo-btn" id="demo-btn" onclick="startDemoMode()">
-                🎮 MODO DEMO (SIN TIKTOK)
+                🎮 Modo Demo — Sin TikTok
             </button>
-            
+
             <div class="spinner" id="spinner"></div>
             <div class="error-msg" id="error-msg"></div>
         </div>
 
-        <div class="instructions">
-            <h4>📺 Cómo funciona</h4>
+        <div class="how-it-works">
+            <h4>📺 ¿Cómo funciona?</h4>
             <p>Ingresa tu username de TikTok y conecta tu live stream</p>
-            <p>Los comentarios de tu audiencia generarán mascotas automáticamente</p>
-            <p>🎮 ¡La batalla comienza cuando arrives espectadores!</p>
+            <p>Los comentarios generan mascotas · Los likes dan energía</p>
+            <p>🎁 Los regalos activan la Mega Mascota especial</p>
         </div>
     </div>
-    
-    <!-- Game Container -->
-    <div id="game-container"></div>
-    
-    <!-- UI Overlay -->
-    <div id="ui-overlay">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div class="wave-info">
-                    <div class="wave-label">Oleada</div>
-                    <div class="wave-number" id="wave-number">1</div>
-                </div>
-                
-                <div class="tiktok-info">
-                    <span class="tiktok-user" id="tiktok-user">@usuario</span>
-                    <span class="live-badge">🔴 LIVE</span>
-                </div>
+</div>
+
+<!-- ═══════════════ GAME CANVAS ═══════════════════════════════════════════ -->
+<div id="game-container"></div>
+
+<!-- ═══════════════ HUD OVERLAY ══════════════════════════════════════════ -->
+<div id="ui-overlay">
+
+    <!-- ── TOP BAR (single flex row) ─────────────────────────────────── -->
+    <div class="top-bar">
+
+        <!-- Left: Wave + TikTok -->
+        <div class="top-left">
+            <div class="wave-info">
+                <div class="wave-label">Oleada</div>
+                <div class="wave-number" id="wave-number">1</div>
             </div>
-            
-            <div class="likes-container">
-                <div class="likes-label">
-                    <span>❤️</span>
-                    <span>LIKES ENERGY</span>
-                </div>
-                <div class="likes-bar">
-                    <div class="likes-fill" id="likes-fill" style="width: 0%"></div>
-                </div>
-                <div class="lpm-text"><span id="lpm-value">0</span> LPM</div>
+            <div class="tiktok-info">
+                <span class="tiktok-user" id="tiktok-user">@usuario</span>
+                <span class="live-badge">🔴 LIVE</span>
             </div>
         </div>
 
-        <!-- Stats Panel -->
+        <!-- Center: Likes bar -->
+        <div class="likes-container">
+            <div class="likes-header">
+                <div class="likes-label">
+                    <span>❤️</span>
+                    <span>Likes Energy</span>
+                </div>
+                <div class="lpm-text"><span id="lpm-value">0</span> LPM</div>
+            </div>
+            <div class="likes-bar">
+                <div class="likes-fill" id="likes-fill" style="width:0%"></div>
+            </div>
+        </div>
+
+        <!-- Right: Stats -->
         <div class="stats-panel">
+            <div class="stat-title">📊 Estadísticas</div>
             <div class="stat-row">
                 <span class="stat-label">🐾 Mascotas</span>
                 <span class="stat-value pets" id="pet-count">0</span>
@@ -776,329 +817,283 @@
                 <span class="stat-value enemies" id="enemy-count">0</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">🎁 Diamantes</span>
+                <span class="stat-label">💎 Diamantes</span>
                 <span class="stat-value gifts" id="gift-count">0</span>
             </div>
         </div>
 
-        <div class="leaderboard-panel">
-            <div class="leaderboard-title">Top Usuarios</div>
-            <div class="leaderboard-meta">
-                <div class="leaderboard-modes">
-                    <button class="leaderboard-mode-btn active" id="lb-mode-daily" onclick="setLeaderboardMode('daily')">Hoy</button>
-                    <button class="leaderboard-mode-btn" id="lb-mode-historical" onclick="setLeaderboardMode('historical')">Histórico</button>
-                </div>
-                <div class="leaderboard-date" id="leaderboard-date"></div>
-            </div>
-            <div class="leaderboard-body" id="leaderboard-body">
-                <div class="leaderboard-empty">Sin puntuaciones aún</div>
+    </div><!-- /top-bar -->
+
+    <!-- ── LEADERBOARD (right side, below stats) ──────────────────────── -->
+    <div class="leaderboard-panel">
+        <div class="leaderboard-header">
+            <div class="leaderboard-title">🏆 Top Usuarios</div>
+            <div class="leaderboard-modes">
+                <button class="leaderboard-mode-btn active" id="lb-mode-daily"      onclick="setLeaderboardMode('daily')">Hoy</button>
+                <button class="leaderboard-mode-btn"        id="lb-mode-historical" onclick="setLeaderboardMode('historical')">Histórico</button>
             </div>
         </div>
-
-        <button class="admin-toggle-btn" id="admin-toggle-btn" onclick="toggleAdminPanel()">Admin</button>
-
-        <div class="admin-panel hidden" id="admin-panel">
-            <div class="admin-title">Admin Leaderboard</div>
-            <div class="admin-row">
-                <input class="admin-input" type="password" id="admin-token" placeholder="Room Admin Token">
-            </div>
-            <div class="admin-row">
-                <select class="admin-select" id="admin-reset-mode">
-                    <option value="daily">daily</option>
-                    <option value="all">all</option>
-                </select>
-                <button class="admin-btn" onclick="resetLeaderboardAdmin()">Reset</button>
-            </div>
-            <div class="admin-row actions">
-                <button class="admin-btn secondary" onclick="switchUserFromAdmin()">Cambiar usuario</button>
-            </div>
-            <div class="admin-msg" id="admin-msg"></div>
-        </div>
-
-        <!-- Pet Count -->
-        <div class="pet-count">
-            <div class="pet-count-label">Activas</div>
-            <div class="pet-count-value"><span id="active-pets">0</span> / <span id="max-pets">200</span></div>
-        </div>
-
-        <!-- Mega Pet Banner -->
-        <div class="mega-pet-banner" id="mega-pet-banner">
-            <div class="mega-pet-title">🔥 MEGA PET ACTIVADO 🔥</div>
-            <div class="mega-pet-donor">por <span id="mega-pet-donor">???</span></div>
-            <div class="mega-pet-timer"><span id="mega-pet-timer">30</span>s</div>
-        </div>
-
-        <!-- Connection Status -->
-        <div class="connection-status disconnected" id="connection-status">
-            ⚡ Conectando...
+        <div class="leaderboard-date" id="leaderboard-date"></div>
+        <div class="leaderboard-body" id="leaderboard-body">
+            <div class="leaderboard-empty">Sin puntuaciones aún</div>
         </div>
     </div>
 
-    <!-- Load Phaser -->
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
-    <script type="module" src="src/main.js"></script>
-    
-    <script>
-        // Connection variables
-        let currentUsername = '';
-        let isConnected = false;
-        window.isDemoMode = false;
+    <!-- ── BOTTOM LEFT: active pets ───────────────────────────────────── -->
+    <div class="pet-count">
+        <div class="pet-count-label">🐾 Activas</div>
+        <div class="pet-count-value">
+            <span id="active-pets">0</span><span style="opacity:.3;font-size:.65em"> / </span><span id="max-pets" style="opacity:.55;font-size:.65em">200</span>
+        </div>
+    </div>
 
-        // Connect to TikTok function
-        async function connectToTikTok() {
-            const usernameInput = document.getElementById('tiktok-username');
-            const connectBtn = document.getElementById('connect-btn');
-            const demoBtn = document.getElementById('demo-btn');
-            const spinner = document.getElementById('spinner');
-            const errorMsg = document.getElementById('error-msg');
-            
-            const username = usernameInput.value.trim().replace('@', '');
-            
-            if (!username) {
-                showError('Por favor ingresa tu username de TikTok');
-                return;
-            }
+    <!-- ── MEGA PET BANNER ────────────────────────────────────────────── -->
+    <div class="mega-pet-banner" id="mega-pet-banner">
+        <span class="mega-crown">👑</span>
+        <div class="mega-title">MEGA PET ACTIVADA</div>
+        <div class="mega-donor">enviado por <span id="mega-pet-donor">???</span></div>
+        <div class="mega-timer" id="mega-pet-timer">30</div>
+        <div class="mega-timer-lbl">segundos</div>
+    </div>
 
-            // Show loading
-            connectBtn.disabled = true;
-            demoBtn.disabled = true;
-            connectBtn.textContent = '⏳ Conectando...';
-            spinner.style.display = 'block';
-            hideError();
-            window.isDemoMode = false;
+    <!-- ── CONNECTION STATUS ─────────────────────────────────────────── -->
+    <div class="connection-status disconnected" id="connection-status">
+        ⚡ Conectando...
+    </div>
 
-            try {
-                const existingRoomId = localStorage.getItem('petArena:roomId') || `room_${username.toLowerCase()}`;
-                // Connect to server with username
-                const response = await fetch('/connect', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: username, roomId: existingRoomId })
-                });
+    <!-- ── ADMIN TOGGLE + PANEL ──────────────────────────────────────── -->
+    <button class="admin-toggle-btn" id="admin-toggle-btn" onclick="toggleAdminPanel()">⚙ Admin</button>
 
-                const data = await response.json();
+    <div class="admin-panel hidden" id="admin-panel">
+        <div class="admin-title">🔐 Admin Leaderboard</div>
+        <div class="admin-row">
+            <input class="admin-input" type="password" id="admin-token" placeholder="Room Admin Token">
+        </div>
+        <div class="admin-row">
+            <select class="admin-select" id="admin-reset-mode">
+                <option value="daily">daily</option>
+                <option value="all">all</option>
+            </select>
+            <button class="admin-btn" onclick="resetLeaderboardAdmin()">Reset</button>
+        </div>
+        <div class="admin-row actions">
+            <button class="admin-btn secondary" onclick="switchUserFromAdmin()">Cambiar usuario</button>
+        </div>
+        <div class="admin-msg" id="admin-msg"></div>
+    </div>
 
-                if (!response.ok) {
-                    throw new Error(data.error || 'Error al conectar');
-                }
+</div><!-- /ui-overlay -->
 
-                // Success - start game
-                currentUsername = username;
-                isConnected = true;
-                localStorage.setItem('petArena:tiktokUsername', username);
-                if (data.roomId) {
-                    localStorage.setItem('petArena:roomId', data.roomId);
-                }
-                if (data.adminToken) {
-                    localStorage.setItem('petArena:adminToken', data.adminToken);
-                    const adminTokenInput = document.getElementById('admin-token');
-                    if (adminTokenInput) adminTokenInput.value = data.adminToken;
-                }
-                startGame(username, data.roomId || null);
+<!-- ═══════════════ SCRIPTS ══════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/pixi.js@latest/dist/pixi.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/phaser@4.0.0-rc.5/dist/phaser.min.js"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+<script type="module" src="src/main.js"></script>
 
-            } catch (error) {
-                showError(error.message);
-                connectBtn.disabled = false;
-                demoBtn.disabled = false;
-                connectBtn.textContent = '▶️ CONECTAR';
-                spinner.style.display = 'none';
-            }
-        }
-
-        function startDemoMode() {
-            const connectBtn = document.getElementById('connect-btn');
-            const demoBtn = document.getElementById('demo-btn');
-            connectBtn.disabled = true;
-            demoBtn.disabled = true;
-            window.isDemoMode = true;
-            const demoRoomId = `demo_${Date.now().toString(36)}`;
-            localStorage.setItem('petArena:roomId', demoRoomId);
-            startGame('demo', demoRoomId);
-        }
-
-        async function connectWithStoredUsername(username) {
-            const connectBtn = document.getElementById('connect-btn');
-            const demoBtn = document.getElementById('demo-btn');
-            const spinner = document.getElementById('spinner');
-
-            connectBtn.disabled = true;
-            demoBtn.disabled = true;
-            connectBtn.textContent = '⏳ Reconectando...';
-            spinner.style.display = 'block';
-            hideError();
-
-            try {
-                const existingRoomId = localStorage.getItem('petArena:roomId') || `room_${username.toLowerCase()}`;
-                const response = await fetch('/connect', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, roomId: existingRoomId })
-                });
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.error || 'No se pudo restaurar la sesión');
-                }
-                currentUsername = username;
-                isConnected = true;
-                localStorage.setItem('petArena:tiktokUsername', username);
-                if (data.roomId) {
-                    localStorage.setItem('petArena:roomId', data.roomId);
-                }
-                if (data.adminToken) {
-                    localStorage.setItem('petArena:adminToken', data.adminToken);
-                    const adminTokenInput = document.getElementById('admin-token');
-                    if (adminTokenInput) adminTokenInput.value = data.adminToken;
-                }
-                startGame(username, data.roomId || null);
-            } catch (error) {
-                showError(error.message);
-                connectBtn.disabled = false;
-                demoBtn.disabled = false;
-                connectBtn.textContent = '▶️ CONECTAR';
-                spinner.style.display = 'none';
-            }
-        }
-
-        function showError(message) {
-            const errorMsg = document.getElementById('error-msg');
-            errorMsg.textContent = message;
-            errorMsg.classList.add('show');
-        }
-
-        function hideError() {
-            const errorMsg = document.getElementById('error-msg');
-            errorMsg.classList.remove('show');
-        }
-
-        function startGame(username, roomId) {
-            // Hide menu, show game
-            document.getElementById('menu-container').classList.add('hidden');
-            document.getElementById('game-container').classList.add('active');
-            document.getElementById('ui-overlay').classList.add('active');
-            
-            // Update TikTok username display
-            const label = username === 'demo' ? '@modo_demo' : '@' + username;
-            document.getElementById('tiktok-user').textContent = label;
-
-            // Store username for later use
-            window.tiktokUsername = username;
-            if (roomId) {
-                window.petArenaRoomId = roomId;
-            } else {
-                window.petArenaRoomId = localStorage.getItem('petArena:roomId') || `room_${username}`;
-            }
-
-            // Initialize the game
-            if (typeof initGame === 'function') {
-                initGame();
-            }
-        }
-
-        function toggleAdminPanel() {
-            const panel = document.getElementById('admin-panel');
-            const btn = document.getElementById('admin-toggle-btn');
-            if (!panel || !btn) return;
-            panel.classList.toggle('hidden');
-            btn.textContent = panel.classList.contains('hidden') ? 'Admin' : 'Cerrar Admin';
-        }
-
-        function switchUserFromAdmin() {
-            localStorage.removeItem('petArena:tiktokUsername');
-            localStorage.removeItem('petArena:roomId');
-            localStorage.removeItem('petArena:adminToken');
-            window.tiktokUsername = '';
-            window.petArenaRoomId = '';
-            window.location.reload();
-        }
-
-        async function resetLeaderboardAdmin() {
-            const tokenEl = document.getElementById('admin-token');
-            const modeEl = document.getElementById('admin-reset-mode');
-            const msgEl = document.getElementById('admin-msg');
-            if (!tokenEl || !modeEl || !msgEl) return;
-
-            const token = tokenEl.value.trim();
-            const mode = modeEl.value === 'all' ? 'all' : 'daily';
-            if (!token) {
-                msgEl.textContent = 'Token requerido';
-                return;
-            }
-
-            const roomId = window.petArenaRoomId || localStorage.getItem('petArena:roomId') || '';
-            if (!roomId) {
-                msgEl.textContent = 'roomId no disponible';
-                return;
-            }
-            msgEl.textContent = 'Procesando...';
-            localStorage.setItem('petArena:adminToken', token);
-
-            try {
-                const response = await fetch('/admin/leaderboard/reset', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-admin-token': token
-                    },
-                    body: JSON.stringify({
-                        mode,
-                        roomId
-                    })
-                });
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.error || 'No se pudo resetear');
-                }
-                msgEl.textContent = `Reset ${data.mode} aplicado`;
-            } catch (error) {
-                msgEl.textContent = `Error: ${error.message}`;
-            }
-        }
-
-        // Enter key support
-        document.getElementById('tiktok-username').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                connectToTikTok();
-            }
+<script>
+/* ── Floating particles in menu ── */
+(function() {
+    const c = document.getElementById('menu-particles');
+    const colors = ['#00f5ff','#ff00cc','#7c4dff','#ffd700','#2ed573','#ff9f43'];
+    for (let i = 0; i < 38; i++) {
+        const p = document.createElement('div');
+        p.className = 'mp';
+        const s = 2 + Math.random() * 4.5;
+        const col = colors[Math.floor(Math.random() * colors.length)];
+        Object.assign(p.style, {
+            width:  s + 'px', height: s + 'px',
+            left:   Math.random() * 100 + '%',
+            bottom: '-20px',
+            background:   col,
+            boxShadow:    `0 0 ${s * 3}px ${col}`,
+            animationDuration: (6 + Math.random() * 10) + 's',
+            animationDelay:    Math.random() * 10 + 's',
         });
+        c.appendChild(p);
+    }
+})();
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            const savedUsername = localStorage.getItem('petArena:tiktokUsername');
-            const savedRoomId = localStorage.getItem('petArena:roomId');
-            const savedAdminToken = localStorage.getItem('petArena:adminToken');
-            const usernameInput = document.getElementById('tiktok-username');
-            const adminTokenInput = document.getElementById('admin-token');
-            if (savedUsername && usernameInput) {
-                usernameInput.value = savedUsername;
-            }
-            if (savedAdminToken && adminTokenInput) {
-                adminTokenInput.value = savedAdminToken;
-            }
+/* ── Game state ── */
+let currentUsername = '';
+let isConnected = false;
+window.isDemoMode = false;
 
-            try {
-                const statusUrl = savedRoomId ? `/status?roomId=${encodeURIComponent(savedRoomId)}` : '/status';
-                const response = await fetch(statusUrl);
-                if (!response.ok) return;
-                const status = await response.json();
+async function connectToTikTok() {
+    const usernameInput = document.getElementById('tiktok-username');
+    const connectBtn    = document.getElementById('connect-btn');
+    const demoBtn       = document.getElementById('demo-btn');
+    const spinner       = document.getElementById('spinner');
+    const username      = usernameInput.value.trim().replace('@', '');
 
-                if (status.roomId) {
-                    localStorage.setItem('petArena:roomId', status.roomId);
-                }
+    if (!username) { showError('Por favor ingresa tu username de TikTok'); return; }
 
-                if (status.connected && status.username && status.roomId) {
-                    localStorage.setItem('petArena:tiktokUsername', status.username);
-                    startGame(status.username, status.roomId);
-                    return;
-                }
-            } catch (error) {
-                // ignored: fallback to manual connect
-            }
+    connectBtn.disabled = true; demoBtn.disabled = true;
+    connectBtn.textContent = '⏳ Conectando...';
+    spinner.style.display = 'block';
+    hideError(); window.isDemoMode = false;
 
-            if (savedUsername) {
-                connectWithStoredUsername(savedUsername);
-            }
+    try {
+        const rid = localStorage.getItem('petArena:roomId') || `room_${username.toLowerCase()}`;
+        const res  = await fetch('/connect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, roomId: rid })
         });
-    </script>
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al conectar');
+
+        currentUsername = username; isConnected = true;
+        localStorage.setItem('petArena:tiktokUsername', username);
+        if (data.roomId)     localStorage.setItem('petArena:roomId', data.roomId);
+        if (data.adminToken) {
+            localStorage.setItem('petArena:adminToken', data.adminToken);
+            const el = document.getElementById('admin-token');
+            if (el) el.value = data.adminToken;
+        }
+        startGame(username, data.roomId || null);
+
+    } catch (err) {
+        showError(err.message);
+        connectBtn.disabled = false; demoBtn.disabled = false;
+        connectBtn.textContent = '▶ CONECTAR';
+        spinner.style.display = 'none';
+    }
+}
+
+function startDemoMode() {
+    document.getElementById('connect-btn').disabled = true;
+    document.getElementById('demo-btn').disabled    = true;
+    window.isDemoMode = true;
+    const rid = `demo_${Date.now().toString(36)}`;
+    localStorage.setItem('petArena:roomId', rid);
+    startGame('demo', rid);
+}
+
+async function connectWithStoredUsername(username) {
+    const connectBtn = document.getElementById('connect-btn');
+    const demoBtn    = document.getElementById('demo-btn');
+    const spinner    = document.getElementById('spinner');
+    connectBtn.disabled = true; demoBtn.disabled = true;
+    connectBtn.textContent = '⏳ Reconectando...';
+    spinner.style.display = 'block'; hideError();
+
+    try {
+        const rid = localStorage.getItem('petArena:roomId') || `room_${username.toLowerCase()}`;
+        const res  = await fetch('/connect', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json' },
+            body: JSON.stringify({ username, roomId: rid })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'No se pudo restaurar la sesión');
+
+        currentUsername = username; isConnected = true;
+        localStorage.setItem('petArena:tiktokUsername', username);
+        if (data.roomId)     localStorage.setItem('petArena:roomId', data.roomId);
+        if (data.adminToken) {
+            localStorage.setItem('petArena:adminToken', data.adminToken);
+            const el = document.getElementById('admin-token');
+            if (el) el.value = data.adminToken;
+        }
+        startGame(username, data.roomId || null);
+
+    } catch (err) {
+        showError(err.message);
+        connectBtn.disabled = false; demoBtn.disabled = false;
+        connectBtn.textContent = '▶ CONECTAR';
+        spinner.style.display = 'none';
+    }
+}
+
+function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg; el.classList.add('show');
+}
+function hideError() { document.getElementById('error-msg').classList.remove('show'); }
+
+function startGame(username, roomId) {
+    document.getElementById('menu-container').classList.add('hidden');
+    document.getElementById('game-container').classList.add('active');
+    document.getElementById('ui-overlay').classList.add('active');
+    document.getElementById('tiktok-user').textContent = username === 'demo' ? '@modo_demo' : '@' + username;
+    window.tiktokUsername = username;
+    window.petArenaRoomId = roomId || localStorage.getItem('petArena:roomId') || `room_${username}`;
+    if (typeof initGame === 'function') initGame();
+}
+
+function toggleAdminPanel() {
+    const panel = document.getElementById('admin-panel');
+    const btn   = document.getElementById('admin-toggle-btn');
+    if (!panel || !btn) return;
+    panel.classList.toggle('hidden');
+    btn.textContent = panel.classList.contains('hidden') ? '⚙ Admin' : '✕ Cerrar';
+}
+
+function switchUserFromAdmin() {
+    ['petArena:tiktokUsername','petArena:roomId','petArena:adminToken'].forEach(k => localStorage.removeItem(k));
+    window.tiktokUsername = ''; window.petArenaRoomId = '';
+    window.location.reload();
+}
+
+async function resetLeaderboardAdmin() {
+    const tokenEl = document.getElementById('admin-token');
+    const modeEl  = document.getElementById('admin-reset-mode');
+    const msgEl   = document.getElementById('admin-msg');
+    if (!tokenEl || !modeEl || !msgEl) return;
+
+    const token = tokenEl.value.trim();
+    const mode  = modeEl.value === 'all' ? 'all' : 'daily';
+    if (!token) { msgEl.textContent = 'Token requerido'; return; }
+
+    const roomId = window.petArenaRoomId || localStorage.getItem('petArena:roomId') || '';
+    if (!roomId) { msgEl.textContent = 'roomId no disponible'; return; }
+
+    msgEl.textContent = 'Procesando...';
+    localStorage.setItem('petArena:adminToken', token);
+
+    try {
+        const res  = await fetch('/admin/leaderboard/reset', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json','x-admin-token':token },
+            body: JSON.stringify({ mode, roomId })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'No se pudo resetear');
+        msgEl.textContent = `✅ Reset ${data.mode} aplicado`;
+    } catch (err) {
+        msgEl.textContent = `❌ ${err.message}`;
+    }
+}
+
+document.getElementById('tiktok-username').addEventListener('keypress', e => {
+    if (e.key === 'Enter') connectToTikTok();
+});
+
+document.addEventListener('DOMContentLoaded', async function() {
+    const savedUser  = localStorage.getItem('petArena:tiktokUsername');
+    const savedRoom  = localStorage.getItem('petArena:roomId');
+    const savedToken = localStorage.getItem('petArena:adminToken');
+    const uInput = document.getElementById('tiktok-username');
+    const aInput = document.getElementById('admin-token');
+    if (savedUser  && uInput) uInput.value = savedUser;
+    if (savedToken && aInput) aInput.value = savedToken;
+
+    try {
+        const url = savedRoom ? `/status?roomId=${encodeURIComponent(savedRoom)}` : '/status';
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const status = await res.json();
+        if (status.roomId) localStorage.setItem('petArena:roomId', status.roomId);
+        if (status.connected && status.username && status.roomId) {
+            localStorage.setItem('petArena:tiktokUsername', status.username);
+            startGame(status.username, status.roomId);
+            return;
+        }
+    } catch (_) {}
+
+    if (savedUser) connectWithStoredUsername(savedUser);
+});
+</script>
 </body>
 </html>

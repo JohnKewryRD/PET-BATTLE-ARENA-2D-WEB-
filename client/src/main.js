@@ -1,11 +1,24 @@
 /**
  * PET BATTLE ARENA - Punto de Entrada Principal del Cliente
- * Phaser.js + Socket.IO Client
+ * Phaser 4 + PixiJS + Socket.IO Client
  */
 
 import { BootScene } from './scenes/BootScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { UIScene } from './scenes/UIScene.js';
+
+const PhaserRuntime = window.Phaser;
+const PixiRuntime = window.PIXI;
+
+if (!PixiRuntime || !PixiRuntime.VERSION) {
+    console.warn('[Cliente] PIXI no esta disponible; revisa la carga de CDN.');
+} else {
+    console.log(`[Cliente] PIXI ${PixiRuntime.VERSION} cargado`);
+}
+
+if (!PhaserRuntime || typeof PhaserRuntime.Game !== 'function') {
+    throw new Error('Phaser no esta disponible. Verifica el script de Phaser 4 en index.html');
+}
 
 const CONFIG = {
     serverUrl: window.location.origin,
@@ -113,6 +126,12 @@ const GameState = {
     }
 };
 
+function getReadyGameScene() {
+    const scene = GameScene.instance;
+    if (!scene || !scene.isReady) return null;
+    return scene;
+}
+
 function connectToServer() {
     return new Promise((resolve, reject) => {
         let settled = false;
@@ -184,49 +203,56 @@ function connectToServer() {
 
         socket.on('pet:added', (pet) => {
             GameState.addPet(pet);
-            if (GameScene.instance) {
-                GameScene.instance.spawnPet(pet);
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.spawnPet(pet);
             }
         });
 
         socket.on('pet:removed', (data) => {
             GameState.removePet(data.id);
-            if (GameScene.instance) {
-                GameScene.instance.removePet(data.id);
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.removePet(data.id);
             }
         });
 
         socket.on('pet:updated', (petData) => {
             GameState.upsertPet(petData);
-            if (GameScene.instance) {
-                GameScene.instance.updatePetState(petData);
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.updatePetState(petData);
             }
         });
 
         socket.on('wave:spawn', (data) => {
-            if (GameScene.instance) {
-                GameScene.instance.spawnWave(data);
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.spawnWave(data);
             }
         });
 
         socket.on('enemy:spawned', (enemy) => {
             GameState.upsertEnemy(enemy);
-            if (GameScene.instance) {
-                GameScene.instance.spawnEnemy(enemy);
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.spawnEnemy(enemy);
             }
         });
 
         socket.on('enemy:updated', (enemy) => {
             GameState.upsertEnemy(enemy);
-            if (GameScene.instance) {
-                GameScene.instance.updateEnemyState(enemy);
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.updateEnemyState(enemy);
             }
         });
 
         socket.on('enemy:removed', (payload) => {
             GameState.removeEnemy(payload.id);
-            if (GameScene.instance) {
-                GameScene.instance.removeEnemy(payload.id);
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.removeEnemy(payload.id);
             }
         });
 
@@ -241,28 +267,32 @@ function connectToServer() {
         });
 
         socket.on('megaPet:activate', (data) => {
-            if (GameScene.instance) {
-                GameScene.instance.activateMegaPet(data);
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.activateMegaPet(data);
             }
             showMegaPetBanner(data);
         });
 
         socket.on('megaPet:deactivate', () => {
-            if (GameScene.instance) {
-                GameScene.instance.deactivateMegaPet();
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.deactivateMegaPet();
             }
             hideMegaPetBanner();
         });
 
         socket.on('pets:upgrade', (data) => {
-            if (GameScene.instance) {
-                GameScene.instance.showUpgradeEffect(data);
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.showUpgradeEffect(data);
             }
         });
 
         socket.on('event:follow', (data) => {
-            if (GameScene.instance) {
-                GameScene.instance.showFloatingText(
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.showFloatingText(
                     260,
                     160 + (Math.random() * 60),
                     data.message,
@@ -272,8 +302,9 @@ function connectToServer() {
         });
 
         socket.on('event:chat', (data) => {
-            if (GameScene.instance) {
-                GameScene.instance.showFloatingText(
+            const scene = getReadyGameScene();
+            if (scene) {
+                scene.showFloatingText(
                     320,
                     220 + (Math.random() * 80),
                     `${data.username}: ${data.text}`,
@@ -512,8 +543,8 @@ window.initGame = async function() {
     try {
         await connectToServer();
 
-        game = new Phaser.Game({
-            type: Phaser.AUTO,
+        game = new PhaserRuntime.Game({
+            type: PhaserRuntime.AUTO,
             width: CONFIG.gameWidth,
             height: CONFIG.gameHeight,
             parent: 'game-container',
@@ -521,8 +552,8 @@ window.initGame = async function() {
             physics: CONFIG.physics,
             scene: [BootScene, GameScene, UIScene],
             scale: {
-                mode: Phaser.Scale.FIT,
-                autoCenter: Phaser.Scale.CENTER_BOTH
+                mode: PhaserRuntime.Scale.FIT,
+                autoCenter: PhaserRuntime.Scale.CENTER_BOTH
             }
         });
 
@@ -536,7 +567,7 @@ window.initGame = async function() {
 };
 
 window.addEventListener('resize', () => {
-    if (game) {
+    if (game && game.scale && typeof game.scale.refresh === 'function') {
         game.scale.refresh();
     }
 });

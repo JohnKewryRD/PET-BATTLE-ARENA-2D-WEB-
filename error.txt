@@ -1,0 +1,11 @@
+Uncaught TypeError: g.bezierCurveTo is not a function
+    at BootScene._makeCat (BootScene.js:129:11)
+    at BootScene.generateAssets (BootScene.js:107:14)
+    at BootScene.preload (BootScene.js:16:14)
+    at initialize.bootScene (phaser.min.js:1:762214)
+    at initialize.start (phaser.min.js:1:766076)
+    at initialize.bootQueue (phaser.min.js:1:760619)
+    at o.emit (phaser.min.js:1:640009)
+    at initialize.texturesReady (phaser.min.js:1:627296)
+    at o.emit (phaser.min.js:1:640009)
+    at initialize.updatePending (phaser.min.js:1:167356)

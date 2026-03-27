@@ -10,13 +10,17 @@ import { ParticleSystem } from '../systems/ParticleSystem.js';
 import { WaveSystem } from '../systems/WaveSystem.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
 
+const Phaser = window.Phaser;
+
 export class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
-        GameScene.instance = this;
+        this.isReady = false;
     }
 
     create() {
+        GameScene.instance = this;
+        this.isReady = true;
         console.log('[GameScene] Iniciando...');
 
         // Inicializar sistemas
@@ -27,7 +31,7 @@ export class GameScene extends Phaser.Scene {
         this.audioSystem = new AudioSystem();
 
         // Crear mundo del juego
-        this.createWorld();
+        try { this.createWorld(); } catch(e) { console.error('[GameScene] createWorld ERROR:', e); }
 
         // Grupos de entidades
         this.pets = this.add.group();
@@ -40,7 +44,7 @@ export class GameScene extends Phaser.Scene {
         this.fusedPets = [];
 
         // Crear efectos de fondo
-        this.createBackground();
+        try { this.createBackground(); } catch(e) { console.error('[GameScene] createBackground ERROR:', e); }
 
         // Iniciar bucle del juego
         this.lastUpdate = 0;
@@ -56,76 +60,224 @@ export class GameScene extends Phaser.Scene {
     createWorld() {
         const { width, height } = this.cameras.main;
 
-        // Límites del arena (paredes invisibles)
+        // Physics bounds
         this.physics.world.setBounds(50, 50, width - 100, height - 100);
 
-        // Piso del arena con patrón de cuadrícula
-        const graphics = this.add.graphics();
-        
-        // Fondo oscuro
-        graphics.fillStyle(0x0a0a0f, 1);
-        graphics.fillRect(0, 0, width, height);
+        // ── Deep background ───────────────────────────────────────────────────
+        const g = this.add.graphics();
+        g.fillStyle(0x050510, 1);
+        g.fillRect(0, 0, width, height);
 
-        // Líneas de cuadrícula
-        graphics.lineStyle(1, 0x1a1a2e, 0.5);
-        const gridSize = 50;
-        
-        for (let x = 0; x < width; x += gridSize) {
-            graphics.moveTo(x, 0);
-            graphics.lineTo(x, height);
+        // Subtle radial glow in center
+        for (let i = 6; i >= 1; i--) {
+            g.fillStyle(0x0d0d2e, 0.025 * i);
+            g.fillEllipse(width / 2, height / 2, width * 0.7 * (i / 6), height * 0.7 * (i / 6));
         }
-        for (let y = 0; y < height; y += gridSize) {
-            graphics.moveTo(0, y);
-            graphics.lineTo(width, y);
+
+        // ── Simple dot grid (safe Phaser 3 API) ──────────────────────────────
+        g.fillStyle(0x00f5ff, 0.04);
+        const gs = 55;
+        for (let gx = gs; gx < width; gx += gs) {
+            for (let gy = gs; gy < height; gy += gs) {
+                g.fillCircle(gx, gy, 1);
+            }
         }
-        graphics.strokePath();
 
-        // Brillo del borde del arena
-        graphics.lineStyle(4, 0x00ffff, 0.3);
-        graphics.strokeRect(50, 50, width - 100, height - 100);
+        // ── Corner ambient glows (ADD blend) ─────────────────────────────────
+        const ambient = this.add.graphics();
+        ambient.setBlendMode(Phaser.BlendModes.ADD);
+        ambient.fillStyle(0x00f5ff, 0.04); ambient.fillCircle(0, 0, 320);
+        ambient.fillStyle(0xff00cc, 0.04); ambient.fillCircle(width, height, 320);
+        ambient.fillStyle(0x7c4dff, 0.03); ambient.fillCircle(width, 0, 260);
+        ambient.fillStyle(0xff6600, 0.03); ambient.fillCircle(0, height, 260);
 
-        // Decoraciones de esquinas
+        // ── Arena floor ───────────────────────────────────────────────────────
+        const arena = this.add.graphics();
+        arena.fillStyle(0x0a0a1e, 0.75);
+        arena.fillRoundedRect(50, 50, width - 100, height - 100, 10);
+
+        // Scanlines — need beginPath() before moveTo/lineTo
+        arena.lineStyle(1, 0xffffff, 0.01);
+        arena.beginPath();
+        for (let y = 56; y < height - 52; y += 5) {
+            arena.moveTo(54, y);
+            arena.lineTo(width - 54, y);
+        }
+        arena.strokePath();
+
+        // ── Arena border (using lineBetween — guaranteed to work) ─────────────
+        const border = this.add.graphics();
+
+        // Outer soft glow: 4 semi-transparent thick lines around the rect
+        [{ t: 8, a: 0.03 }, { t: 5, a: 0.06 }, { t: 3, a: 0.12 }].forEach(({ t, a }) => {
+            border.lineStyle(t, 0x00f5ff, a);
+            border.beginPath();
+            border.moveTo(50, 50); border.lineTo(width - 50, 50);
+            border.lineTo(width - 50, height - 50); border.lineTo(50, height - 50);
+            border.closePath(); border.strokePath();
+        });
+
+        // Main border — bright cyan
+        border.lineStyle(2.5, 0x00f5ff, 0.85);
+        border.beginPath();
+        border.moveTo(50, 50); border.lineTo(width - 50, 50);
+        border.lineTo(width - 50, height - 50); border.lineTo(50, height - 50);
+        border.closePath(); border.strokePath();
+
+        // Inner border dim
+        border.lineStyle(1, 0x00f5ff, 0.2);
+        border.beginPath();
+        border.moveTo(56, 56); border.lineTo(width - 56, 56);
+        border.lineTo(width - 56, height - 56); border.lineTo(56, height - 56);
+        border.closePath(); border.strokePath();
+
+        // ── Corner ornaments ─────────────────────────────────────────────────
         const corners = [
-            { x: 50, y: 50 },
+            { x: 50,         y: 50 },
             { x: width - 50, y: 50 },
-            { x: 50, y: height - 50 },
+            { x: 50,         y: height - 50 },
             { x: width - 50, y: height - 50 }
         ];
-
+        const d = 28;
         corners.forEach(corner => {
-            graphics.fillStyle(0x00ffff, 0.5);
-            graphics.fillCircle(corner.x, corner.y, 10);
+            const sx = corner.x < width / 2 ? 1 : -1;
+            const sy = corner.y < height / 2 ? 1 : -1;
+
+            // L-shaped bracket
+            border.lineStyle(3, 0x00f5ff, 0.9);
+            border.beginPath();
+            border.moveTo(corner.x + sx * d, corner.y);
+            border.lineTo(corner.x, corner.y);
+            border.lineTo(corner.x, corner.y + sy * d);
+            border.strokePath();
+
+            // Corner dot + glow
+            border.fillStyle(0x00f5ff, 0.25); border.fillCircle(corner.x, corner.y, 14);
+            border.fillStyle(0x00f5ff, 0.9);  border.fillRect(corner.x - 4, corner.y - 4, 8, 8);
         });
+
+        // ── Center marker ─────────────────────────────────────────────────────
+        const cx2 = width / 2, cy2 = height / 2;
+        border.fillStyle(0x00f5ff, 0.12); border.fillCircle(cx2, cy2, 22);
+        border.lineStyle(1, 0x00f5ff, 0.18); border.strokeCircle(cx2, cy2, 22);
+        border.lineStyle(1, 0x00f5ff, 0.07); border.strokeCircle(cx2, cy2, 44);
+
+        border.lineStyle(1, 0x00f5ff, 0.08);
+        border.beginPath();
+        border.moveTo(cx2 - 60, cy2); border.lineTo(cx2 + 60, cy2);
+        border.moveTo(cx2, cy2 - 60); border.lineTo(cx2, cy2 + 60);
+        border.strokePath();
+
+        // Depth ordering
+        g.setDepth(0);
+        ambient.setDepth(0);
+        arena.setDepth(1);
+        border.setDepth(2);
     }
 
     createBackground() {
         const { width, height } = this.cameras.main;
 
-        // Partículas flotantes ambientales
+        // ── Floating ambient dust particles ───────────────────────────────────
+        const ambientColors = [0x00f5ff, 0xff00cc, 0x7c4dff, 0xffd700, 0x2ed573];
         this.ambientParticles = [];
-        for (let i = 0; i < 30; i++) {
+
+        for (let i = 0; i < 50; i++) {
+            const color = ambientColors[Math.floor(Math.random() * ambientColors.length)];
+            const r     = Math.random() * 2.5 + 0.5;
             const particle = this.add.circle(
-                Math.random() * width,
+                80 + Math.random() * (width - 160),
                 Math.random() * height,
-                Math.random() * 3 + 1,
-                0xffffff,
-                0.1 + Math.random() * 0.2
+                r,
+                color,
+                0.05 + Math.random() * 0.15
             );
-            
+            particle.setDepth(3);
+            particle.setBlendMode(Phaser.BlendModes.ADD);
+
+            const dur = 3500 + Math.random() * 4000;
+
             this.tweens.add({
                 targets: particle,
-                y: particle.y - 50 - Math.random() * 100,
-                alpha: 0,
-                duration: 3000 + Math.random() * 2000,
-                repeat: -1,
-                yoyo: false,
+                y:       particle.y - 80 - Math.random() * 150,
+                alpha:   0,
+                x:       particle.x + (Math.random() - 0.5) * 60,
+                duration: dur,
+                repeat:  -1,
+                yoyo:    false,
+                delay:   Math.random() * 4000,
                 onRepeat: () => {
-                    particle.x = Math.random() * width;
-                    particle.y = height + 20;
-                    particle.alpha = 0.1 + Math.random() * 0.2;
+                    particle.x     = 80 + Math.random() * (width - 160);
+                    particle.y     = height - 60;
+                    particle.alpha = 0.05 + Math.random() * 0.15;
+                    particle.setRadius(Math.random() * 2.5 + 0.5);
                 }
             });
+
+            this.ambientParticles.push(particle);
         }
+
+        // ── Twinkle stars (tiny static) ────────────────────────────────────
+        for (let i = 0; i < 80; i++) {
+            const star = this.add.circle(
+                Math.random() * width,
+                Math.random() * height,
+                Math.random() * 1.5 + 0.5,
+                0xffffff,
+                Math.random() * 0.08 + 0.02
+            );
+            star.setDepth(1);
+
+            this.tweens.add({
+                targets: star,
+                alpha:   { from: star.alpha * 0.2, to: star.alpha },
+                duration: 1500 + Math.random() * 2500,
+                repeat:  -1,
+                yoyo:    true,
+                delay:   Math.random() * 3000,
+                ease:    'Sine.easeInOut'
+            });
+        }
+
+        // ── Animated arena energy lines (vertical pulses) ─────────────────
+        this._spawnEnergyLine(width, height);
+    }
+
+    resolveTextureKey(primaryKey) {
+        if (this.textures && typeof this.textures.exists === 'function' && this.textures.exists(primaryKey)) {
+            return primaryKey;
+        }
+        if (!this._missingTextureWarned) this._missingTextureWarned = new Set();
+        if (!this._missingTextureWarned.has(primaryKey)) {
+            this._missingTextureWarned.add(primaryKey);
+            console.warn(`[GameScene] Textura faltante: ${primaryKey}. Usando fallback __WHITE.`);
+        }
+        // Fallback seguro para que las entidades sigan viendose si faltan texturas runtime.
+        return '__WHITE';
+    }
+
+    _spawnEnergyLine(width, height) {
+        const x    = 60 + Math.random() * (width - 120);
+        const line = this.add.rectangle(x, height - 60, 1, 0, 0x00f5ff, 0.4);
+        line.setOrigin(0.5, 1);
+        line.setDepth(3);
+        line.setBlendMode(Phaser.BlendModes.ADD);
+
+        const lineH = 40 + Math.random() * 120;
+
+        this.tweens.add({
+            targets:  line,
+            height:   lineH,
+            duration: 300,
+            yoyo:     true,
+            ease:     'Sine.easeOut',
+            onComplete: () => {
+                line.destroy();
+                this.time.delayedCall(600 + Math.random() * 2000, () => {
+                    if (this.scene.isActive()) this._spawnEnergyLine(width, height);
+                });
+            }
+        });
     }
 
     update(time, delta) {
@@ -347,8 +499,13 @@ export class GameScene extends Phaser.Scene {
         const y = 100 + Math.random() * (height - 200);
 
         // Crear sprite
-        const sprite = this.add.sprite(x, y, `pet_${petData.type}`);
+        const petTexture = this.resolveTextureKey(`pet_${petData.type}`);
+        const sprite = this.add.sprite(x, y, petTexture);
         sprite.setScale(petData.scale || 1);
+        if (petTexture === '__WHITE') {
+            sprite.setTint(petData.color || 0xffffff);
+            sprite.setDisplaySize(40, 40);
+        }
         sprite.setDepth(10);
 
         const hpBarBg = this.add.graphics();
@@ -362,25 +519,28 @@ export class GameScene extends Phaser.Scene {
         sprite.attackCooldown = 0;
         sprite.wanderTimer = 0;
 
-        // Nombre del dueño
-        const nameText = this.add.text(x, y - 30, petData.ownerName, {
-            fontSize: '14px',
-            fontFamily: 'Arial',
+        // Nombre del dueño — premium badge
+        const nameText = this.add.text(x, y - 34, petData.ownerName, {
+            fontSize: '13px',
+            fontFamily: '"Rajdhani", "Arial", sans-serif',
+            fontStyle: 'bold',
             color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 2
+            stroke: '#050510',
+            strokeThickness: 3,
+            shadow: { offsetX: 0, offsetY: 1, color: '#000', blur: 4, fill: true }
         });
         nameText.setOrigin(0.5);
         nameText.setDepth(12);
         sprite.nameText = nameText;
 
-        // Indicador de nivel
-        const levelText = this.add.text(x + 20, y - 20, `Nv${petData.level}`, {
-            fontSize: '12px',
-            fontFamily: 'Arial',
-            color: '#ffff00',
-            stroke: '#000000',
-            strokeThickness: 1
+        // Indicador de nivel — colored pill
+        const levelText = this.add.text(x + 22, y - 22, `Lv${petData.level}`, {
+            fontSize: '11px',
+            fontFamily: '"Orbitron", "Arial", monospace',
+            fontStyle: 'bold',
+            color: '#ffd700',
+            stroke: '#1a0e00',
+            strokeThickness: 2
         });
         levelText.setOrigin(0.5);
         levelText.setDepth(12);
@@ -445,15 +605,15 @@ export class GameScene extends Phaser.Scene {
         }
 
         const typeIndex = enemyData.typeIndex || 0;
-        const sprite = this.add.sprite(enemyData.x, enemyData.y, `enemy_${typeIndex}`);
+        const enemyTexture = this.resolveTextureKey(`enemy_${typeIndex}`);
+        const sprite = this.add.sprite(enemyData.x, enemyData.y, enemyTexture);
         const scale = enemyData.isBoss ? 3 : (0.8 + Math.random() * 0.4);
         sprite.setScale(scale);
         sprite.setDepth(5);
-        if (enemyData.isBoss) {
-            sprite.setTint(0xff0000);
-        } else {
-            sprite.setTint(0xff6666);
+        if (enemyTexture === '__WHITE') {
+            sprite.setDisplaySize(enemyData.isBoss ? 44 : 28, enemyData.isBoss ? 44 : 28);
         }
+        sprite.setTint(enemyData.isBoss ? 0xff0000 : 0xff6666);
 
         sprite.enemyData = {
             id: enemyData.id,
@@ -511,6 +671,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     findEnemyById(enemyId) {
+        if (!this.enemies || typeof this.enemies.getChildren !== 'function') {
+            return null;
+        }
         return this.enemies.getChildren().find((enemy) => enemy.enemyData?.id === enemyId) || null;
     }
 
@@ -521,7 +684,12 @@ export class GameScene extends Phaser.Scene {
         const { width, height } = this.cameras.main;
         
         // Crear mega mascota en el centro
-        this.megaPetSprite = this.add.sprite(width / 2, height / 2, 'mega_pet');
+        const megaTexture = this.resolveTextureKey('mega_pet');
+        this.megaPetSprite = this.add.sprite(width / 2, height / 2, megaTexture);
+        if (megaTexture === '__WHITE') {
+            this.megaPetSprite.setTint(0xff00ff);
+            this.megaPetSprite.setDisplaySize(80, 80);
+        }
         this.megaPetSprite.setScale(2);
         this.megaPetSprite.setDepth(100);
         this.megaPetSprite.setAlpha(0);
@@ -703,22 +871,31 @@ export class GameScene extends Phaser.Scene {
 
         if (pet.nameText) {
             pet.nameText.x = pet.x;
-            pet.nameText.y = pet.y - 34;
+            pet.nameText.y = pet.y - 38;
         }
         if (pet.levelText) {
-            pet.levelText.x = pet.x + 24;
-            pet.levelText.y = pet.y - 24;
+            pet.levelText.x = pet.x + 26;
+            pet.levelText.y = pet.y - 26;
         }
         if (pet.hpBarBg) {
             pet.hpBarBg.clear();
-            pet.hpBarBg.fillStyle(0x333333, 1);
-            pet.hpBarBg.fillRect(pet.x - 24, pet.y - 26, 48, 5);
+            // Bar background
+            pet.hpBarBg.fillStyle(0x0a0a1e, 0.9);
+            pet.hpBarBg.fillRoundedRect(pet.x - 26, pet.y - 28, 52, 6, 3);
+            pet.hpBarBg.lineStyle(1, 0x333355, 0.6);
+            pet.hpBarBg.strokeRoundedRect(pet.x - 26, pet.y - 28, 52, 6, 3);
         }
         if (pet.hpBarFill) {
             const hpRatio = Phaser.Math.Clamp(pet.petData.hp / pet.petData.maxHp, 0, 1);
             pet.hpBarFill.clear();
-            pet.hpBarFill.fillStyle(hpRatio > 0.4 ? 0x00ff66 : 0xff4444, 1);
-            pet.hpBarFill.fillRect(pet.x - 23, pet.y - 25, 46 * hpRatio, 3);
+            const barColor = hpRatio > 0.6 ? 0x00ff88 : hpRatio > 0.3 ? 0xffaa00 : 0xff4444;
+            pet.hpBarFill.fillStyle(barColor, 1);
+            pet.hpBarFill.fillRoundedRect(pet.x - 25, pet.y - 27, 50 * hpRatio, 4, 2);
+            // Sheen on fill
+            if (hpRatio > 0.05) {
+                pet.hpBarFill.fillStyle(0xffffff, 0.2);
+                pet.hpBarFill.fillRoundedRect(pet.x - 25, pet.y - 27, 50 * hpRatio, 2, 1);
+            }
         }
     }
 
@@ -727,15 +904,22 @@ export class GameScene extends Phaser.Scene {
 
         if (enemy.hpBarBg) {
             enemy.hpBarBg.clear();
-            enemy.hpBarBg.fillStyle(0x333333, 1);
-            enemy.hpBarBg.fillRect(enemy.x - 25, enemy.y - 25, 50, 6);
+            enemy.hpBarBg.fillStyle(0x0a0a1e, 0.9);
+            enemy.hpBarBg.fillRoundedRect(enemy.x - 27, enemy.y - 28, 54, 7, 3);
+            enemy.hpBarBg.lineStyle(1, 0x553333, 0.6);
+            enemy.hpBarBg.strokeRoundedRect(enemy.x - 27, enemy.y - 28, 54, 7, 3);
         }
 
         if (enemy.hpBar) {
             const hpRatio = Phaser.Math.Clamp(enemy.enemyData.hp / enemy.enemyData.maxHp, 0, 1);
             enemy.hpBar.clear();
-            enemy.hpBar.fillStyle(hpRatio > 0.4 ? 0x00ff66 : 0xff4444, 1);
-            enemy.hpBar.fillRect(enemy.x - 24, enemy.y - 24, 48 * hpRatio, 4);
+            const barColor = hpRatio > 0.5 ? 0xff6644 : hpRatio > 0.25 ? 0xff4400 : 0xff0000;
+            enemy.hpBar.fillStyle(barColor, 1);
+            enemy.hpBar.fillRoundedRect(enemy.x - 26, enemy.y - 27, 52 * hpRatio, 5, 2);
+            if (hpRatio > 0.05) {
+                enemy.hpBar.fillStyle(0xffffff, 0.15);
+                enemy.hpBar.fillRoundedRect(enemy.x - 26, enemy.y - 27, 52 * hpRatio, 2, 1);
+            }
         }
     }
 }

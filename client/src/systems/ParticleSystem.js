@@ -9,10 +9,11 @@ export class ParticleSystem {
         this.activeParticles = [];
         this.maxParticles = 500; // Límite de rendimiento
         this.poolKey = 'runtime_particles';
+        this.particleTextureKey = this.resolveTextureKey('particle');
 
         if (this.scene.objectPool) {
             this.scene.objectPool.createPool(this.poolKey, () => {
-                const sprite = this.scene.add.sprite(0, 0, 'particle');
+                const sprite = this.scene.add.sprite(0, 0, this.particleTextureKey);
                 this.scene.physics.add.existing(sprite);
                 sprite.setActive(false);
                 sprite.setVisible(false);
@@ -20,6 +21,17 @@ export class ParticleSystem {
                 return sprite;
             }, 80);
         }
+    }
+
+    resolveTextureKey(primaryKey) {
+        if (
+            this.scene.textures &&
+            typeof this.scene.textures.exists === 'function' &&
+            this.scene.textures.exists(primaryKey)
+        ) {
+            return primaryKey;
+        }
+        return '__WHITE';
     }
 
     update(delta) {
@@ -55,7 +67,7 @@ export class ParticleSystem {
             sprite = this.scene.objectPool.get(this.poolKey);
         }
         if (!sprite) {
-            sprite = this.scene.add.sprite(x, y, 'particle');
+            sprite = this.scene.add.sprite(x, y, this.particleTextureKey);
             this.scene.physics.add.existing(sprite);
             sprite.setDepth(50);
         }
@@ -239,7 +251,7 @@ export class ParticleSystem {
         const sprite = this.scene.add.sprite(
             Math.random() * width,
             height + 20,
-            'particle'
+            this.particleTextureKey
         );
         sprite.setTint(0xffffff);
         sprite.setScale(0.2 + Math.random() * 0.3);

@@ -89,7 +89,7 @@ pet-battle-arena/
 
 - **Backend:** Node.js + Express + Socket.IO
 - **TikTok:** tiktok-live-connector
-- **Frontend:** Phaser.js 3.70
+- **Frontend:** Phaser 4 (RC) + PixiJS (CDN `@latest`)
 - **Estilos:** HTML/CSS (overlay)
 - **Deploy:** OBS Browser Source
 

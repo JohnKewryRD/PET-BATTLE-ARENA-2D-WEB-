@@ -3,6 +3,8 @@
  * Maneja elementos HUD y superposiciones
  */
 
+const Phaser = window.Phaser;
+
 export class UIScene extends Phaser.Scene {
     constructor() {
         super({ key: 'UIScene' });

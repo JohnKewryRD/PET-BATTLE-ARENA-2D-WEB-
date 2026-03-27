@@ -10,6 +10,17 @@ export class ObjectPool {
         this.maxPoolSize = 100;
     }
 
+    resolveTextureKey(primaryKey) {
+        if (
+            this.scene.textures &&
+            typeof this.scene.textures.exists === 'function' &&
+            this.scene.textures.exists(primaryKey)
+        ) {
+            return primaryKey;
+        }
+        return '__WHITE';
+    }
+
     createPool(key, factory, initialSize = 10) {
         if (this.pools.has(key)) {
             console.warn(`El pool ${key} ya existe`);
@@ -113,7 +124,7 @@ export class ObjectPool {
     // Utilidad para crear pool de partículas
     createParticlePool() {
         return this.createPool('particles', () => {
-            const sprite = this.scene.add.sprite(0, 0, 'particle');
+            const sprite = this.scene.add.sprite(0, 0, this.resolveTextureKey('particle'));
             sprite.setActive(false);
             sprite.setVisible(false);
             return sprite;
@@ -123,7 +134,7 @@ export class ObjectPool {
     // Utilidad para crear pool de proyectiles
     createProjectilePool() {
         return this.createPool('projectiles', () => {
-            const sprite = this.scene.add.sprite(0, 0, 'projectile');
+            const sprite = this.scene.add.sprite(0, 0, this.resolveTextureKey('projectile'));
             sprite.setActive(false);
             sprite.setVisible(false);
             return sprite;

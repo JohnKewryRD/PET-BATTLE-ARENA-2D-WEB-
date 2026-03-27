@@ -8,15 +8,19 @@ export class WaveSystem {
         this.scene = scene;
         this.currentWave = 0;
         this.enemiesRemaining = 0;
+        this.spawnGraceRemaining = 0;
         this.waveInProgress = false;
         this.spawnTimer = 0;
         this.waveDelay = 5000; // 5 segundos entre oleadas
     }
 
     update(delta) {
+        if (this.spawnGraceRemaining > 0) {
+            this.spawnGraceRemaining -= delta;
+        }
         if (this.waveInProgress) {
             // Verificar si la oleada está completa
-            if (this.enemiesRemaining <= 0) {
+            if (this.spawnGraceRemaining <= 0 && this.enemiesRemaining <= 0) {
                 this.waveComplete();
             }
         }
@@ -24,34 +28,13 @@ export class WaveSystem {
 
     spawnWave(waveData, gameScene) {
         this.currentWave = waveData.wave;
-        this.enemiesRemaining = waveData.enemyCount;
+        this.enemiesRemaining = 0;
+        this.spawnGraceRemaining = 5000;
         this.waveInProgress = true;
         this.spawnDelay = 0;
 
         // Mostrar anuncio de oleada
         this.showWaveAnnouncement(waveData.wave);
-
-        // Generar enemigos con retraso
-        for (let i = 0; i < waveData.enemyCount; i++) {
-            this.scene.time.delayedCall(i * 500, () => {
-                if (this.waveInProgress) {
-                    gameScene.spawnEnemy(waveData);
-                    this.scene.particleSystem.burst(
-                        Math.random() * this.scene.cameras.main.width,
-                        -30,
-                        0xff0000,
-                        5
-                    );
-                }
-            });
-        }
-
-        // Oleada de jefe cada 5 oleadas
-        if (waveData.wave % 5 === 0) {
-            this.scene.time.delayedCall(2000, () => {
-                this.spawnBoss(gameScene, waveData);
-            });
-        }
     }
 
     showWaveAnnouncement(waveNumber) {
@@ -97,72 +80,15 @@ export class WaveSystem {
         this.scene.cameras.main.shake(300, 0.005);
     }
 
-    spawnBoss(gameScene, waveData) {
-        const { width, height } = this.scene.cameras.main;
-        
-        // Anuncio de jefe
-        const bossText = this.scene.add.text(width / 2, height / 2, '👹 JEFE 👹', {
-            fontSize: '64px',
-            fontFamily: 'Arial Black',
-            color: '#ff0000',
-            stroke: '#000000',
-            strokeThickness: 4
-        });
-        bossText.setOrigin(0.5);
-        bossText.setDepth(200);
-
-        this.scene.tweens.add({
-            targets: bossText,
-            alpha: 0,
-            y: height / 2 - 100,
-            duration: 1500,
-            delay: 2000,
-            onComplete: () => bossText.destroy()
-        });
-
-        // Generar jefe en el centro superior
-        const bossX = width / 2;
-        const bossY = -50;
-
-        const bossSprite = this.scene.add.sprite(bossX, bossY, 'enemy_0');
-        bossSprite.setScale(3);
-        bossSprite.setDepth(50);
-        bossSprite.setTint(0xff0000);
-
-        // Datos del jefe
-        bossSprite.enemyData = {
-            hp: 500 * waveData.difficulty.health,
-            maxHp: 500 * waveData.difficulty.health,
-            damage: 30 * waveData.difficulty.damage,
-            speed: 1 + waveData.difficulty.speed * 0.5,
-            isBoss: true
-        };
-        bossSprite.alive = true;
-        bossSprite.attackCooldown = 0;
-
-        // Barra de vida del jefe
-        const bossHealthBar = this.scene.add.graphics();
-        bossHealthBar.setDepth(60);
-        bossSprite.healthBar = bossHealthBar;
-
-        // Animación de caída
-        this.scene.tweens.add({
-            targets: bossSprite,
-            y: 150,
-            duration: 1000,
-            ease: 'Bounce.easeOut'
-        });
-
-        // Gran efecto de entrada
-        this.scene.particleSystem.explosion(bossX, 150, 0xff0000, 30);
-        this.scene.particleSystem.screenShake(10);
-
-        gameScene.enemies.add(bossSprite);
-        this.enemiesRemaining++;
+    onEnemyDeath() {
+        if (this.enemiesRemaining > 0) {
+            this.enemiesRemaining--;
+        }
     }
 
-    onEnemyDeath() {
-        this.enemiesRemaining--;
+    onEnemySpawned() {
+        this.enemiesRemaining++;
+        this.spawnGraceRemaining = 0;
     }
 
     waveComplete() {
@@ -193,6 +119,9 @@ export class WaveSystem {
 
         // Puntos/efectos de bonificación
         this.scene.particleSystem.colorFlash(0x00ff00, 300);
+        if (this.scene.audioSystem) {
+            this.scene.audioSystem.playWaveComplete();
+        }
     }
 
     getDifficultyMultiplier(wave) {

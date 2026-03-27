@@ -359,6 +359,199 @@
         .stat-value.enemies { color: #ff6b6b; }
         .stat-value.gifts { color: #ffd700; }
 
+        .leaderboard-panel {
+            position: absolute;
+            right: 20px;
+            top: 170px;
+            width: 330px;
+            background: rgba(0, 0, 0, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px;
+            color: #fff;
+        }
+
+        .leaderboard-title {
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            color: #ffd700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .leaderboard-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
+        .leaderboard-date {
+            color: #9aa0a6;
+            font-size: 0.72em;
+        }
+
+        .leaderboard-modes {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 2px;
+            gap: 2px;
+        }
+
+        .leaderboard-mode-btn {
+            border: none;
+            background: transparent;
+            color: #d5d9df;
+            font-size: 0.72em;
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+
+        .leaderboard-mode-btn.active {
+            background: rgba(0, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .leaderboard-body {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .leaderboard-row {
+            display: grid;
+            grid-template-columns: 42px 1fr 56px 64px;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 0.85em;
+        }
+
+        .leaderboard-rank {
+            color: #f7c948;
+            font-weight: bold;
+        }
+
+        .leaderboard-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .leaderboard-kills {
+            color: #ff9f43;
+            text-align: right;
+        }
+
+        .leaderboard-score {
+            color: #4ecdc4;
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .leaderboard-empty {
+            text-align: center;
+            color: #9aa0a6;
+            padding: 12px 0;
+            font-size: 0.85em;
+        }
+
+        .admin-panel {
+            position: absolute;
+            right: 20px;
+            bottom: 64px;
+            width: 330px;
+            background: rgba(0, 0, 0, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px;
+            pointer-events: auto;
+        }
+
+        .admin-panel.hidden {
+            display: none;
+        }
+
+        .admin-toggle-btn {
+            position: absolute;
+            right: 20px;
+            bottom: 22px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ff9f43, #ff7f50);
+            color: #1b1b1b;
+            font-weight: 700;
+            font-size: 0.78em;
+            padding: 8px 12px;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .admin-title {
+            font-size: 0.82em;
+            color: #ff9f43;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .admin-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .admin-row.actions {
+            justify-content: flex-end;
+        }
+
+        .admin-input {
+            flex: 1;
+            border: 1px solid #333;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.78em;
+        }
+
+        .admin-select {
+            border: 1px solid #333;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.78em;
+            min-width: 95px;
+        }
+
+        .admin-btn {
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ff9f43, #ff7f50);
+            color: #1b1b1b;
+            font-weight: 700;
+            font-size: 0.78em;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .admin-btn.secondary {
+            background: rgba(255, 255, 255, 0.14);
+            color: #f1f5f9;
+        }
+
+        .admin-msg {
+            min-height: 18px;
+            font-size: 0.74em;
+            color: #c7d2da;
+        }
+
         /* Pet Count */
         .pet-count {
             position: absolute;
@@ -475,6 +668,36 @@
         .instructions p {
             margin: 5px 0;
         }
+
+        @media (max-width: 900px) {
+            .leaderboard-panel {
+                right: 12px;
+                left: 12px;
+                width: auto;
+                top: 150px;
+            }
+
+            .leaderboard-meta {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+
+            .leaderboard-date {
+                width: 100%;
+            }
+
+            .admin-toggle-btn {
+                right: 12px;
+                bottom: 12px;
+            }
+
+            .admin-panel {
+                right: 12px;
+                left: 12px;
+                width: auto;
+                bottom: 54px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -558,6 +781,40 @@
             </div>
         </div>
 
+        <div class="leaderboard-panel">
+            <div class="leaderboard-title">Top Usuarios</div>
+            <div class="leaderboard-meta">
+                <div class="leaderboard-modes">
+                    <button class="leaderboard-mode-btn active" id="lb-mode-daily" onclick="setLeaderboardMode('daily')">Hoy</button>
+                    <button class="leaderboard-mode-btn" id="lb-mode-historical" onclick="setLeaderboardMode('historical')">Histórico</button>
+                </div>
+                <div class="leaderboard-date" id="leaderboard-date"></div>
+            </div>
+            <div class="leaderboard-body" id="leaderboard-body">
+                <div class="leaderboard-empty">Sin puntuaciones aún</div>
+            </div>
+        </div>
+
+        <button class="admin-toggle-btn" id="admin-toggle-btn" onclick="toggleAdminPanel()">Admin</button>
+
+        <div class="admin-panel hidden" id="admin-panel">
+            <div class="admin-title">Admin Leaderboard</div>
+            <div class="admin-row">
+                <input class="admin-input" type="password" id="admin-token" placeholder="Room Admin Token">
+            </div>
+            <div class="admin-row">
+                <select class="admin-select" id="admin-reset-mode">
+                    <option value="daily">daily</option>
+                    <option value="all">all</option>
+                </select>
+                <button class="admin-btn" onclick="resetLeaderboardAdmin()">Reset</button>
+            </div>
+            <div class="admin-row actions">
+                <button class="admin-btn secondary" onclick="switchUserFromAdmin()">Cambiar usuario</button>
+            </div>
+            <div class="admin-msg" id="admin-msg"></div>
+        </div>
+
         <!-- Pet Count -->
         <div class="pet-count">
             <div class="pet-count-label">Activas</div>
@@ -580,6 +837,7 @@
     <!-- Load Phaser -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
     <script type="module" src="src/main.js"></script>
     
     <script>
@@ -612,11 +870,12 @@
             window.isDemoMode = false;
 
             try {
+                const existingRoomId = localStorage.getItem('petArena:roomId') || `room_${username.toLowerCase()}`;
                 // Connect to server with username
                 const response = await fetch('/connect', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: username })
+                    body: JSON.stringify({ username: username, roomId: existingRoomId })
                 });
 
                 const data = await response.json();
@@ -628,7 +887,16 @@
                 // Success - start game
                 currentUsername = username;
                 isConnected = true;
-                startGame(username);
+                localStorage.setItem('petArena:tiktokUsername', username);
+                if (data.roomId) {
+                    localStorage.setItem('petArena:roomId', data.roomId);
+                }
+                if (data.adminToken) {
+                    localStorage.setItem('petArena:adminToken', data.adminToken);
+                    const adminTokenInput = document.getElementById('admin-token');
+                    if (adminTokenInput) adminTokenInput.value = data.adminToken;
+                }
+                startGame(username, data.roomId || null);
 
             } catch (error) {
                 showError(error.message);
@@ -645,7 +913,52 @@
             connectBtn.disabled = true;
             demoBtn.disabled = true;
             window.isDemoMode = true;
-            startGame('demo');
+            const demoRoomId = `demo_${Date.now().toString(36)}`;
+            localStorage.setItem('petArena:roomId', demoRoomId);
+            startGame('demo', demoRoomId);
+        }
+
+        async function connectWithStoredUsername(username) {
+            const connectBtn = document.getElementById('connect-btn');
+            const demoBtn = document.getElementById('demo-btn');
+            const spinner = document.getElementById('spinner');
+
+            connectBtn.disabled = true;
+            demoBtn.disabled = true;
+            connectBtn.textContent = '⏳ Reconectando...';
+            spinner.style.display = 'block';
+            hideError();
+
+            try {
+                const existingRoomId = localStorage.getItem('petArena:roomId') || `room_${username.toLowerCase()}`;
+                const response = await fetch('/connect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, roomId: existingRoomId })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'No se pudo restaurar la sesión');
+                }
+                currentUsername = username;
+                isConnected = true;
+                localStorage.setItem('petArena:tiktokUsername', username);
+                if (data.roomId) {
+                    localStorage.setItem('petArena:roomId', data.roomId);
+                }
+                if (data.adminToken) {
+                    localStorage.setItem('petArena:adminToken', data.adminToken);
+                    const adminTokenInput = document.getElementById('admin-token');
+                    if (adminTokenInput) adminTokenInput.value = data.adminToken;
+                }
+                startGame(username, data.roomId || null);
+            } catch (error) {
+                showError(error.message);
+                connectBtn.disabled = false;
+                demoBtn.disabled = false;
+                connectBtn.textContent = '▶️ CONECTAR';
+                spinner.style.display = 'none';
+            }
         }
 
         function showError(message) {
@@ -659,7 +972,7 @@
             errorMsg.classList.remove('show');
         }
 
-        function startGame(username) {
+        function startGame(username, roomId) {
             // Hide menu, show game
             document.getElementById('menu-container').classList.add('hidden');
             document.getElementById('game-container').classList.add('active');
@@ -671,6 +984,11 @@
 
             // Store username for later use
             window.tiktokUsername = username;
+            if (roomId) {
+                window.petArenaRoomId = roomId;
+            } else {
+                window.petArenaRoomId = localStorage.getItem('petArena:roomId') || `room_${username}`;
+            }
 
             // Initialize the game
             if (typeof initGame === 'function') {
@@ -678,10 +996,107 @@
             }
         }
 
+        function toggleAdminPanel() {
+            const panel = document.getElementById('admin-panel');
+            const btn = document.getElementById('admin-toggle-btn');
+            if (!panel || !btn) return;
+            panel.classList.toggle('hidden');
+            btn.textContent = panel.classList.contains('hidden') ? 'Admin' : 'Cerrar Admin';
+        }
+
+        function switchUserFromAdmin() {
+            localStorage.removeItem('petArena:tiktokUsername');
+            localStorage.removeItem('petArena:roomId');
+            localStorage.removeItem('petArena:adminToken');
+            window.tiktokUsername = '';
+            window.petArenaRoomId = '';
+            window.location.reload();
+        }
+
+        async function resetLeaderboardAdmin() {
+            const tokenEl = document.getElementById('admin-token');
+            const modeEl = document.getElementById('admin-reset-mode');
+            const msgEl = document.getElementById('admin-msg');
+            if (!tokenEl || !modeEl || !msgEl) return;
+
+            const token = tokenEl.value.trim();
+            const mode = modeEl.value === 'all' ? 'all' : 'daily';
+            if (!token) {
+                msgEl.textContent = 'Token requerido';
+                return;
+            }
+
+            const roomId = window.petArenaRoomId || localStorage.getItem('petArena:roomId') || '';
+            if (!roomId) {
+                msgEl.textContent = 'roomId no disponible';
+                return;
+            }
+            msgEl.textContent = 'Procesando...';
+            localStorage.setItem('petArena:adminToken', token);
+
+            try {
+                const response = await fetch('/admin/leaderboard/reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-token': token
+                    },
+                    body: JSON.stringify({
+                        mode,
+                        roomId
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'No se pudo resetear');
+                }
+                msgEl.textContent = `Reset ${data.mode} aplicado`;
+            } catch (error) {
+                msgEl.textContent = `Error: ${error.message}`;
+            }
+        }
+
         // Enter key support
         document.getElementById('tiktok-username').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 connectToTikTok();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const savedUsername = localStorage.getItem('petArena:tiktokUsername');
+            const savedRoomId = localStorage.getItem('petArena:roomId');
+            const savedAdminToken = localStorage.getItem('petArena:adminToken');
+            const usernameInput = document.getElementById('tiktok-username');
+            const adminTokenInput = document.getElementById('admin-token');
+            if (savedUsername && usernameInput) {
+                usernameInput.value = savedUsername;
+            }
+            if (savedAdminToken && adminTokenInput) {
+                adminTokenInput.value = savedAdminToken;
+            }
+
+            try {
+                const statusUrl = savedRoomId ? `/status?roomId=${encodeURIComponent(savedRoomId)}` : '/status';
+                const response = await fetch(statusUrl);
+                if (!response.ok) return;
+                const status = await response.json();
+
+                if (status.roomId) {
+                    localStorage.setItem('petArena:roomId', status.roomId);
+                }
+
+                if (status.connected && status.username && status.roomId) {
+                    localStorage.setItem('petArena:tiktokUsername', status.username);
+                    startGame(status.username, status.roomId);
+                    return;
+                }
+            } catch (error) {
+                // ignored: fallback to manual connect
+            }
+
+            if (savedUsername) {
+                connectWithStoredUsername(savedUsername);
             }
         });
     </script>

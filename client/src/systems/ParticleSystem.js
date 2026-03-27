@@ -8,6 +8,18 @@ export class ParticleSystem {
         this.scene = scene;
         this.activeParticles = [];
         this.maxParticles = 500; // Límite de rendimiento
+        this.poolKey = 'runtime_particles';
+
+        if (this.scene.objectPool) {
+            this.scene.objectPool.createPool(this.poolKey, () => {
+                const sprite = this.scene.add.sprite(0, 0, 'particle');
+                this.scene.physics.add.existing(sprite);
+                sprite.setActive(false);
+                sprite.setVisible(false);
+                sprite.setDepth(50);
+                return sprite;
+            }, 80);
+        }
     }
 
     update(delta) {
@@ -18,7 +30,7 @@ export class ParticleSystem {
             }
             p.lifetime -= delta;
             if (p.lifetime <= 0) {
-                p.sprite.destroy();
+                this.releaseParticle(p.sprite);
                 return false;
             }
             return true;
@@ -31,32 +43,54 @@ export class ParticleSystem {
         }
     }
 
-    createParticle(x, y, color) {
+    createParticle(x, y, color, options = {}) {
         if (this.activeParticles.length >= this.maxParticles) {
             // Eliminar partícula más antigua
             const oldest = this.activeParticles.shift();
-            if (oldest && oldest.sprite) oldest.sprite.destroy();
+            if (oldest && oldest.sprite) this.releaseParticle(oldest.sprite);
         }
 
-        const sprite = this.scene.add.sprite(x, y, 'particle');
+        let sprite = null;
+        if (this.scene.objectPool) {
+            sprite = this.scene.objectPool.get(this.poolKey);
+        }
+        if (!sprite) {
+            sprite = this.scene.add.sprite(x, y, 'particle');
+            this.scene.physics.add.existing(sprite);
+            sprite.setDepth(50);
+        }
+        sprite.setPosition(x, y);
         sprite.setTint(color);
-        sprite.setScale(0.5 + Math.random() * 0.5);
+        const scaleMin = options.scaleMin ?? 0.5;
+        const scaleMax = options.scaleMax ?? 1.0;
+        sprite.setScale(scaleMin + Math.random() * (scaleMax - scaleMin));
         sprite.setAlpha(1);
-        sprite.setDepth(50);
+        sprite.setActive(true);
+        sprite.setVisible(true);
+        if (options.depth) {
+            sprite.setDepth(options.depth);
+        }
 
         // Velocidad aleatoria
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 50 + Math.random() * 100;
+        const angle = typeof options.angle === 'number' ? options.angle : (Math.random() * Math.PI * 2);
+        const speedMin = options.speedMin ?? 50;
+        const speedMax = options.speedMax ?? 150;
+        const speed = speedMin + Math.random() * (speedMax - speedMin);
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
 
         // Física
-        this.scene.physics.add.existing(sprite);
-        sprite.body.setVelocity(vx, vy);
-        sprite.body.setGravityY(200);
+        if (sprite.body) {
+            sprite.body.reset(x, y);
+            sprite.body.setEnable(true);
+            sprite.body.setVelocity(vx, vy);
+            sprite.body.setGravityY(options.gravityY ?? 200);
+        }
 
         // Desvanecer y encoger
-        const lifetime = 500 + Math.random() * 500;
+        const lifetimeMin = options.lifetimeMin ?? 500;
+        const lifetimeMax = options.lifetimeMax ?? 1000;
+        const lifetime = lifetimeMin + Math.random() * (lifetimeMax - lifetimeMin);
         
         this.scene.tweens.add({
             targets: sprite,
@@ -66,7 +100,7 @@ export class ParticleSystem {
             duration: lifetime,
             ease: 'Power2',
             onComplete: () => {
-                if (sprite.active) sprite.destroy();
+                if (sprite.active) this.releaseParticle(sprite);
             }
         });
 
@@ -79,35 +113,35 @@ export class ParticleSystem {
         return sprite;
     }
 
+    releaseParticle(sprite) {
+        if (!sprite) return;
+        if (sprite.body) {
+            sprite.body.setVelocity(0, 0);
+            sprite.body.setGravityY(0);
+            sprite.body.setEnable(false);
+        }
+        sprite.setActive(false);
+        sprite.setVisible(false);
+        if (this.scene.objectPool) {
+            this.scene.objectPool.release(this.poolKey, sprite);
+        } else {
+            sprite.destroy();
+        }
+    }
+
     explosion(x, y, color, count = 20) {
         // Anillo de partículas expandiéndose hacia afuera
         for (let i = 0; i < count; i++) {
             const angle = (i / count) * Math.PI * 2;
-            const speed = 100 + Math.random() * 100;
-            
-            const sprite = this.scene.add.sprite(x, y, 'particle');
-            sprite.setTint(color);
-            sprite.setScale(0.3 + Math.random() * 0.4);
-            sprite.setDepth(50);
-
-            this.scene.physics.add.existing(sprite);
-            sprite.body.setVelocity(
-                Math.cos(angle) * speed,
-                Math.sin(angle) * speed
-            );
-
-            const lifetime = 600 + Math.random() * 400;
-            
-            this.scene.tweens.add({
-                targets: sprite,
-                alpha: 0,
-                scaleX: 0,
-                scaleY: 0,
-                duration: lifetime,
-                ease: 'Power2',
-                onComplete: () => {
-                    if (sprite.active) sprite.destroy();
-                }
+            this.createParticle(x, y, color, {
+                angle,
+                speedMin: 100,
+                speedMax: 200,
+                scaleMin: 0.3,
+                scaleMax: 0.7,
+                lifetimeMin: 600,
+                lifetimeMax: 1000,
+                gravityY: 120
             });
         }
     }
@@ -160,23 +194,20 @@ export class ParticleSystem {
 
     trail(x, y, color) {
         // Efecto de estela ligera para objetos que se mueven rápido
-        const sprite = this.scene.add.sprite(x, y, 'particle');
-        sprite.setTint(color);
-        sprite.setScale(0.3);
-        sprite.setAlpha(0.7);
-        sprite.setDepth(40);
-
-        this.scene.tweens.add({
-            targets: sprite,
-            alpha: 0,
-            scaleX: 0,
-            scaleY: 0,
-            duration: 300,
-            ease: 'Power2',
-            onComplete: () => {
-                if (sprite.active) sprite.destroy();
-            }
+        const sprite = this.createParticle(x, y, color, {
+            speedMin: 1,
+            speedMax: 4,
+            scaleMin: 0.2,
+            scaleMax: 0.35,
+            lifetimeMin: 220,
+            lifetimeMax: 320,
+            gravityY: 0,
+            depth: 40
         });
+
+        if (sprite) {
+            sprite.setAlpha(0.7);
+        }
     }
 
     screenShake(intensity = 5) {

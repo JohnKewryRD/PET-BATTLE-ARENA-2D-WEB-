@@ -272,6 +272,13 @@ class EventProcessor {
             pet.hp += levels * 10;
             pet.maxHp += levels * 10;
             pet.damage += levels * 5;
+            this.server.io.emit('pet:updated', {
+                id: pet.id,
+                hp: pet.hp,
+                maxHp: pet.maxHp,
+                level: pet.level,
+                damage: pet.damage
+            });
         });
 
         this.server.io.emit('pets:upgrade', {

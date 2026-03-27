@@ -8,6 +8,7 @@ import { ObjectPool } from '../systems/ObjectPool.js';
 import { CombatSystem } from '../systems/CombatSystem.js';
 import { ParticleSystem } from '../systems/ParticleSystem.js';
 import { WaveSystem } from '../systems/WaveSystem.js';
+import { AudioSystem } from '../systems/AudioSystem.js';
 
 export class GameScene extends Phaser.Scene {
     constructor() {
@@ -23,6 +24,7 @@ export class GameScene extends Phaser.Scene {
         this.combatSystem = new CombatSystem(this);
         this.particleSystem = new ParticleSystem(this);
         this.waveSystem = new WaveSystem(this);
+        this.audioSystem = new AudioSystem();
 
         // Crear mundo del juego
         this.createWorld();
@@ -321,7 +323,7 @@ export class GameScene extends Phaser.Scene {
                 if (dist < 300) {
                     // Daño basado en distancia
                     const damage = Math.floor(50 * (1 - dist / 300));
-                    enemy.enemyData.hp -= damage;
+                    this.reportEnemyDamage(enemy.enemyData.id, damage, null);
                     
                     // Retroalimentación visual
                     this.particleSystem.explosion(enemy.x, enemy.y, 0xff00ff);
@@ -331,10 +333,6 @@ export class GameScene extends Phaser.Scene {
                         duration: 100,
                         yoyo: true
                     });
-
-                    if (enemy.enemyData.hp <= 0) {
-                        this.combatSystem.enemyDeath(enemy);
-                    }
                 }
             }
         });
@@ -400,6 +398,7 @@ export class GameScene extends Phaser.Scene {
 
         // Efecto de generación
         this.particleSystem.burst(x, y, petData.color, 10);
+        this.audioSystem.playPetSpawn();
 
         // Texto flotante
         this.showFloatingText(x, y - 50, `+${petData.name}`, petData.color);
@@ -424,35 +423,45 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
+    updatePetState(petData) {
+        const pet = this.pets.getChildren().find((entity) => entity.petData?.id === petData.id);
+        if (!pet || !pet.petData) return;
+        Object.assign(pet.petData, petData);
+        if (pet.levelText && typeof pet.petData.level === 'number') {
+            pet.levelText.setText(`Nv${pet.petData.level}`);
+        }
+    }
+
     spawnWave(waveData) {
         this.waveSystem.spawnWave(waveData, this);
     }
 
     spawnEnemy(enemyData) {
-        const { width, height } = this.cameras.main;
-        
-        // Generar desde los bordes
-        const side = Math.floor(Math.random() * 4);
-        let x, y;
-        
-        switch (side) {
-            case 0: x = Math.random() * width; y = -30; break;
-            case 1: x = width + 30; y = Math.random() * height; break;
-            case 2: x = Math.random() * width; y = height + 30; break;
-            case 3: x = -30; y = Math.random() * height; break;
+        if (!enemyData || !enemyData.id) return null;
+        const existing = this.findEnemyById(enemyData.id);
+        if (existing) {
+            this.updateEnemyState(enemyData);
+            return existing;
         }
 
-        const typeIndex = Math.min(Math.floor(enemyData.difficulty.health / 2), 3);
-        const sprite = this.add.sprite(x, y, `enemy_${typeIndex}`);
-        sprite.setScale(0.8 + Math.random() * 0.4);
+        const typeIndex = enemyData.typeIndex || 0;
+        const sprite = this.add.sprite(enemyData.x, enemyData.y, `enemy_${typeIndex}`);
+        const scale = enemyData.isBoss ? 3 : (0.8 + Math.random() * 0.4);
+        sprite.setScale(scale);
         sprite.setDepth(5);
-        sprite.setTint(0xff6666);
+        if (enemyData.isBoss) {
+            sprite.setTint(0xff0000);
+        } else {
+            sprite.setTint(0xff6666);
+        }
 
         sprite.enemyData = {
-            hp: Math.floor(50 * enemyData.difficulty.health),
-            maxHp: Math.floor(50 * enemyData.difficulty.health),
-            damage: Math.floor(10 * enemyData.difficulty.damage),
-            speed: 2 + enemyData.difficulty.speed
+            id: enemyData.id,
+            hp: enemyData.hp,
+            maxHp: enemyData.maxHp,
+            damage: enemyData.damage,
+            speed: enemyData.speed,
+            isBoss: !!enemyData.isBoss
         };
         sprite.alive = true;
         sprite.attackCooldown = 0;
@@ -460,7 +469,7 @@ export class GameScene extends Phaser.Scene {
         // Barra de vida
         const hpBarBg = this.add.graphics();
         hpBarBg.fillStyle(0x333333, 1);
-        hpBarBg.fillRect(x - 25, y - 25, 50, 6);
+        hpBarBg.fillRect(enemyData.x - 25, enemyData.y - 25, 50, 6);
         hpBarBg.setDepth(6);
 
         const hpBarFill = this.add.graphics();
@@ -469,11 +478,40 @@ export class GameScene extends Phaser.Scene {
         sprite.hpBarBg = hpBarBg;
 
         this.enemies.add(sprite);
+        this.waveSystem.onEnemySpawned();
 
         // Efecto de generación
-        this.particleSystem.burst(x, y, 0xff0000, 5);
+        this.particleSystem.burst(enemyData.x, enemyData.y, 0xff0000, enemyData.isBoss ? 14 : 5);
+
+        if (enemyData.isBoss) {
+            this.showFloatingText(
+                this.cameras.main.centerX,
+                this.cameras.main.centerY - 40,
+                'JEFE',
+                0xff0000
+            );
+            this.cameras.main.shake(220, 0.01);
+            this.audioSystem.playBossSpawn();
+        }
 
         return sprite;
+    }
+
+    updateEnemyState(enemyData) {
+        const enemy = this.findEnemyById(enemyData.id);
+        if (!enemy || !enemy.enemyData) return;
+        if (typeof enemyData.hp === 'number') enemy.enemyData.hp = enemyData.hp;
+        if (typeof enemyData.maxHp === 'number') enemy.enemyData.maxHp = enemyData.maxHp;
+    }
+
+    removeEnemy(enemyId) {
+        const enemy = this.findEnemyById(enemyId);
+        if (!enemy) return;
+        this.onEnemyDeath(enemy);
+    }
+
+    findEnemyById(enemyId) {
+        return this.enemies.getChildren().find((enemy) => enemy.enemyData?.id === enemyId) || null;
     }
 
     activateMegaPet(data) {
@@ -499,6 +537,7 @@ export class GameScene extends Phaser.Scene {
 
         // Tormenta de partículas
         this.particleSystem.megaPetActivation(width / 2, height / 2);
+        this.audioSystem.playMegaActivate();
 
         // Ocultar mascotas fusionadas temporalmente
         this.fusedPets = [];
@@ -608,6 +647,25 @@ export class GameScene extends Phaser.Scene {
         });
 
         this.waveSystem.onEnemyDeath();
+    }
+
+    reportEnemyDamage(enemyId, damage, petId = null) {
+        if (!window.socket) return;
+        if (!window.isSimulationOwner) return;
+        window.socket.emit('enemy:damage', {
+            enemyId,
+            damage,
+            petId
+        });
+    }
+
+    reportPetDamage(petId, damage) {
+        if (!window.socket) return;
+        if (!window.isSimulationOwner) return;
+        window.socket.emit('pet:damage', {
+            petId,
+            damage
+        });
     }
 
     // Llamado cuando la mascota recibe daño

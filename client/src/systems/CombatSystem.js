@@ -25,17 +25,13 @@ export class CombatSystem {
         if (!pet.active || !enemy.active) return;
         
         const damage = pet.petData.damage + (pet.petData.level * 5);
-        
-        // Aplicar daño
-        enemy.enemyData.hp -= damage;
-        
+
         // Efectos visuales
         this.showAttackEffect(pet, enemy);
         this.createDamageNumber(enemy.x, enemy.y - 20, damage);
-        
-        // Verificar muerte del enemigo
-        if (enemy.enemyData.hp <= 0) {
-            this.enemyDeath(enemy);
+
+        if (this.scene.reportEnemyDamage && enemy.enemyData?.id) {
+            this.scene.reportEnemyDamage(enemy.enemyData.id, damage, pet.petData?.id || null);
         }
     }
 
@@ -43,16 +39,12 @@ export class CombatSystem {
         if (!enemy.active || !pet.active) return;
         
         const damage = enemy.enemyData.damage;
-        
-        // Aplicar daño
-        pet.petData.hp -= damage;
-        
+
         // Retroalimentación visual
         this.scene.onPetDamaged(pet, damage);
-        
-        // Verificar muerte de mascota
-        if (pet.petData.hp <= 0) {
-            this.petDeath(pet);
+
+        if (this.scene.reportPetDamage && pet.petData?.id) {
+            this.scene.reportPetDamage(pet.petData.id, damage);
         }
     }
 
@@ -76,6 +68,9 @@ export class CombatSystem {
 
         // Explusión de partículas en el punto de impacto
         this.scene.particleSystem.burst(target.x, target.y, 0xffff00, 5);
+        if (this.scene.audioSystem) {
+            this.scene.audioSystem.playEnemyHit();
+        }
 
         // Vibración de pantalla (sutil)
         const shakeIntensity = 2;

@@ -8,7 +8,9 @@
     "dev": "nodemon server/index.js",
     "client": "cd client && npx http-server -p 8080 -c-1",
     "client:live": "cd client && npx live-server --port=8080 --no-browser",
-    "dev:all": "concurrently \"npm run dev\" \"npm run client:live\""
+    "dev:all": "concurrently \"npm run dev\" \"npm run client:live\"",
+    "test:server": "node --test server/tests/*.test.js",
+    "admin:token:set": "node scripts/set-room-admin-token.js"
   },
   "keywords": [
     "tiktok",
@@ -21,6 +23,7 @@
   "author": "DEV-GAMES-TOK",
   "license": "MIT",
   "dependencies": {
+    "@supabase/supabase-js": "^2.100.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",

@@ -61,7 +61,7 @@ export class GameScene extends Phaser.Scene {
         const { width, height } = this.cameras.main;
 
         // Physics bounds
-        this.physics.world.setBounds(50, 50, width - 100, height - 100);
+        this.physics.world.setBounds(0, 0, width, height);
 
         // ── Deep background ───────────────────────────────────────────────────
         const g = this.add.graphics();
@@ -91,88 +91,24 @@ export class GameScene extends Phaser.Scene {
         ambient.fillStyle(0x7c4dff, 0.03); ambient.fillCircle(width, 0, 260);
         ambient.fillStyle(0xff6600, 0.03); ambient.fillCircle(0, height, 260);
 
-        // ── Arena floor ───────────────────────────────────────────────────────
+        // ── Arena floor (full container, no framed border) ───────────────────
         const arena = this.add.graphics();
-        arena.fillStyle(0x0a0a1e, 0.75);
-        arena.fillRoundedRect(50, 50, width - 100, height - 100, 10);
+        arena.fillStyle(0x0a0a1e, 0.65);
+        arena.fillRect(0, 0, width, height);
 
         // Scanlines — need beginPath() before moveTo/lineTo
         arena.lineStyle(1, 0xffffff, 0.01);
         arena.beginPath();
-        for (let y = 56; y < height - 52; y += 5) {
-            arena.moveTo(54, y);
-            arena.lineTo(width - 54, y);
+        for (let y = 2; y < height - 2; y += 5) {
+            arena.moveTo(0, y);
+            arena.lineTo(width, y);
         }
         arena.strokePath();
-
-        // ── Arena border (using lineBetween — guaranteed to work) ─────────────
-        const border = this.add.graphics();
-
-        // Outer soft glow: 4 semi-transparent thick lines around the rect
-        [{ t: 8, a: 0.03 }, { t: 5, a: 0.06 }, { t: 3, a: 0.12 }].forEach(({ t, a }) => {
-            border.lineStyle(t, 0x00f5ff, a);
-            border.beginPath();
-            border.moveTo(50, 50); border.lineTo(width - 50, 50);
-            border.lineTo(width - 50, height - 50); border.lineTo(50, height - 50);
-            border.closePath(); border.strokePath();
-        });
-
-        // Main border — bright cyan
-        border.lineStyle(2.5, 0x00f5ff, 0.85);
-        border.beginPath();
-        border.moveTo(50, 50); border.lineTo(width - 50, 50);
-        border.lineTo(width - 50, height - 50); border.lineTo(50, height - 50);
-        border.closePath(); border.strokePath();
-
-        // Inner border dim
-        border.lineStyle(1, 0x00f5ff, 0.2);
-        border.beginPath();
-        border.moveTo(56, 56); border.lineTo(width - 56, 56);
-        border.lineTo(width - 56, height - 56); border.lineTo(56, height - 56);
-        border.closePath(); border.strokePath();
-
-        // ── Corner ornaments ─────────────────────────────────────────────────
-        const corners = [
-            { x: 50,         y: 50 },
-            { x: width - 50, y: 50 },
-            { x: 50,         y: height - 50 },
-            { x: width - 50, y: height - 50 }
-        ];
-        const d = 28;
-        corners.forEach(corner => {
-            const sx = corner.x < width / 2 ? 1 : -1;
-            const sy = corner.y < height / 2 ? 1 : -1;
-
-            // L-shaped bracket
-            border.lineStyle(3, 0x00f5ff, 0.9);
-            border.beginPath();
-            border.moveTo(corner.x + sx * d, corner.y);
-            border.lineTo(corner.x, corner.y);
-            border.lineTo(corner.x, corner.y + sy * d);
-            border.strokePath();
-
-            // Corner dot + glow
-            border.fillStyle(0x00f5ff, 0.25); border.fillCircle(corner.x, corner.y, 14);
-            border.fillStyle(0x00f5ff, 0.9);  border.fillRect(corner.x - 4, corner.y - 4, 8, 8);
-        });
-
-        // ── Center marker ─────────────────────────────────────────────────────
-        const cx2 = width / 2, cy2 = height / 2;
-        border.fillStyle(0x00f5ff, 0.12); border.fillCircle(cx2, cy2, 22);
-        border.lineStyle(1, 0x00f5ff, 0.18); border.strokeCircle(cx2, cy2, 22);
-        border.lineStyle(1, 0x00f5ff, 0.07); border.strokeCircle(cx2, cy2, 44);
-
-        border.lineStyle(1, 0x00f5ff, 0.08);
-        border.beginPath();
-        border.moveTo(cx2 - 60, cy2); border.lineTo(cx2 + 60, cy2);
-        border.moveTo(cx2, cy2 - 60); border.lineTo(cx2, cy2 + 60);
-        border.strokePath();
 
         // Depth ordering
         g.setDepth(0);
         ambient.setDepth(0);
         arena.setDepth(1);
-        border.setDepth(2);
     }
 
     createBackground() {
@@ -374,8 +310,8 @@ export class GameScene extends Phaser.Scene {
 
         // Mantener dentro de límites
         const { width, height } = this.cameras.main;
-        pet.x = Phaser.Math.Clamp(pet.x, 100, width - 100);
-        pet.y = Phaser.Math.Clamp(pet.y, 100, height - 100);
+        pet.x = Phaser.Math.Clamp(pet.x, 30, width - 30);
+        pet.y = Phaser.Math.Clamp(pet.y, 30, height - 30);
     }
 
     updateEnemyAI(enemy, delta) {
@@ -414,9 +350,43 @@ export class GameScene extends Phaser.Scene {
                     enemy.attackCooldown = 800;
                 }
             }
+        } else {
+            // Mantener actividad aunque no haya mascotas vivas
+            this.wanderEnemy(enemy, delta);
         }
 
         enemy.attackCooldown -= delta;
+    }
+
+    wanderEnemy(enemy, delta) {
+        if (!enemy.enemyData) return;
+
+        // Cambiar direccion periodicamente para evitar que se queden estaticos
+        if (!enemy.wanderTimer || enemy.wanderTimer <= 0) {
+            const { width, height } = this.cameras.main;
+            const centerAngle = Phaser.Math.Angle.Between(
+                enemy.x,
+                enemy.y,
+                width / 2,
+                height / 2
+            );
+
+            // Mezcla de "hacia el centro" + ruido para patrulla natural
+            enemy.wanderDirection = centerAngle + Phaser.Math.FloatBetween(-0.9, 0.9);
+            enemy.wanderTimer = 900 + Math.random() * 1500;
+        }
+
+        const speedFactor = 0.65;
+        const speed = enemy.enemyData.speed * speedFactor * (delta / 1000) * 60;
+        enemy.x += Math.cos(enemy.wanderDirection) * speed;
+        enemy.y += Math.sin(enemy.wanderDirection) * speed;
+        enemy.setFlipX(Math.cos(enemy.wanderDirection) < 0);
+        enemy.wanderTimer -= delta;
+
+        // Limites de arena
+        const { width, height } = this.cameras.main;
+        enemy.x = Phaser.Math.Clamp(enemy.x, 30, width - 30);
+        enemy.y = Phaser.Math.Clamp(enemy.y, 30, height - 30);
     }
 
     updateMegaPet(delta) {
@@ -491,21 +461,78 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Métodos públicos para generación
+    findSafePetSpawn(width, height, options = {}) {
+        const padding = options.padding ?? 48;
+        const minDistance = options.minDistance ?? 180;
+        const attempts = options.attempts ?? 14;
+
+        const enemies = this.enemies?.getChildren?.().filter((e) => e.active && e.alive) || [];
+        if (enemies.length === 0) {
+            return {
+                x: padding + Math.random() * Math.max(1, width - padding * 2),
+                y: padding + Math.random() * Math.max(1, height - padding * 2)
+            };
+        }
+
+        let bestCandidate = null;
+        let bestMinDist = -1;
+
+        for (let i = 0; i < attempts; i++) {
+            const x = padding + Math.random() * Math.max(1, width - padding * 2);
+            const y = padding + Math.random() * Math.max(1, height - padding * 2);
+
+            let candidateMinDist = Infinity;
+            for (const enemy of enemies) {
+                const dist = Phaser.Math.Distance.Between(x, y, enemy.x, enemy.y);
+                candidateMinDist = Math.min(candidateMinDist, dist);
+            }
+
+            if (candidateMinDist > bestMinDist) {
+                bestMinDist = candidateMinDist;
+                bestCandidate = { x, y };
+            }
+
+            if (candidateMinDist >= minDistance) {
+                return { x, y };
+            }
+        }
+
+        return bestCandidate || { x: width / 2, y: height / 2 };
+    }
+
     spawnPet(petData) {
         const { width, height } = this.cameras.main;
+        const PET_SIZE_MULTIPLIER = 1.35;
         
-        // Posición de generación aleatoria
-        const x = 100 + Math.random() * (width - 200);
-        const y = 100 + Math.random() * (height - 200);
+        // Posicion de generacion segura (evita aparecer en medio del enjambre de enemigos)
+        const { x, y } = this.findSafePetSpawn(width, height, {
+            padding: 48,
+            minDistance: 190,
+            attempts: 16
+        });
 
-        // Crear sprite
-        const petTexture = this.resolveTextureKey(`pet_${petData.type}`);
-        const sprite = this.add.sprite(x, y, petTexture);
-        sprite.setScale(petData.scale || 1);
-        if (petTexture === '__WHITE') {
-            sprite.setTint(petData.color || 0xffffff);
-            sprite.setDisplaySize(40, 40);
-        }
+        // Crear mascota con Emojis
+        const petEmojis = {
+            'gato': '🐱',  'cat': '🐱',
+            'perro': '🐶', 'dog': '🐶',
+            'dragon': '🐉',
+            'conejo': '🐰', 'rabbit': '🐰',
+            'leon': '🦁',   'lion': '🦁',
+            'lobo': '🐺',   'wolf': '🐺',
+            'zorro': '🦊',  'fox': '🦊',
+            'oso': '🐻',    'bear': '🐻',
+            'default': '🐾'
+        };
+        const emoji = petEmojis[(petData.type || '').toLowerCase()] || petEmojis['default'];
+        
+        const sprite = this.add.text(x, y, emoji, {
+            fontSize: '40px',
+            fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols' 
+        });
+        const baseScale = petData.scale || 1;
+        const visualScale = baseScale * PET_SIZE_MULTIPLIER;
+        sprite.setOrigin(0.5);
+        sprite.setScale(visualScale);
         sprite.setDepth(10);
 
         const hpBarBg = this.add.graphics();
@@ -515,9 +542,12 @@ export class GameScene extends Phaser.Scene {
 
         // Almacenar datos de mascota
         sprite.petData = petData;
+        sprite.visualScale = visualScale;
         sprite.alive = true;
         sprite.attackCooldown = 0;
         sprite.wanderTimer = 0;
+        sprite.spawnShieldUntil = this.time.now + 1800;
+        sprite.setAlpha(0.7);
 
         // Nombre del dueño — premium badge
         const nameText = this.add.text(x, y - 34, petData.ownerName, {
@@ -550,8 +580,19 @@ export class GameScene extends Phaser.Scene {
 
         // Cuerpo de física
         this.physics.add.existing(sprite);
-        sprite.body.setCircle(20);
+        sprite.body.setCircle(Math.round(20 * Math.min(visualScale, 1.8)));
         sprite.body.setCollideWorldBounds(true);
+
+        this.tweens.add({
+            targets: sprite,
+            alpha: 1,
+            duration: 260,
+            yoyo: true,
+            repeat: 5,
+            onComplete: () => {
+                if (sprite.active) sprite.setAlpha(1);
+            }
+        });
 
         // Añadir al grupo
         this.pets.add(sprite);
@@ -605,15 +646,20 @@ export class GameScene extends Phaser.Scene {
         }
 
         const typeIndex = enemyData.typeIndex || 0;
-        const enemyTexture = this.resolveTextureKey(`enemy_${typeIndex}`);
-        const sprite = this.add.sprite(enemyData.x, enemyData.y, enemyTexture);
-        const scale = enemyData.isBoss ? 3 : (0.8 + Math.random() * 0.4);
+        
+        // Emojis para enemigos
+        const enemyEmojis = ['👾', '👽', '👻', '👺', '💀', '👿'];
+        const bossEmoji = '👹';
+        const emoji = enemyData.isBoss ? bossEmoji : enemyEmojis[typeIndex % enemyEmojis.length];
+
+        const sprite = this.add.text(enemyData.x, enemyData.y, emoji, {
+            fontSize: enemyData.isBoss ? '56px' : '36px',
+            fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols'
+        });
+        const scale = enemyData.isBoss ? 2.3 : (1.15 + Math.random() * 0.45);
+        sprite.setOrigin(0.5);
         sprite.setScale(scale);
         sprite.setDepth(5);
-        if (enemyTexture === '__WHITE') {
-            sprite.setDisplaySize(enemyData.isBoss ? 44 : 28, enemyData.isBoss ? 44 : 28);
-        }
-        sprite.setTint(enemyData.isBoss ? 0xff0000 : 0xff6666);
 
         sprite.enemyData = {
             id: enemyData.id,
@@ -628,8 +674,6 @@ export class GameScene extends Phaser.Scene {
 
         // Barra de vida
         const hpBarBg = this.add.graphics();
-        hpBarBg.fillStyle(0x333333, 1);
-        hpBarBg.fillRect(enemyData.x - 25, enemyData.y - 25, 50, 6);
         hpBarBg.setDepth(6);
 
         const hpBarFill = this.add.graphics();
@@ -868,46 +912,52 @@ export class GameScene extends Phaser.Scene {
 
     updatePetVisuals(pet) {
         if (!pet.petData) return;
+        const visualScale = pet.visualScale || 1;
+        const nameOffsetY = 32 + Math.round((visualScale - 1) * 14);
+        const levelOffsetY = 22 + Math.round((visualScale - 1) * 10);
+        const hpOffsetY = 26 + Math.round((visualScale - 1) * 12);
 
         if (pet.nameText) {
             pet.nameText.x = pet.x;
-            pet.nameText.y = pet.y - 38;
+            pet.nameText.y = pet.y - nameOffsetY;
         }
         if (pet.levelText) {
             pet.levelText.x = pet.x + 26;
-            pet.levelText.y = pet.y - 26;
+            pet.levelText.y = pet.y - levelOffsetY;
         }
         if (pet.hpBarBg) {
             pet.hpBarBg.clear();
             // Bar background
             pet.hpBarBg.fillStyle(0x0a0a1e, 0.9);
-            pet.hpBarBg.fillRoundedRect(pet.x - 26, pet.y - 28, 52, 6, 3);
+            pet.hpBarBg.fillRoundedRect(pet.x - 26, pet.y - hpOffsetY, 52, 6, 3);
             pet.hpBarBg.lineStyle(1, 0x333355, 0.6);
-            pet.hpBarBg.strokeRoundedRect(pet.x - 26, pet.y - 28, 52, 6, 3);
+            pet.hpBarBg.strokeRoundedRect(pet.x - 26, pet.y - hpOffsetY, 52, 6, 3);
         }
         if (pet.hpBarFill) {
             const hpRatio = Phaser.Math.Clamp(pet.petData.hp / pet.petData.maxHp, 0, 1);
             pet.hpBarFill.clear();
             const barColor = hpRatio > 0.6 ? 0x00ff88 : hpRatio > 0.3 ? 0xffaa00 : 0xff4444;
             pet.hpBarFill.fillStyle(barColor, 1);
-            pet.hpBarFill.fillRoundedRect(pet.x - 25, pet.y - 27, 50 * hpRatio, 4, 2);
+            pet.hpBarFill.fillRoundedRect(pet.x - 25, pet.y - hpOffsetY + 1, 50 * hpRatio, 4, 2);
             // Sheen on fill
             if (hpRatio > 0.05) {
                 pet.hpBarFill.fillStyle(0xffffff, 0.2);
-                pet.hpBarFill.fillRoundedRect(pet.x - 25, pet.y - 27, 50 * hpRatio, 2, 1);
+                pet.hpBarFill.fillRoundedRect(pet.x - 25, pet.y - hpOffsetY + 1, 50 * hpRatio, 2, 1);
             }
         }
     }
 
     updateEnemyVisuals(enemy) {
         if (!enemy.enemyData) return;
+        const visualScale = enemy.scale || 1;
+        const hpOffsetY = 28 + Math.round((visualScale - 1) * 10);
 
         if (enemy.hpBarBg) {
             enemy.hpBarBg.clear();
             enemy.hpBarBg.fillStyle(0x0a0a1e, 0.9);
-            enemy.hpBarBg.fillRoundedRect(enemy.x - 27, enemy.y - 28, 54, 7, 3);
+            enemy.hpBarBg.fillRoundedRect(enemy.x - 27, enemy.y - hpOffsetY, 54, 7, 3);
             enemy.hpBarBg.lineStyle(1, 0x553333, 0.6);
-            enemy.hpBarBg.strokeRoundedRect(enemy.x - 27, enemy.y - 28, 54, 7, 3);
+            enemy.hpBarBg.strokeRoundedRect(enemy.x - 27, enemy.y - hpOffsetY, 54, 7, 3);
         }
 
         if (enemy.hpBar) {
@@ -915,10 +965,10 @@ export class GameScene extends Phaser.Scene {
             enemy.hpBar.clear();
             const barColor = hpRatio > 0.5 ? 0xff6644 : hpRatio > 0.25 ? 0xff4400 : 0xff0000;
             enemy.hpBar.fillStyle(barColor, 1);
-            enemy.hpBar.fillRoundedRect(enemy.x - 26, enemy.y - 27, 52 * hpRatio, 5, 2);
+            enemy.hpBar.fillRoundedRect(enemy.x - 26, enemy.y - hpOffsetY + 1, 52 * hpRatio, 5, 2);
             if (hpRatio > 0.05) {
                 enemy.hpBar.fillStyle(0xffffff, 0.15);
-                enemy.hpBar.fillRoundedRect(enemy.x - 26, enemy.y - 27, 52 * hpRatio, 2, 1);
+                enemy.hpBar.fillRoundedRect(enemy.x - 26, enemy.y - hpOffsetY + 1, 52 * hpRatio, 2, 1);
             }
         }
     }

@@ -87,7 +87,7 @@ class TikTokConnector {
                 totalLikes: data.totalLikedCount || 0
             };
             
-            this.eventProcessor.processLikes(likeEvent.likeCount);
+            this.eventProcessor.processLikes(likeEvent);
         });
 
         // Eventos de suscripción/seguir

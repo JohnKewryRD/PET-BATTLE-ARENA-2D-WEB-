@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-highest": "#301d43",
+                        "secondary-fixed": "#ffbdf3",
+                        "on-tertiary": "#390050",
+                        "on-primary-fixed-variant": "#006065",
+                        "on-surface-variant": "#b7a4c7",
+                        "tertiary-fixed-dim": "#d97dff",
+                        "primary-container": "#00f1fe",
+                        "surface-container-low": "#1b0c2a",
+                        "surface-tint": "#99f7ff",
+                        "inverse-surface": "#fff7ff",
+                        "surface-container": "#221232",
+                        "secondary": "#ff51fa",
+                        "primary-fixed": "#00f1fe",
+                        "surface-variant": "#301d43",
+                        "secondary-dim": "#ff51fa",
+                        "on-secondary": "#400040",
+                        "tertiary-dim": "#bb00fc",
+                        "secondary-fixed-dim": "#ffa6f3",
+                        "tertiary": "#d674ff",
+                        "surface": "#150822",
+                        "error": "#ff716c",
+                        "surface-dim": "#150822",
+                        "inverse-primary": "#006a70",
+                        "outline": "#806f8f",
+                        "on-tertiary-fixed-variant": "#600083",
+                        "on-tertiary-container": "#000000",
+                        "on-error": "#490006",
+                        "tertiary-fixed": "#e192ff",
+                        "on-primary-fixed": "#004145",
+                        "primary-dim": "#00e2ee",
+                        "on-secondary-fixed": "#620061",
+                        "on-background": "#f1dfff",
+                        "surface-bright": "#37234c",
+                        "surface-container-high": "#29173b",
+                        "surface-container-lowest": "#000000",
+                        "primary": "#99f7ff",
+                        "inverse-on-surface": "#5e4f6d",
+                        "tertiary-container": "#be0dff",
+                        "error-container": "#9f0519",
+                        "on-primary-container": "#00555a",
+                        "on-primary": "#005f64",
+                        "on-tertiary-fixed": "#2c003f",
+                        "on-surface": "#f1dfff",
+                        "on-secondary-container": "#fff5f9",
+                        "on-error-container": "#ffa8a3",
+                        "background": "#150822",
+                        "error-dim": "#d7383b",
+                        "primary-fixed-dim": "#00e2ee",
+                        "secondary-container": "#a900a9",
+                        "outline-variant": "#51425f",
+                        "on-secondary-fixed-variant": "#920091"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .arena-glow {
+            box-shadow: inset 0 0 50px rgba(153, 247, 255, 0.15), 0 0 20px rgba(153, 247, 255, 0.1);
+        }
+        .text-neon-magenta {
+            text-shadow: 0 0 20px rgba(255, 81, 250, 0.8), 0 0 40px rgba(255, 81, 250, 0.4);
+        }
+        .glass-panel {
+            background: rgba(27, 12, 42, 0.6);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen overflow-hidden selection:bg-primary selection:text-on-primary-container">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-20 bg-[#1b0c2a]/60 backdrop-blur-xl shadow-[0_0_20px_rgba(153,247,255,0.1)]">
+<div class="flex items-center gap-4">
+<h1 class="text-4xl font-black text-[#f1dfff] drop-shadow-[0_0_15px_rgba(255,81,250,0.8)] font-['Space_Grotesk'] tracking-wider">OLEADA 4</h1>
+<div class="flex items-center gap-3 bg-surface-container-high px-3 py-1.5 rounded-lg border border-outline-variant/20">
+<span class="text-primary font-bold font-headline">@papu_billar</span>
+<span class="bg-error px-2 py-0.5 rounded text-[10px] font-black animate-pulse">LIVE</span>
+</div>
+</div>
+<!-- Center: Liked Energy Bar -->
+<div class="absolute left-1/2 -translate-x-1/2 w-80">
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">LIKES ENERGY</span>
+<div class="w-full h-4 bg-surface-container-lowest rounded-full overflow-hidden p-[2px] border border-outline-variant/10">
+<div class="h-full w-2/3 bg-gradient-to-r from-primary to-primary-container rounded-full shadow-[0_0_10px_rgba(0,241,254,0.5)]"></div>
+</div>
+<span class="text-[10px] font-bold text-primary mt-1">0 LPM</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-6">
+<span class="material-symbols-outlined text-[#99f7ff] cursor-pointer hover:text-[#00f1fe] transition-colors" data-icon="pets">pets</span>
+<span class="material-symbols-outlined text-[#b7a4c7] cursor-pointer hover:text-[#00f1fe] transition-colors" data-icon="swords">swords</span>
+<span class="material-symbols-outlined text-[#b7a4c7] cursor-pointer hover:text-[#00f1fe] transition-colors" data-icon="diamond">diamond</span>
+</div>
+</div>
+</header>
+<!-- Side Navigation (Rankings) -->
+<aside class="fixed left-0 top-20 h-[calc(100%-112px)] z-40 flex flex-col pt-4 bg-[#1b0c2a]/40 backdrop-blur-md w-64 border-r border-[#51425f]/20">
+<div class="px-6 mb-8">
+<h2 class="text-lg font-bold text-[#99f7ff] font-headline">TOP USERS</h2>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter font-semibold">Live Rankings</p>
+</div>
+<nav class="flex flex-col gap-1">
+<div class="bg-gradient-to-r from-[#a900a9]/20 to-transparent text-[#ff51fa] border-l-4 border-[#ff51fa] py-3 px-6 flex items-center gap-4 transition-all duration-300 ease-in-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-['Manrope'] text-sm font-semibold uppercase tracking-tighter">Rankings</span>
+</div>
+<div class="text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 py-3 px-6 flex items-center gap-4 transition-all duration-300 ease-in-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span class="font-['Manrope'] text-sm font-semibold uppercase tracking-tighter">Top Donors</span>
+</div>
+<div class="text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 py-3 px-6 flex items-center gap-4 transition-all duration-300 ease-in-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-['Manrope'] text-sm font-semibold uppercase tracking-tighter">Battle Log</span>
+</div>
+<div class="text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 py-3 px-6 flex items-center gap-4 transition-all duration-300 ease-in-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Manrope'] text-sm font-semibold uppercase tracking-tighter">Settings</span>
+</div>
+</nav>
+<div class="mt-auto p-6 space-y-4">
+<div class="bg-surface-container-high/40 p-4 rounded-xl border border-outline-variant/10">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">#1</div>
+<div>
+<p class="text-xs font-bold">KingPaws</p>
+<p class="text-[10px] text-on-surface-variant">42.5k Points</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant font-bold text-xs">#2</div>
+<div>
+<p class="text-xs font-bold">ShadowNeko</p>
+<p class="text-[10px] text-on-surface-variant">38.1k Points</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas (Battle Arena) -->
+<main class="fixed left-64 right-0 top-20 bottom-8 p-6 flex flex-col gap-6 overflow-hidden">
+<!-- Arena Frame -->
+<div class="relative flex-1 rounded-2xl border-2 border-primary/30 arena-glow bg-surface-container-lowest/20 overflow-hidden flex items-center justify-center">
+<!-- Background Elements -->
+<div class="absolute inset-0 z-0 overflow-hidden">
+<div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[120px]"></div>
+<img class="w-full h-full object-cover opacity-40 mix-blend-overlay" data-alt="deep space cosmic background with swirling purple nebulas subtle stars and glowing energy particles high tech grid overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuHX6aELWv6CvLDP1K9XsIbkQPVeNAQ0xMUQYjX-yf1C-ZiRER3LYjMoGO8PqjeQIa6nM6uh2g5mGxTnTmCHoN9hy6qXX_nJU9Ufrj0e0YeV_cwHHtxzJQPYQBxqfsln1A-V_kWM394h-EfRB1VXQhQlrH0ZIedCuIfouKVOp15BLWMK6ZRqu69ZS4l9RT2QuTNMYtoXyA3FPpSerjH-fhIYu6qdnUyqSiN5QqTaoaU_EuNOFhrs1fDRIV-KK5ZlbTj4p7i70j5D0"/>
+</div>
+<!-- Wave Announcement -->
+<div class="relative z-10 flex flex-col items-center">
+<h2 class="text-8xl md:text-[12rem] font-black font-headline text-secondary text-neon-magenta tracking-tighter select-none">OLEADA 4</h2>
+<div class="bg-primary/10 backdrop-blur-md px-6 py-2 rounded-full border border-primary/20 -mt-8">
+<span class="text-primary font-bold tracking-widest text-sm uppercase">Entering Combat Zone</span>
+</div>
+</div>
+<!-- Floating Stats HUD (Top Right) -->
+<div class="absolute top-6 right-6 w-64 glass-panel p-4 rounded-xl border border-outline-variant/20 z-20">
+<h3 class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-[0.2em] mb-4">Estadísticas</h3>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="pets">pets</span>
+<span class="text-sm font-semibold">Mascotas</span>
+</div>
+<span class="text-primary font-bold font-headline">0</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="dangerous">dangerous</span>
+<span class="text-sm font-semibold">Enemigos</span>
+</div>
+<span class="text-secondary font-bold font-headline">12</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-sm" data-icon="diamond">diamond</span>
+<span class="text-sm font-semibold">Diamantes</span>
+</div>
+<span class="text-tertiary font-bold font-headline">0</span>
+</div>
+</div>
+</div>
+<!-- Interaction Overlay (Bottom HUD) -->
+<div class="absolute bottom-6 left-6 flex gap-4 z-20">
+<div class="glass-panel p-3 rounded-xl border border-outline-variant/20 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant">ENERGY</p>
+<p class="text-sm font-black text-on-surface">100%</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Bar Shell -->
+<footer class="fixed bottom-0 w-full z-50 flex justify-between items-center px-4 h-8 bg-[#000000] shadow-[0_-4px_10px_rgba(0,0,0,0.5)] border-t border-[#51425f]/20">
+<div class="text-[#00f1fe] flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="lan">lan</span>
+<span class="font-['Manrope'] text-[10px] font-bold">Server: Online</span>
+</div>
+<div class="text-[#b7a4c7] flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span class="font-['Manrope'] text-[10px] font-bold">Admin Console</span>
+</div>
+</footer>
+<!-- Ambient Light Leaks -->
+<div class="fixed top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] -z-10 pointer-events-none"></div>
+<div class="fixed bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[150px] -z-10 pointer-events-none"></div>
+</body></html>

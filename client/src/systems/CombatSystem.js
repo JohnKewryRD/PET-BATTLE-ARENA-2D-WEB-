@@ -37,6 +37,7 @@ export class CombatSystem {
 
     enemyAttack(enemy, pet) {
         if (!enemy.active || !pet.active) return;
+        if (pet.spawnShieldUntil && this.scene.time.now < pet.spawnShieldUntil) return;
         
         const damage = enemy.enemyData.damage;
 

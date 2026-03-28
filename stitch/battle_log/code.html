@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OLEADA 4 | BATTLE LOG</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#00e2ee",
+              "inverse-surface": "#fff7ff",
+              "on-surface": "#f1dfff",
+              "surface-container-highest": "#301d43",
+              "secondary-fixed-dim": "#ffa6f3",
+              "on-tertiary-fixed-variant": "#600083",
+              "on-error": "#490006",
+              "surface-bright": "#37234c",
+              "secondary": "#ff51fa",
+              "on-surface-variant": "#b7a4c7",
+              "inverse-primary": "#006a70",
+              "on-primary-fixed": "#004145",
+              "surface-variant": "#301d43",
+              "on-error-container": "#ffa8a3",
+              "on-tertiary": "#390050",
+              "on-tertiary-fixed": "#2c003f",
+              "on-secondary-fixed": "#620061",
+              "surface-container": "#221232",
+              "surface-tint": "#99f7ff",
+              "error-dim": "#d7383b",
+              "inverse-on-surface": "#5e4f6d",
+              "tertiary-fixed": "#e192ff",
+              "secondary-dim": "#ff51fa",
+              "outline-variant": "#51425f",
+              "on-secondary-container": "#fff5f9",
+              "tertiary-container": "#be0dff",
+              "surface": "#150822",
+              "on-primary-container": "#00555a",
+              "on-tertiary-container": "#000000",
+              "outline": "#806f8f",
+              "error-container": "#9f0519",
+              "secondary-fixed": "#ffbdf3",
+              "surface-container-low": "#1b0c2a",
+              "primary-fixed": "#00f1fe",
+              "surface-container-lowest": "#000000",
+              "tertiary-fixed-dim": "#d97dff",
+              "tertiary-dim": "#bb00fc",
+              "primary-dim": "#00e2ee",
+              "on-secondary-fixed-variant": "#920091",
+              "tertiary": "#d674ff",
+              "error": "#ff716c",
+              "on-background": "#f1dfff",
+              "secondary-container": "#a900a9",
+              "on-primary": "#005f64",
+              "surface-container-high": "#29173b",
+              "on-primary-fixed-variant": "#006065",
+              "on-secondary": "#400040",
+              "background": "#150822",
+              "primary-container": "#00f1fe",
+              "primary": "#99f7ff",
+              "surface-dim": "#150822"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #150822;
+            background-image: 
+                linear-gradient(rgba(81, 66, 95, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(81, 66, 95, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1b0c2a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #51425f;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #99f7ff;
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface selection:bg-primary selection:text-surface">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#150822]/60 backdrop-blur-xl border-b border-[#51425f]/20 shadow-[0_0_20px_rgba(153,247,255,0.1)]">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-bold text-[#f1dfff] [text-shadow:0_0_10px_#ff51fa] font-headline">OLEADA 4</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-8">
+<span class="material-symbols-outlined text-[#b7a4c7] hover:text-[#ff51fa] transition-colors duration-300 scale-95 active:scale-90 cursor-pointer">battery_charging_full</span>
+<span class="material-symbols-outlined text-[#b7a4c7] hover:text-[#ff51fa] transition-colors duration-300 scale-95 active:scale-90 cursor-pointer">pets</span>
+<span class="material-symbols-outlined text-[#b7a4c7] hover:text-[#ff51fa] transition-colors duration-300 scale-95 active:scale-90 cursor-pointer">skull</span>
+<span class="material-symbols-outlined text-[#b7a4c7] hover:text-[#ff51fa] transition-colors duration-300 scale-95 active:scale-90 cursor-pointer">diamond</span>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<nav class="fixed left-0 top-0 h-full z-40 flex flex-col pt-20 bg-[#1b0c2a]/80 backdrop-blur-lg w-64 shadow-[10px_0_30px_rgba(0,0,0,0.5)] hidden md:flex">
+<div class="px-6 mb-8">
+<h2 class="font-headline font-black text-[#99f7ff] tracking-wider text-xl">BATTLE CORE</h2>
+<p class="font-label font-semibold text-xs uppercase tracking-tighter text-[#ff51fa]">PHASE: ACTIVE</p>
+</div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-4 px-6 py-4 text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 transition-all font-label text-xs uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+                Rankings
+            </a>
+<a class="flex items-center gap-4 px-6 py-4 text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 transition-all font-label text-xs uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined">payments</span>
+                Top Donors
+            </a>
+<a class="flex items-center gap-4 px-6 py-4 bg-[#a900a9]/20 text-[#ff51fa] border-r-4 border-[#ff51fa] shadow-[inset_0_0_15px_rgba(255,81,250,0.2)] font-label text-xs uppercase tracking-tighter translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">list_alt</span>
+                Battle Log
+            </a>
+<a class="flex items-center gap-4 px-6 py-4 text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 transition-all font-label text-xs uppercase tracking-tighter" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-24 pb-20 px-6 min-h-screen">
+<div class="max-w-6xl mx-auto space-y-6">
+<!-- Session Stats Bento Section -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="bg-surface-container-low p-6 rounded-lg border border-outline-variant/10 shadow-[0_0_15px_rgba(153,247,255,0.05)] flex flex-col justify-between">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em]">Total Pets</span>
+<div class="flex items-end justify-between mt-2">
+<span class="text-3xl font-headline font-bold text-primary">1,402</span>
+<span class="text-primary/40 text-xs mb-1">LIVE</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-lg border border-outline-variant/10 shadow-[0_0_15px_rgba(255,81,250,0.05)] flex flex-col justify-between">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em]">Total Kills</span>
+<div class="flex items-end justify-between mt-2">
+<span class="text-3xl font-headline font-bold text-secondary">8,921</span>
+<span class="text-secondary/40 text-xs mb-1">+124/m</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-lg border border-outline-variant/10 shadow-[0_0_15px_rgba(153,247,255,0.05)] flex flex-col justify-between">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em]">Waves Completed</span>
+<div class="flex items-end justify-between mt-2">
+<span class="text-3xl font-headline font-bold text-on-surface">42</span>
+<span class="text-on-surface/40 text-xs mb-1">PHASE 4</span>
+</div>
+</div>
+</div>
+<!-- Log Interface Container -->
+<div class="bg-surface-container-low rounded-lg flex flex-col h-[calc(100vh-320px)] border border-outline-variant/20 overflow-hidden shadow-2xl">
+<!-- Filter Bar -->
+<div class="p-4 bg-surface-container-high/50 flex flex-wrap gap-4 items-center justify-between border-b border-outline-variant/20">
+<div class="relative flex-grow max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container-lowest border-none text-primary font-label text-xs px-10 py-2.5 focus:ring-1 focus:ring-primary/50 placeholder:text-outline/50 rounded-sm" placeholder="FILTER EVENTS [USER, PET, TYPE]..." type="text"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 h-1 w-1 bg-primary rounded-full animate-pulse"></div>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container-lowest text-primary font-label text-[10px] border border-primary/20 hover:bg-primary/10 transition-all rounded-sm uppercase tracking-tighter">All Events</button>
+<button class="px-4 py-2 bg-surface-container-lowest text-on-surface-variant font-label text-[10px] border border-outline-variant/20 hover:text-secondary hover:border-secondary/20 transition-all rounded-sm uppercase tracking-tighter">Combat Only</button>
+<button class="px-4 py-2 bg-surface-container-lowest text-on-surface-variant font-label text-[10px] border border-outline-variant/20 hover:text-tertiary hover:border-tertiary/20 transition-all rounded-sm uppercase tracking-tighter">System Alerts</button>
+</div>
+</div>
+<!-- Scrolling Log Area -->
+<div class="flex-grow overflow-y-auto custom-scrollbar bg-surface-container-lowest/30 p-4 space-y-1 font-mono text-xs leading-relaxed">
+<!-- Cyan Entry: Spawn -->
+<div class="flex gap-4 py-1.5 px-3 hover:bg-primary/5 border-l-2 border-transparent hover:border-primary transition-colors group">
+<span class="text-on-surface-variant/40 shrink-0 select-none">[22:45:01]</span>
+<div class="flex gap-2 items-center">
+<span class="text-primary font-semibold">SPAWN</span>
+<span class="text-on-surface-variant">User</span>
+<span class="text-on-surface font-bold tracking-tight">KryptoKing_99</span>
+<span class="text-on-surface-variant">spawned a</span>
+<span class="px-2 py-0.5 bg-primary/20 text-primary border border-primary/30 text-[10px] font-bold rounded">NEON_HUSKY [Lvl 4]</span>
+</div>
+</div>
+<!-- Magenta Entry: Defeat -->
+<div class="flex gap-4 py-1.5 px-3 hover:bg-secondary/5 border-l-2 border-transparent hover:border-secondary transition-colors group">
+<span class="text-on-surface-variant/40 shrink-0 select-none">[22:45:08]</span>
+<div class="flex gap-2 items-center">
+<span class="text-secondary font-semibold">DEFEAT</span>
+<span class="text-on-surface font-bold tracking-tight">Cyber_Rex</span>
+<span class="text-on-surface-variant">eliminated</span>
+<span class="text-on-surface font-bold tracking-tight">Void_Stalker</span>
+<span class="text-on-surface-variant/50">(Bounty: 450Cr)</span>
+</div>
+</div>
+<!-- Gold Entry: Rare Event -->
+<div class="flex gap-4 py-4 px-3 bg-tertiary-container/5 border-y border-tertiary-container/20 my-2 relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-r from-tertiary-container/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+<span class="text-tertiary-fixed/40 shrink-0 select-none">[22:45:12]</span>
+<div class="flex gap-3 items-center relative z-10">
+<span class="material-symbols-outlined text-tertiary-fixed text-sm animate-pulse">emergency_home</span>
+<span class="text-tertiary-fixed font-black uppercase tracking-[0.25em] [text-shadow:0_0_8px_rgba(187,0,252,0.5)]">MEGA PET EVENT TRIGGERED!</span>
+<span class="text-on-surface-variant">Ancient Dragon has awakened in Sector 7.</span>
+</div>
+</div>
+<!-- Wave Event -->
+<div class="flex gap-4 py-3 px-3 border-l-2 border-primary-fixed-dim bg-primary/5 mb-1">
+<span class="text-on-surface-variant/40 shrink-0 select-none">[22:45:20]</span>
+<div class="flex gap-2 items-center">
+<span class="text-primary font-black uppercase tracking-widest font-headline">WAVE 43 STARTED</span>
+<div class="flex gap-1">
+<div class="w-1 h-1 bg-primary rounded-full"></div>
+<div class="w-1 h-1 bg-primary rounded-full"></div>
+<div class="w-1 h-1 bg-primary rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Repeat Logs for Scroll Effect -->
+<div class="flex gap-4 py-1.5 px-3 hover:bg-primary/5 border-l-2 border-transparent hover:border-primary transition-colors">
+<span class="text-on-surface-variant/40 shrink-0 select-none">[22:45:31]</span>
+<div class="flex gap-2 items-center">
+<span class="text-primary font-semibold">SPAWN</span>
+<span class="text-on-surface-variant">User</span>
+<span class="text-on-surface font-bold tracking-tight">Bit_Runner</span>
+<span class="text-on-surface-variant">spawned a</span>
+<span class="px-2 py-0.5 bg-primary/20 text-primary border border-primary/30 text-[10px] font-bold rounded">GLITCH_CAT</span>
+</div>
+</div>
+<div class="flex gap-4 py-1.5 px-3 hover:bg-secondary/5 border-l-2 border-transparent hover:border-secondary transition-colors">
+<span class="text-on-surface-variant/40 shrink-0 select-none">[22:45:42]</span>
+<div class="flex gap-2 items-center">
+<span class="text-secondary font-semibold">DEFEAT</span>
+<span class="text-on-surface font-bold tracking-tight">Pixel_Fury</span>
+<span class="text-on-surface-variant">defeated</span>
+<span class="text-on-surface font-bold tracking-tight">Rogue_Bot_8</span>
+</div>
+</div>
+<div class="flex gap-4 py-1.5 px-3 hover:bg-primary/5 border-l-2 border-transparent hover:border-primary transition-colors">
+<span class="text-on-surface-variant/40 shrink-0 select-none">[22:45:55]</span>
+<div class="flex gap-2 items-center">
+<span class="text-primary font-semibold">SPAWN</span>
+<span class="text-on-surface-variant">User</span>
+<span class="text-on-surface font-bold tracking-tight">SynthWave_Rider</span>
+<span class="text-on-surface-variant">spawned a</span>
+<span class="px-2 py-0.5 bg-primary/20 text-primary border border-primary/30 text-[10px] font-bold rounded">DATA_RAVEN</span>
+</div>
+</div>
+<!-- Placeholder for ongoing activity -->
+<div class="flex gap-4 py-4 px-3 items-center">
+<div class="flex gap-2">
+<div class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></div>
+<div class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:0.2s]"></div>
+<div class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:0.4s]"></div>
+</div>
+<span class="text-on-surface-variant/30 italic text-[10px]">AWAITING BATTLE DATA...</span>
+</div>
+</div>
+<!-- Footer Console Stats -->
+<div class="p-3 bg-surface-container-lowest border-t border-outline-variant/20 flex justify-between items-center px-6">
+<div class="flex gap-6 items-center">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
+<span class="text-[10px] font-label text-on-surface-variant uppercase tracking-tighter">Socket Connected</span>
+</div>
+<div class="text-[10px] font-label text-on-surface-variant uppercase tracking-tighter">
+                            Latency: <span class="text-primary font-bold">14ms</span>
+</div>
+</div>
+<div class="text-[10px] font-label text-on-surface-variant uppercase tracking-tighter italic">
+                        v4.2.0-STABLE_CORE
+                    </div>
+</div>
+</div>
+<!-- Side Cards Grid (Optional Content) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container-low/40 backdrop-blur-md p-6 rounded-lg border border-outline-variant/10">
+<h3 class="font-headline font-bold text-sm text-on-surface mb-4 border-b border-outline-variant/20 pb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">local_fire_department</span>
+                        PEAK ACTIVITY SECTORS
+                    </h3>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant font-label">Sector 7 (Neon Grid)</span>
+<span class="text-primary font-bold">HIGH</span>
+</div>
+<div class="w-full h-1 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container w-[85%]"></div>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant font-label">Sector 2 (Void Chasm)</span>
+<span class="text-on-surface font-bold">NORMAL</span>
+</div>
+<div class="w-full h-1 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary/20 w-[40%]"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low/40 backdrop-blur-md p-6 rounded-lg border border-outline-variant/10">
+<h3 class="font-headline font-bold text-sm text-on-surface mb-4 border-b border-outline-variant/20 pb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings: 'FILL' 1;">skull</span>
+                        BATTLE LOG LEGEND
+                    </h3>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex items-center gap-2 py-1 px-2 rounded bg-primary/5 border border-primary/10">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-[10px] font-label uppercase text-primary">Spawns</span>
+</div>
+<div class="flex items-center gap-2 py-1 px-2 rounded bg-secondary/5 border border-secondary/10">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-[10px] font-label uppercase text-secondary">Combat</span>
+</div>
+<div class="flex items-center gap-2 py-1 px-2 rounded bg-tertiary-container/5 border border-tertiary-container/10">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed"></div>
+<span class="text-[10px] font-label uppercase text-tertiary-fixed">Events</span>
+</div>
+<div class="flex items-center gap-2 py-1 px-2 rounded bg-on-surface/5 border border-on-surface/10">
+<div class="w-2 h-2 rounded-full bg-on-surface"></div>
+<span class="text-[10px] font-label uppercase text-on-surface">System</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Shell -->
+<footer class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 bg-[#000000]/90 h-12 border-t border-[#99f7ff]/10 shadow-[0_-4px_20px_rgba(0,0,0,0.8)] md:hidden">
+<div class="flex flex-col items-center gap-0.5 text-[#99f7ff] [text-shadow:0_0_10px_#99f7ff] brightness-125">
+<span class="material-symbols-outlined text-lg">dns</span>
+<span class="font-headline font-bold text-[8px] uppercase">Server Status</span>
+</div>
+<div class="flex flex-col items-center gap-0.5 text-[#51425f] hover:text-[#f1dfff] transition-all">
+<span class="material-symbols-outlined text-lg">terminal</span>
+<span class="font-headline font-bold text-[8px] uppercase">Admin Console</span>
+</div>
+</footer>
+</body></html>

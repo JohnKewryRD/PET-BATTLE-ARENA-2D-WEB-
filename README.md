@@ -20,6 +20,10 @@ PORT=3000
 CLIENT_URL=http://localhost:8080
 MAX_PETS=200
 WAVE_INTERVAL=15000
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=sb_secret_xxx
+SUPABASE_LEADERBOARD_TABLE=leaderboard_scores
+SUPABASE_USER_PROGRESS_TABLE=user_pet_progress
 ```
 
 ### 3. Ejecutar

@@ -4,37 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🐾 PET BATTLE ARENA</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-highest": "#301d43",
+                        "secondary-fixed": "#ffbdf3",
+                        "on-tertiary": "#390050",
+                        "on-primary-fixed-variant": "#006065",
+                        "on-surface-variant": "#b7a4c7",
+                        "tertiary-fixed-dim": "#d97dff",
+                        "primary-container": "#00f1fe",
+                        "surface-container-low": "#1b0c2a",
+                        "surface-tint": "#99f7ff",
+                        "inverse-surface": "#fff7ff",
+                        "surface-container": "#221232",
+                        "secondary": "#ff51fa",
+                        "primary-fixed": "#00f1fe",
+                        "surface-variant": "#301d43",
+                        "secondary-dim": "#ff51fa",
+                        "on-secondary": "#400040",
+                        "tertiary-dim": "#bb00fc",
+                        "secondary-fixed-dim": "#ffa6f3",
+                        "tertiary": "#d674ff",
+                        "surface": "#150822",
+                        "error": "#ff716c",
+                        "surface-dim": "#150822",
+                        "inverse-primary": "#006a70",
+                        "outline": "#806f8f",
+                        "on-tertiary-fixed-variant": "#600083",
+                        "on-tertiary-container": "#000000",
+                        "on-error": "#490006",
+                        "tertiary-fixed": "#e192ff",
+                        "on-primary-fixed": "#004145",
+                        "primary-dim": "#00e2ee",
+                        "on-secondary-fixed": "#620061",
+                        "on-background": "#f1dfff",
+                        "surface-bright": "#37234c",
+                        "surface-container-high": "#29173b",
+                        "surface-container-lowest": "#000000",
+                        "primary": "#99f7ff",
+                        "inverse-on-surface": "#5e4f6d",
+                        "tertiary-container": "#be0dff",
+                        "error-container": "#9f0519",
+                        "on-primary-container": "#00555a",
+                        "on-primary": "#005f64",
+                        "on-tertiary-fixed": "#2c003f",
+                        "on-surface": "#f1dfff",
+                        "on-secondary-container": "#fff5f9",
+                        "on-error-container": "#ffa8a3",
+                        "background": "#150822",
+                        "error-dim": "#d7383b",
+                        "primary-fixed-dim": "#00e2ee",
+                        "secondary-container": "#a900a9",
+                        "outline-variant": "#51425f",
+                        "on-secondary-fixed-variant": "#920091"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
     <style>
-        /* ═══════════════ VARIABLES ═══════════════ */
-        :root {
-            --cyan:      #00f5ff;
-            --magenta:   #ff00cc;
-            --gold:      #ffd700;
-            --red:       #ff4757;
-            --green:     #2ed573;
-            --purple:    #7c4dff;
-            --orange:    #ff9f43;
-            --bg-deep:   #050510;
-            --bg-panel:  rgba(8, 8, 28, 0.88);
-            --border-c:  rgba(0, 245, 255, 0.22);
-            --text-dim:  #8892a4;
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .arena-glow {
+            box-shadow: inset 0 0 50px rgba(153, 247, 255, 0.15), 0 0 20px rgba(153, 247, 255, 0.1);
+        }
+        .text-neon-magenta {
+            text-shadow: 0 0 20px rgba(255, 81, 250, 0.8), 0 0 40px rgba(255, 81, 250, 0.4);
+        }
+        .neon-glow-primary {
+            text-shadow: 0 0 10px #99f7ff, 0 0 20px #99f7ff;
+        }
+        .neon-glow-secondary {
+            text-shadow: 0 0 10px #ff51fa, 0 0 20px #ff51fa;
+        }
+        .glass-panel {
+            background: rgba(27, 12, 42, 0.6);
+            backdrop-filter: blur(12px);
+        }
+        .starfield {
+             background-color: #150822;
+             background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1b0c2a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #51425f; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #99f7ff; }
+
+        input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; }
+        input[type="range"]::-webkit-slider-runnable-track { background: #000000; height: 4px; border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #99f7ff; cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px #99f7ff;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ═══════════════ SPA VIEWS ═══════════════════ */
+        .view-section:not(.active) { display: none !important; }
+        #view-arena.active { display: flex !important; }
 
-        body {
-            background: var(--bg-deep);
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* ═══════════════ NAV OVERRIDES ═══════════════════ */
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(169, 0, 169, 0.2), transparent) !important;
+            color: #ff51fa !important;
+            border-left: 4px solid #ff51fa !important;
+            opacity: 1 !important;
         }
+        .nav-item.active span { color: #ff51fa !important; }
 
         /* ═══════════════ MENU ═══════════════════ */
         #menu-container {
@@ -310,9 +404,14 @@
         .how-it-works p { color:#374151; font-size:.75em; margin:4px 0; line-height:1.6; }
 
         /* ═══════════════ GAME ═══════════════════ */
-        #game-container { width:100%; height:100%; display:none; }
-        #game-container.active { display:flex; justify-content:center; align-items:center; }
+        #game-container { width:100%; height:100%; display:block; }
+        #game-container.active { display:block; }
         canvas { display:block; }
+        #game-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
 
         /* ═══════════════ HUD OVERLAY ═══════════════
          *  Layout:
@@ -714,13 +813,280 @@
             .admin-toggle-btn  { right:10px; bottom:10px; }
             .admin-panel       { right:10px; left:10px; width:auto; bottom:50px; }
         }
-        @media (max-width: 700px) {
-            .top-bar { flex-wrap: wrap; }
-            .likes-container { min-width: 100%; order:10; }
+        /* Premium Background with Depth */
+        body { 
+            font-family: 'Manrope', sans-serif; 
+            background: radial-gradient(circle at 50% -20%, #29173b 0%, #0a0514 80%);
+            background-color: #0a0514;
+            color: #f1dfff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
         }
+
+        .arena-glow {
+            box-shadow: 0 0 40px rgba(0, 241, 254, 0.1), inset 0 0 20px rgba(0, 241, 254, 0.05);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-panel {
+            background: rgba(27, 12, 42, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Active Sidebar Indicator */
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(255, 81, 250, 0.15), transparent);
+            border-left: 4px solid #ff51fa;
+            color: #ff51fa !important;
+            opacity: 1 !important;
+        }
+        .nav-item.active span { color: #ff51fa; }
     </style>
 </head>
-<body>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-black min-h-screen overflow-hidden">
+<!-- ═══════════════ NEW STITCH SHELL ════════════════════════════════════ -->
+<div id="ui-shell" class="hidden transition-opacity duration-1000 opacity-0">
+    <!-- Top Navigation Shell -->
+    <header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-20 bg-[#1b0c2a]/60 backdrop-blur-xl shadow-[0_0_20px_rgba(153,247,255,0.1)]">
+        <div class="flex items-center gap-4">
+            <h1 class="text-4xl font-black text-[#f1dfff] drop-shadow-[0_0_15px_rgba(255,81,250,0.8)] font-['Space_Grotesk'] tracking-wider" id="wave-display">OLEADA 4</h1>
+            <div class="flex items-center gap-3 bg-surface-container-high px-3 py-1.5 rounded-lg border border-outline-variant/20">
+                <span class="text-primary font-bold font-headline" id="tiktok-user-display">@papu_billar</span>
+                <span class="bg-error px-2 py-0.5 rounded text-[10px] font-black animate-pulse">LIVE</span>
+            </div>
+        </div>
+        <!-- Center: Liked Energy Bar -->
+        <div class="absolute left-1/2 -translate-x-1/2 w-80">
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">LIKES ENERGY</span>
+                <div class="w-full h-4 bg-surface-container-lowest rounded-full overflow-hidden p-[2px] border border-outline-variant/10">
+                    <div class="h-full w-2/3 bg-gradient-to-r from-primary to-primary-container rounded-full shadow-[0_0_10px_rgba(0,241,254,0.5)]" id="energy-fill"></div>
+                </div>
+                <span class="text-[10px] font-bold text-primary mt-1" id="lpm-display">0 LPM</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="hidden md:flex gap-6">
+                <span class="material-symbols-outlined text-[#99f7ff] cursor-pointer hover:text-[#00f1fe] transition-colors" data-icon="pets">pets</span>
+                <span class="material-symbols-outlined text-[#b7a4c7] cursor-pointer hover:text-[#00f1fe] transition-colors" data-icon="swords">swords</span>
+                <span class="material-symbols-outlined text-[#b7a4c7] cursor-pointer hover:text-[#00f1fe] transition-colors" data-icon="diamond">diamond</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Side Navigation (Rankings) -->
+    <aside class="fixed left-0 top-20 h-[calc(100%-112px)] z-40 flex flex-col pt-4 bg-[#1b0c2a]/40 backdrop-blur-md w-64 border-r border-[#51425f]/20">
+        <div class="px-6 mb-8">
+            <h2 class="text-lg font-bold text-[#99f7ff] font-headline">TOP USERS</h2>
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-tighter font-semibold">Live Rankings</p>
+        </div>
+        <nav class="flex flex-col gap-1">
+            <div id="nav-arena" onclick="switchView('arena')" class="nav-item active py-3 px-6 flex items-center gap-4 transition-all duration-300 ease-in-out cursor-pointer group">
+                <span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+                <span class="font-['Manrope'] text-sm font-semibold uppercase tracking-tighter">Rankings</span>
+            </div>
+            <div id="nav-donors" onclick="switchView('donors')" class="nav-item text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 py-3 px-6 flex items-center gap-4 transition-all duration-300 ease-in-out cursor-pointer group">
+                <span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+                <span class="font-['Manrope'] text-sm font-semibold uppercase tracking-tighter">Top Donors</span>
+            </div>
+            <div id="nav-logs" onclick="switchView('logs')" class="nav-item text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 py-3 px-6 flex items-center gap-4 transition-all duration-300 ease-in-out cursor-pointer group">
+                <span class="material-symbols-outlined" data-icon="history">history</span>
+                <span class="font-['Manrope'] text-sm font-semibold uppercase tracking-tighter">Battle Log</span>
+            </div>
+            <div id="nav-settings" onclick="switchView('settings')" class="nav-item text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 py-3 px-6 flex items-center gap-4 transition-all duration-300 ease-in-out cursor-pointer group">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                <span class="font-['Manrope'] text-sm font-semibold uppercase tracking-tighter">Settings</span>
+            </div>
+        </nav>
+        <div class="px-6 mt-5">
+            <div class="glass-panel p-4 rounded-xl border border-outline-variant/20">
+                <h3 class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-[0.2em] mb-4">Estadisticas</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-sm" data-icon="pets">pets</span>
+                            <span class="text-sm font-semibold">Mascotas</span>
+                        </div>
+                        <span class="text-primary font-bold font-headline" id="stat-pets">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary text-sm" data-icon="dangerous">dangerous</span>
+                            <span class="text-sm font-semibold">Enemigos</span>
+                        </div>
+                        <span class="text-secondary font-bold font-headline" id="stat-enemies">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-tertiary text-sm" data-icon="diamond">diamond</span>
+                            <span class="text-sm font-semibold">Diamantes</span>
+                        </div>
+                        <span class="text-tertiary font-bold font-headline" id="stat-gifts">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-auto p-6 space-y-4">
+            <div class="bg-surface-container-high/40 p-4 rounded-xl border border-outline-variant/10">
+                <div id="sidebar-ranking-list" class="space-y-3">
+                    <!-- Dynamic Ranking Content -->
+                    <div class="leaderboard-empty text-[10px] opacity-40">Awaiting data...</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="fixed left-72 right-0 top-24 bottom-10 p-10 flex flex-col gap-10 overflow-hidden">
+        
+        <!-- VIEW: ARENA (Phaser) -->
+        <section id="view-arena" class="view-section active flex-1 relative flex flex-col gap-6">
+            <!-- Arena Frame -->
+            <div class="relative flex-1 rounded-2xl border-2 border-primary/30 arena-glow bg-[#0a0a0f] overflow-hidden flex items-center justify-center">
+                <div id="game-container" class="absolute inset-0 z-0"></div>
+                <!-- Interaction Overlay (Bottom HUD) -->
+                <div class="absolute bottom-6 left-6 flex gap-4 z-20">
+                    <div class="glass-panel p-3 rounded-xl border border-outline-variant/20 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-on-surface-variant uppercase">ACTIVE PETS</p>
+                            <p class="text-sm font-black text-on-surface"><span id="active-pets-display">0</span> / 200</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Pet Banner (Ported logic) -->
+                <div class="absolute inset-0 flex items-center justify-center z-50 pointer-events-none hidden" id="mega-banner-container">
+                    <div class="bg-gradient-to-br from-[#1b0c2a] to-[#0a0514] border-4 border-secondary/50 p-12 rounded-[2.5rem] shadow-[0_0_100px_rgba(255,81,250,0.4)] text-center scale-90 md:scale-100">
+                         <span class="text-7xl block mb-4 animate-bounce">👑</span>
+                         <h2 class="text-5xl font-black text-secondary font-headline tracking-tighter mb-2 drop-shadow-[0_0_20px_#ff51fa]">MEGA PET ACTIVADA</h2>
+                         <p class="text-on-surface-variant uppercase text-sm tracking-[0.3em] font-bold">EMITTED BY <span id="mega-donor-display" class="text-primary font-black underline decoration-primary/30">???</span></p>
+                         <div class="text-7xl font-black text-white mt-8 tracking-tighter" id="mega-timer-display">30</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- VIEW: DONORS -->
+        <section id="view-donors" class="view-section flex-1 starfield rounded-2xl border border-outline-variant/10 overflow-y-auto p-8 custom-scrollbar">
+            <div class="max-w-6xl mx-auto space-y-12">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-outline-variant/20 pb-8">
+                    <div>
+                        <h1 class="font-headline text-5xl md:text-7xl font-black text-on-surface uppercase tracking-tighter [text-shadow:0_0_15px_rgba(241,223,255,0.3)]">HALL OF <span class="text-secondary neon-glow-secondary uppercase">EMITTERS</span></h1>
+                        <p class="font-label text-on-surface-variant text-sm tracking-widest uppercase mt-2 italic font-black">Energy Contributions</p>
+                    </div>
+                </div>
+                <div id="donors-podium" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end py-10"></div>
+                <div id="donors-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+            </div>
+        </section>
+        <!-- VIEW: LOGS -->
+        <section id="view-logs" class="view-section flex-1 flex flex-col gap-6 overflow-hidden">
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-surface-container-low p-6 rounded-lg border border-outline-variant/10 shadow-[0_0_15px_rgba(153,247,255,0.05)] flex flex-col justify-between">
+                    <span class="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em]">Total Pets Spawned</span>
+                    <div class="flex items-end justify-between mt-2"><span class="text-3xl font-headline font-bold text-primary" id="total-pets-stat">1,402</span><span class="text-primary/40 text-xs mb-1 uppercase tracking-widest">Live</span></div>
+                </div>
+                <div class="bg-surface-container-low p-6 rounded-lg border border-outline-variant/10 shadow-[0_0_15px_rgba(255,81,250,0.05)] flex flex-col justify-between">
+                    <span class="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em]">Enemies Eliminated</span>
+                    <div class="flex items-end justify-between mt-2"><span class="text-3xl font-headline font-bold text-secondary" id="total-kills-stat">8,921</span><span class="text-secondary/40 text-xs mb-1 uppercase tracking-widest">+124/m</span></div>
+                </div>
+                <div class="bg-surface-container-low p-6 rounded-lg border border-outline-variant/10 shadow-[0_0_15px_rgba(153,247,255,0.05)] flex flex-col justify-between">
+                    <span class="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em]">Waves Protocol</span>
+                    <div class="flex items-end justify-between mt-2"><span class="text-3xl font-headline font-bold text-on-surface" id="total-waves-stat">42</span><span class="text-on-surface/40 text-xs mb-1 uppercase tracking-widest">Completed</span></div>
+                </div>
+            </div>
+            <div class="bg-surface-container-low rounded-lg flex flex-col h-full border border-outline-variant/20 overflow-hidden shadow-2xl">
+                <div class="p-4 bg-surface-container-high/50 flex flex-wrap gap-4 items-center justify-between border-b border-outline-variant/20">
+                    <div class="relative flex-grow max-w-md">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
+                        <input type="text" class="w-full bg-surface-container-lowest border-none text-primary font-label text-xs px-10 py-2.5 focus:ring-1 focus:ring-primary/50 placeholder:text-outline/50 rounded-sm" placeholder="FILTER EVENTS [USER, PET, TYPE]...">
+                    </div>
+                </div>
+                <div id="game-log" class="flex-grow overflow-y-auto custom-scrollbar bg-surface-container-lowest/30 p-4 space-y-1 font-mono text-xs leading-relaxed italic">
+                    <!-- Logs populated via main.js -->
+                </div>
+                <div class="p-3 bg-surface-container-lowest border-t border-outline-variant/20 flex justify-between items-center px-6">
+                    <div class="flex gap-6 items-center">
+                        <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div><span class="text-[10px] font-label text-on-surface-variant uppercase tracking-tighter">Socket Connected</span></div>
+                        <div class="text-[10px] font-label text-on-surface-variant uppercase tracking-tighter">Latency: <span class="text-primary font-bold">14ms</span></div>
+                    </div>
+                    <div class="text-[10px] font-label text-on-surface-variant uppercase tracking-tighter italic opacity-40">System_Core v4.3.0_STABLE</div>
+                </div>
+            </div>
+        </section>
+        <!-- VIEW: SETTINGS -->
+        <section id="view-settings" class="view-section flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <header class="mb-12">
+                <h1 class="text-5xl font-headline font-bold text-on-surface tracking-tighter uppercase [text-shadow:0_0_20px_rgba(255,81,250,0.4)]">Configuration <span class="text-primary">&amp;</span> Core</h1>
+                <p class="text-on-surface-variant font-label mt-2 max-w-2xl italic">Neural link settings for the Arena. All changes propagate in real-time.</p>
+            </header>
+            <div class="grid grid-cols-12 gap-6">
+                <section class="col-span-12 lg:col-span-8 bg-surface-container-low p-8 rounded-lg border border-outline-variant/10 relative overflow-hidden group">
+                    <div class="flex items-center gap-3 mb-10"><span class="material-symbols-outlined text-primary" data-icon="precision_manufacturing">precision_manufacturing</span><h2 class="text-xl font-headline font-bold uppercase tracking-widest text-on-surface">Game Logic</h2></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div class="space-y-8">
+                             <div class="space-y-4">
+                                <div class="flex justify-between items-end"><label class="text-xs font-headline font-bold uppercase text-on-surface-variant tracking-widest italic opacity-60">Wave Difficulty</label><span class="text-primary font-headline font-bold">LVL 08</span></div>
+                                <input class="w-full" max="10" min="1" type="range" value="8">
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-end"><label class="text-xs font-headline font-bold uppercase text-on-surface-variant tracking-widest italic opacity-60">Spawn Rate</label><span class="text-primary font-headline font-bold">2.4/sec</span></div>
+                                <input class="w-full" max="5" min="0" step="0.1" type="range" value="2.4">
+                            </div>
+                        </div>
+                        <div class="bg-surface-container-high/40 p-6 rounded-xl border border-outline-variant/20 flex flex-col justify-between backdrop-blur-md">
+                            <div><p class="text-xs font-headline font-bold text-secondary uppercase mb-2">Automated Scaling</p><p class="text-sm text-on-surface-variant italic">Adaptive difficulty spikes based on viewer engagement.</p></div>
+                            <div class="flex items-center justify-between mt-6">
+                                <span class="text-xs font-headline font-bold uppercase text-on-surface tracking-tighter">Neural Adaptation</span>
+                                <button class="w-12 h-6 bg-surface-container-lowest rounded-full relative p-1 transition-all"><div class="w-4 h-4 bg-primary rounded-full neon-glow-primary translate-x-6"></div></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="col-span-12 lg:col-span-4 bg-surface-container-low p-8 rounded-lg border-l-4 border-error flex flex-col shadow-xl">
+                    <div class="flex items-center gap-3 mb-8"><span class="material-symbols-outlined text-error" data-icon="terminal">terminal</span><h2 class="text-xl font-headline font-bold uppercase tracking-widest text-on-surface">Server Control</h2></div>
+                    <div class="space-y-4 flex-1">
+                        <button class="w-full py-4 bg-surface-container-lowest border border-error/30 text-error font-headline font-black text-sm uppercase tracking-widest hover:bg-error hover:text-white transition-all">RESET GAME</button>
+                        <button class="w-full py-4 bg-surface-container-lowest border border-primary/30 text-primary font-headline font-black text-sm uppercase tracking-widest hover:bg-primary hover:text-black transition-all">FORCE WAVE</button>
+                        <button class="w-full py-4 bg-secondary-container text-on-secondary-container font-headline font-black text-sm uppercase tracking-widest hover:bg-secondary hover:shadow-[0_0_20px_#ff51fa] transition-all">TRIGGER MEGA PET</button>
+                    </div>
+                </section>
+                <!-- Admin Auth Panel -->
+                <section class="col-span-12 bg-surface-container-low p-8 rounded-lg border border-outline-variant/10">
+                    <div class="flex items-center gap-3 mb-6"><span class="material-symbols-outlined text-on-surface-variant" data-icon="admin_panel_settings">admin_panel_settings</span><h2 class="text-xl font-headline font-bold uppercase tracking-widest text-on-surface opacity-80">Security Protocol</h2></div>
+                    <div class="max-w-md space-y-4">
+                        <input type="password" id="admin-token" class="w-full bg-surface-container-lowest border border-outline-variant/30 text-white rounded p-4 text-xs font-mono" placeholder="Neural Access Token...">
+                        <div class="flex gap-2">
+                             <select id="admin-reset-mode" class="bg-surface-container-highest text-white rounded px-4 text-xs font-headline flex-1 border border-outline-variant/20"><option value="daily">Daily Cycle</option><option value="all">Full History</option></select>
+                             <button onclick="resetLeaderboardAdmin()" class="bg-error/20 text-error border border-error/50 px-8 py-2 rounded text-[10px] font-black uppercase tracking-[0.2em] hover:bg-error hover:text-white transition-all">DEAUTH_RESET</button>
+                        </div>
+                        <div class="pt-1">
+                            <button onclick="switchUserFromAdmin()" class="w-full bg-surface-container-lowest border border-primary/30 text-primary rounded py-3 text-[11px] font-black uppercase tracking-[0.18em] hover:bg-primary hover:text-black transition-all">
+                                Cambiar usuario
+                            </button>
+                            <p class="mt-2 text-[11px] text-on-surface-variant/80 italic">
+                                Cierra la sesion actual y vuelve a la pantalla de conexion.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+    <footer class="fixed bottom-0 w-full z-50 flex justify-between items-center px-4 h-8 bg-[#000000] border-t border-[#51425f]/20">
+        <div class="text-[#00f1fe] flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">lan</span>
+            <span class="font-body text-[10px] font-bold" id="server-status-text">Server: Offline</span>
+        </div>
+        <div class="text-[#b7a4c7] font-body text-[10px] font-bold">STABLE_CORE v4.3.0</div>
+    </footer>
+</div>
+
 <!-- ═══════════════ MENU ═══════════════════════════════════════════════════ -->
 <div id="menu-container">
     <div class="bg-orb o1"></div>
@@ -770,125 +1136,13 @@
     </div>
 </div>
 
-<!-- ═══════════════ GAME CANVAS ═══════════════════════════════════════════ -->
-<div id="game-container"></div>
 
-<!-- ═══════════════ HUD OVERLAY ══════════════════════════════════════════ -->
-<div id="ui-overlay">
 
-    <!-- ── TOP BAR (single flex row) ─────────────────────────────────── -->
-    <div class="top-bar">
 
-        <!-- Left: Wave + TikTok -->
-        <div class="top-left">
-            <div class="wave-info">
-                <div class="wave-label">Oleada</div>
-                <div class="wave-number" id="wave-number">1</div>
-            </div>
-            <div class="tiktok-info">
-                <span class="tiktok-user" id="tiktok-user">@usuario</span>
-                <span class="live-badge">🔴 LIVE</span>
-            </div>
-        </div>
-
-        <!-- Center: Likes bar -->
-        <div class="likes-container">
-            <div class="likes-header">
-                <div class="likes-label">
-                    <span>❤️</span>
-                    <span>Likes Energy</span>
-                </div>
-                <div class="lpm-text"><span id="lpm-value">0</span> LPM</div>
-            </div>
-            <div class="likes-bar">
-                <div class="likes-fill" id="likes-fill" style="width:0%"></div>
-            </div>
-        </div>
-
-        <!-- Right: Stats -->
-        <div class="stats-panel">
-            <div class="stat-title">📊 Estadísticas</div>
-            <div class="stat-row">
-                <span class="stat-label">🐾 Mascotas</span>
-                <span class="stat-value pets" id="pet-count">0</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">👾 Enemigos</span>
-                <span class="stat-value enemies" id="enemy-count">0</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">💎 Diamantes</span>
-                <span class="stat-value gifts" id="gift-count">0</span>
-            </div>
-        </div>
-
-    </div><!-- /top-bar -->
-
-    <!-- ── LEADERBOARD (right side, below stats) ──────────────────────── -->
-    <div class="leaderboard-panel">
-        <div class="leaderboard-header">
-            <div class="leaderboard-title">🏆 Top Usuarios</div>
-            <div class="leaderboard-modes">
-                <button class="leaderboard-mode-btn active" id="lb-mode-daily"      onclick="setLeaderboardMode('daily')">Hoy</button>
-                <button class="leaderboard-mode-btn"        id="lb-mode-historical" onclick="setLeaderboardMode('historical')">Histórico</button>
-            </div>
-        </div>
-        <div class="leaderboard-date" id="leaderboard-date"></div>
-        <div class="leaderboard-body" id="leaderboard-body">
-            <div class="leaderboard-empty">Sin puntuaciones aún</div>
-        </div>
-    </div>
-
-    <!-- ── BOTTOM LEFT: active pets ───────────────────────────────────── -->
-    <div class="pet-count">
-        <div class="pet-count-label">🐾 Activas</div>
-        <div class="pet-count-value">
-            <span id="active-pets">0</span><span style="opacity:.3;font-size:.65em"> / </span><span id="max-pets" style="opacity:.55;font-size:.65em">200</span>
-        </div>
-    </div>
-
-    <!-- ── MEGA PET BANNER ────────────────────────────────────────────── -->
-    <div class="mega-pet-banner" id="mega-pet-banner">
-        <span class="mega-crown">👑</span>
-        <div class="mega-title">MEGA PET ACTIVADA</div>
-        <div class="mega-donor">enviado por <span id="mega-pet-donor">???</span></div>
-        <div class="mega-timer" id="mega-pet-timer">30</div>
-        <div class="mega-timer-lbl">segundos</div>
-    </div>
-
-    <!-- ── CONNECTION STATUS ─────────────────────────────────────────── -->
-    <div class="connection-status disconnected" id="connection-status">
-        ⚡ Conectando...
-    </div>
-
-    <!-- ── ADMIN TOGGLE + PANEL ──────────────────────────────────────── -->
-    <button class="admin-toggle-btn" id="admin-toggle-btn" onclick="toggleAdminPanel()">⚙ Admin</button>
-
-    <div class="admin-panel hidden" id="admin-panel">
-        <div class="admin-title">🔐 Admin Leaderboard</div>
-        <div class="admin-row">
-            <input class="admin-input" type="password" id="admin-token" placeholder="Room Admin Token">
-        </div>
-        <div class="admin-row">
-            <select class="admin-select" id="admin-reset-mode">
-                <option value="daily">daily</option>
-                <option value="all">all</option>
-            </select>
-            <button class="admin-btn" onclick="resetLeaderboardAdmin()">Reset</button>
-        </div>
-        <div class="admin-row actions">
-            <button class="admin-btn secondary" onclick="switchUserFromAdmin()">Cambiar usuario</button>
-        </div>
-        <div class="admin-msg" id="admin-msg"></div>
-    </div>
-
-</div><!-- /ui-overlay -->
-
-<!-- ═══════════════ SCRIPTS ══════════════════════════════════════════════ -->
-<script src="https://cdn.jsdelivr.net/npm/pixi.js@latest/dist/pixi.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/phaser@4.0.0-rc.5/dist/phaser.min.js"></script>
+<!-- ═══════════════ SCRIPTS ════════════════════════════════════════════════ -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/phaser@4.0.0-rc.7/dist/phaser.min.js"></script>
 <script type="module" src="src/main.js"></script>
 
 <script>
@@ -1012,11 +1266,39 @@ function showError(msg) {
 }
 function hideError() { document.getElementById('error-msg').classList.remove('show'); }
 
+function switchView(viewId) {
+    // Update sections
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById('view-' + viewId);
+    if (target) target.classList.add('active');
+
+    // Update nav items
+    document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('active', 'bg-gradient-to-r', 'from-[#a900a9]/20', 'to-transparent', 'text-[#ff51fa]', 'border-l-4', 'border-[#ff51fa]');
+        el.classList.add('text-[#b7a4c7]', 'opacity-70');
+    });
+
+    const navItem = document.getElementById('nav-' + viewId);
+    if (navItem) {
+        navItem.classList.add('active', 'bg-gradient-to-r', 'from-[#a900a9]/20', 'to-transparent', 'text-[#ff51fa]', 'border-l-4', 'border-[#ff51fa]');
+        navItem.classList.remove('text-[#b7a4c7]', 'opacity-70');
+    }
+    
+    // Trigger window resize for Phaser if in arena view
+    if (viewId === 'arena') {
+        window.dispatchEvent(new Event('resize'));
+    }
+}
+
 function startGame(username, roomId) {
     document.getElementById('menu-container').classList.add('hidden');
-    document.getElementById('game-container').classList.add('active');
-    document.getElementById('ui-overlay').classList.add('active');
-    document.getElementById('tiktok-user').textContent = username === 'demo' ? '@modo_demo' : '@' + username;
+    const shell = document.getElementById('ui-shell');
+    const gameContainer = document.getElementById('game-container');
+    shell.classList.remove('hidden');
+    if (gameContainer) gameContainer.classList.add('active');
+    setTimeout(() => shell.classList.remove('opacity-0'), 50);
+    
+    document.getElementById('tiktok-user-display').textContent = username === 'demo' ? '@modo_demo' : '@' + username;
     window.tiktokUsername = username;
     window.petArenaRoomId = roomId || localStorage.getItem('petArena:roomId') || `room_${username}`;
     if (typeof initGame === 'function') initGame();

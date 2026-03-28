@@ -359,8 +359,8 @@ function syncSceneWithState() {
 }
 
 function updateUI(state) {
-    const waveEl = document.getElementById('wave-number');
-    if (waveEl) waveEl.textContent = String(state.wave);
+    const waveEl = document.getElementById('wave-display');
+    if (waveEl) waveEl.textContent = `OLEADA ${state.wave}`;
 
     const scene = GameScene.instance;
     const localPetCount = typeof state.petCount === 'number'
@@ -370,79 +370,138 @@ function updateUI(state) {
         ? state.enemyCount
         : (scene ? scene.enemies.getChildren().filter((e) => e.active).length : GameState.enemies.size);
 
-    const petCountEl = document.getElementById('pet-count');
+    const petCountEl = document.getElementById('stat-pets');
     if (petCountEl) petCountEl.textContent = String(localPetCount);
 
-    const enemyCountEl = document.getElementById('enemy-count');
+    const enemyCountEl = document.getElementById('stat-enemies');
     if (enemyCountEl) enemyCountEl.textContent = String(localEnemyCount);
 
-    const giftCountEl = document.getElementById('gift-count');
-    if (giftCountEl) giftCountEl.textContent = String(state.totalGifts);
+    const giftCountEl = document.getElementById('stat-gifts');
+    if (giftCountEl) giftCountEl.textContent = String(state.totalGifts || 0);
 
-    const activePetsEl = document.getElementById('active-pets');
+    const activePetsEl = document.getElementById('active-pets-display');
     if (activePetsEl) activePetsEl.textContent = String(localPetCount);
 
-    const maxPetsEl = document.getElementById('max-pets');
-    if (maxPetsEl) maxPetsEl.textContent = String(state.maxPets);
+    // Update Log View Stats
+    const totalPetsStat = document.getElementById('total-pets-stat');
+    if (totalPetsStat) totalPetsStat.textContent = String(state.totalSpawnedPets || localPetCount);
 
-    const likesFillEl = document.getElementById('likes-fill');
-    if (likesFillEl) {
+    const totalKillsStat = document.getElementById('total-kills-stat');
+    if (totalKillsStat) totalKillsStat.textContent = String(state.totalEnemiesKilled || localEnemyCount);
+
+    const totalWavesStat = document.getElementById('total-waves-stat');
+    if (totalWavesStat) totalWavesStat.textContent = String(state.wave);
+
+    const energyFillEl = document.getElementById('energy-fill');
+    if (energyFillEl) {
         const percentage = Math.min((state.likesPerMinute / 200) * 100, 100);
-        likesFillEl.style.width = `${percentage}%`;
+        energyFillEl.style.width = `${percentage}%`;
     }
 
-    const lpmEl = document.getElementById('lpm-value');
-    if (lpmEl) lpmEl.textContent = String(state.likesPerMinute);
+    const lpmEl = document.getElementById('lpm-display');
+    if (lpmEl) lpmEl.textContent = `${state.likesPerMinute} LPM`;
 }
 
 function updateConnectionStatus(connected) {
-    const statusEl = document.getElementById('connection-status');
-    if (statusEl) {
-        statusEl.className = `connection-status ${connected ? 'connected' : 'disconnected'}`;
-        statusEl.textContent = connected ? '⚡ Conectado al servidor' : '⚡ Desconectado';
+    const statusText = document.getElementById('server-status-text');
+    if (statusText) {
+        statusText.textContent = connected ? 'Server: Online' : 'Server: Offline';
+        statusText.parentElement.classList.toggle('text-primary', connected);
+        statusText.parentElement.classList.toggle('text-error', !connected);
     }
 }
 
 function updateLeaderboardUI(payload) {
-    const bodyEl = document.getElementById('leaderboard-body');
-    const dateEl = document.getElementById('leaderboard-date');
-    if (!bodyEl) return;
+    const sidebarEl = document.getElementById('sidebar-ranking-list');
+    const podiumEl = document.getElementById('donors-podium');
+    const listEl = document.getElementById('donors-list');
+    
+    if (!sidebarEl && !podiumEl && !listEl) return;
 
     const safePayload = payload && typeof payload === 'object'
         ? payload
         : { historical: [], daily: [], dateKey: '' };
-    const historicalRows = Array.isArray(safePayload.historical) ? safePayload.historical : [];
-    const dailyRows = Array.isArray(safePayload.daily) ? safePayload.daily : [];
-    let activeRows = leaderboardViewMode === 'historical' ? historicalRows : dailyRows;
-    if (leaderboardViewMode === 'historical' && activeRows.length === 0 && dailyRows.length > 0) {
-        activeRows = dailyRows;
-    }
-    const safeRows = Array.isArray(activeRows) ? activeRows.slice(0, 10) : [];
-    if (dateEl) {
-        dateEl.textContent = safePayload.dateKey || '';
+    
+    const donors = safePayload.daily.length > 0 ? safePayload.daily : safePayload.historical;
+    
+    // 1. Update Sidebar (Top 5 for more density)
+    if (sidebarEl) {
+        const sidebarRows = donors.slice(0, 5);
+        if (sidebarRows.length === 0) {
+            sidebarEl.innerHTML = '<div class="leaderboard-empty text-[10px] opacity-40 italic">Synchronizing...</div>';
+        } else {
+            sidebarEl.innerHTML = sidebarRows.map((row, idx) => `
+                <div class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-1 rounded transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-black ${idx === 0 ? 'text-secondary' : 'text-on-surface-variant/40'}">0${idx+1}</span>
+                        <span class="text-[11px] font-bold text-on-surface truncate w-32">${row.username}</span>
+                    </div>
+                    <span class="text-[11px] font-black text-primary">${row.score}</span>
+                </div>
+            `).join('');
+        }
     }
 
-    if (safeRows.length === 0) {
-        const label = leaderboardViewMode === 'historical'
-            ? 'Sin puntuaciones historicas'
-            : 'Sin puntuaciones hoy';
-        bodyEl.innerHTML = `<div class="leaderboard-empty">${label}</div>`;
-        return;
-    }
+    // 2. Update Hall of Emitters (Podium + List)
+    if (podiumEl && listEl) {
+        if (donors.length === 0) {
+            podiumEl.innerHTML = '<div class="col-span-full text-center opacity-40 font-mono text-sm italic">Waiting for top emitters...</div>';
+            listEl.innerHTML = '';
+        } else {
+            const top3 = donors.slice(0, 3);
+            const rest = donors.slice(3, 11);
 
-    bodyEl.innerHTML = safeRows.map((row, index) => {
-        const name = String(row.displayName || row.username || 'anonymous').slice(0, 24);
-        const score = Number(row.score) || 0;
-        const kills = Number(row.kills) || 0;
-        return `
-            <div class="leaderboard-row">
-                <span class="leaderboard-rank">#${index + 1}</span>
-                <span class="leaderboard-name">${name}</span>
-                <span class="leaderboard-kills">${kills}K</span>
-                <span class="leaderboard-score">${score}</span>
-            </div>
-        `;
-    }).join('');
+            // Reorder for podium aesthetic: Rank 2, Rank 1, Rank 3
+            const podiumOrder = [top3[1], top3[0], top3[2]].filter(Boolean);
+            
+            podiumEl.innerHTML = podiumOrder.map((row, i) => {
+                const actualRank = donors.findIndex(d => d.username === row.username) + 1;
+                const isFirst = actualRank === 1;
+                return `
+                <div class="${isFirst ? 'md:order-2 md:-translate-y-6' : i === 0 ? 'md:order-1' : 'md:order-3'} relative group">
+                    <div class="bg-surface-container-high/40 backdrop-blur-xl p-8 rounded-2xl border ${isFirst ? 'border-secondary/50 shadow-[0_0_40px_rgba(255,81,250,0.2)] scale-110' : 'border-outline-variant/10'} text-center transition-all duration-500 hover:border-primary/40">
+                        <div class="relative inline-block mb-6">
+                            <div class="w-24 h-24 rounded-full bg-surface-container-highest flex items-center justify-center border-4 ${isFirst ? 'border-secondary' : 'border-primary/30'} text-4xl font-black ${isFirst ? 'text-secondary' : 'text-primary'} shadow-inner">
+                                ${row.username.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full ${isFirst ? 'bg-secondary' : 'bg-primary'} flex items-center justify-center font-black text-black text-lg border-4 border-[#1b0c2a]">
+                                ${actualRank}
+                            </div>
+                        </div>
+                        <h3 class="font-headline text-2xl font-bold text-on-surface mb-1 truncate px-2">@${row.username}</h3>
+                        <p class="text-xs font-label text-on-surface-variant uppercase tracking-widest font-black mb-4">Master Emitter</p>
+                        <div class="bg-surface-container-lowest/50 py-3 rounded-xl border border-outline-variant/5">
+                            <span class="block text-2xl font-black ${isFirst ? 'text-secondary' : 'text-primary'} font-headline">${row.score}</span>
+                            <span class="text-[9px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">Energy Units</span>
+                        </div>
+                    </div>
+                    ${isFirst ? '<div class="absolute -top-12 left-1/2 -translate-x-1/2 text-5xl animate-bounce drop-shadow-[0_0_10px_#ff51fa]">👑</div>' : ''}
+                </div>`;
+            }).join('');
+
+            listEl.innerHTML = rest.map((row, idx) => `
+                <div class="bg-surface-container-low/60 p-6 rounded-2xl border border-outline-variant/10 flex items-center justify-between group hover:border-primary/40 transition-all backdrop-blur-sm">
+                    <div class="flex items-center gap-6">
+                        <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-primary/20 text-xl font-headline font-black text-primary group-hover:scale-110 transition-transform">
+                            ${row.username.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <p class="font-headline text-lg font-bold text-on-surface">@${row.username}</p>
+                            <div class="flex items-center gap-3">
+                                <span class="text-[11px] font-black text-secondary">RANK #0${idx + 4}</span>
+                                <div class="w-1 h-1 rounded-full bg-on-surface-variant/30"></div>
+                                <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">Active Emitter</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-black text-on-surface group-hover:text-primary transition-colors font-headline">${row.score}</p>
+                        <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.2em]">Diamonds Shared</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
 }
 
 function setLeaderboardMode(mode) {
@@ -460,13 +519,14 @@ function setLeaderboardMode(mode) {
 window.setLeaderboardMode = setLeaderboardMode;
 
 function showMegaPetBanner(data) {
-    const banner = document.getElementById('mega-pet-banner');
-    const donor = document.getElementById('mega-pet-donor');
-    const timer = document.getElementById('mega-pet-timer');
-    if (!banner || !donor || !timer) return;
+    const container = document.getElementById('mega-banner-container');
+    const donor = document.getElementById('mega-donor-display');
+    const timer = document.getElementById('mega-timer-display');
+    if (!container || !donor || !timer) return;
 
     donor.textContent = data.donorName;
-    banner.classList.add('active');
+    container.classList.remove('hidden');
+    container.classList.add('flex');
 
     if (megaPetCountdownInterval) {
         clearInterval(megaPetCountdownInterval);
@@ -487,9 +547,10 @@ function showMegaPetBanner(data) {
 }
 
 function hideMegaPetBanner() {
-    const banner = document.getElementById('mega-pet-banner');
-    if (banner) {
-        banner.classList.remove('active');
+    const container = document.getElementById('mega-banner-container');
+    if (container) {
+        container.classList.add('hidden');
+        container.classList.remove('flex');
     }
     if (megaPetCountdownInterval) {
         clearInterval(megaPetCountdownInterval);
@@ -552,8 +613,8 @@ window.initGame = async function() {
             physics: CONFIG.physics,
             scene: [BootScene, GameScene, UIScene],
             scale: {
-                mode: PhaserRuntime.Scale.FIT,
-                autoCenter: PhaserRuntime.Scale.CENTER_BOTH
+                mode: PhaserRuntime.Scale.RESIZE,
+                autoCenter: PhaserRuntime.Scale.NO_CENTER
             }
         });
 

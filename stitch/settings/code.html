@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#00e2ee",
+              "inverse-surface": "#fff7ff",
+              "on-surface": "#f1dfff",
+              "surface-container-highest": "#301d43",
+              "secondary-fixed-dim": "#ffa6f3",
+              "on-tertiary-fixed-variant": "#600083",
+              "on-error": "#490006",
+              "surface-bright": "#37234c",
+              "secondary": "#ff51fa",
+              "on-surface-variant": "#b7a4c7",
+              "inverse-primary": "#006a70",
+              "on-primary-fixed": "#004145",
+              "surface-variant": "#301d43",
+              "on-error-container": "#ffa8a3",
+              "on-tertiary": "#390050",
+              "on-tertiary-fixed": "#2c003f",
+              "on-secondary-fixed": "#620061",
+              "surface-container": "#221232",
+              "surface-tint": "#99f7ff",
+              "error-dim": "#d7383b",
+              "inverse-on-surface": "#5e4f6d",
+              "tertiary-fixed": "#e192ff",
+              "secondary-dim": "#ff51fa",
+              "outline-variant": "#51425f",
+              "on-secondary-container": "#fff5f9",
+              "tertiary-container": "#be0dff",
+              "surface": "#150822",
+              "on-primary-container": "#00555a",
+              "on-tertiary-container": "#000000",
+              "outline": "#806f8f",
+              "error-container": "#9f0519",
+              "secondary-fixed": "#ffbdf3",
+              "surface-container-low": "#1b0c2a",
+              "primary-fixed": "#00f1fe",
+              "surface-container-lowest": "#000000",
+              "tertiary-fixed-dim": "#d97dff",
+              "tertiary-dim": "#bb00fc",
+              "primary-dim": "#00e2ee",
+              "on-secondary-fixed-variant": "#920091",
+              "tertiary": "#d674ff",
+              "error": "#ff716c",
+              "on-background": "#f1dfff",
+              "secondary-container": "#a900a9",
+              "on-primary": "#005f64",
+              "surface-container-high": "#29173b",
+              "on-primary-fixed-variant": "#006065",
+              "on-secondary": "#400040",
+              "background": "#150822",
+              "primary-container": "#00f1fe",
+              "primary": "#99f7ff",
+              "surface-dim": "#150822"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(153, 247, 255, 0.3);
+        }
+        .neon-glow-secondary {
+            box-shadow: 0 0 15px rgba(255, 81, 250, 0.3);
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #000000;
+            height: 4px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #99f7ff;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px #99f7ff;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary selection:text-on-secondary">
+<!-- Top Navigation Shell -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#150822]/60 backdrop-blur-xl border-b border-[#51425f]/20 shadow-[0_0_20px_rgba(153,247,255,0.1)]">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-bold text-[#f1dfff] [text-shadow:0_0_10px_#ff51fa] font-headline uppercase tracking-widest">OLEADA 4</span>
+</div>
+<div class="hidden md:flex gap-8 items-center">
+<span class="material-symbols-outlined text-[#b7a4c7] hover:text-[#ff51fa] transition-colors cursor-pointer" data-icon="battery_charging_full">battery_charging_full</span>
+<span class="material-symbols-outlined text-[#b7a4c7] hover:text-[#ff51fa] transition-colors cursor-pointer" data-icon="pets">pets</span>
+<span class="material-symbols-outlined text-[#b7a4c7] hover:text-[#ff51fa] transition-colors cursor-pointer" data-icon="skull">skull</span>
+<span class="material-symbols-outlined text-[#b7a4c7] hover:text-[#ff51fa] transition-colors cursor-pointer" data-icon="diamond">diamond</span>
+</div>
+</nav>
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-20 bg-[#1b0c2a]/80 backdrop-blur-lg w-64 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+<div class="px-6 mb-8">
+<h2 class="font-headline font-black text-[#99f7ff] tracking-tight text-xl">BATTLE CORE</h2>
+<p class="font-label font-semibold text-xs uppercase tracking-tighter text-[#ff51fa]">PHASE: ACTIVE</p>
+</div>
+<nav class="flex flex-col flex-1">
+<div class="px-4 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label font-semibold text-xs uppercase tracking-tighter">Rankings</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label font-semibold text-xs uppercase tracking-tighter">Top Donors</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded text-[#b7a4c7] opacity-70 hover:bg-[#29173b] hover:opacity-100 transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+<span class="font-label font-semibold text-xs uppercase tracking-tighter">Battle Log</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded bg-[#a900a9]/20 text-[#ff51fa] border-r-4 border-[#ff51fa] shadow-[inset_0_0_15px_rgba(255,81,250,0.2)] translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label font-semibold text-xs uppercase tracking-tighter">Settings</span>
+</a>
+</div>
+</nav>
+<div class="mt-auto p-6 border-t border-[#51425f]/20">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-gradient-to-br from-primary to-secondary p-0.5">
+<div class="w-full h-full bg-surface rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+<div>
+<p class="text-[10px] font-headline text-on-surface-variant uppercase">Commander</p>
+<p class="text-xs font-bold text-on-surface">ARENA_01</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 pt-20 pb-16 px-8 min-h-screen">
+<header class="mb-12">
+<h1 class="text-5xl font-headline font-bold text-on-surface tracking-tighter uppercase [text-shadow:0_0_20px_rgba(255,81,250,0.4)]">Configuration <span class="text-primary">&amp;</span> Core</h1>
+<p class="text-on-surface-variant font-label mt-2 max-w-2xl">Initialize battle parameters and neural link settings for the Pet Battle Arena. All changes propagate in real-time to the combat zone.</p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Game Logic Section -->
+<section class="col-span-12 lg:col-span-8 bg-surface-container-low p-6 rounded-lg backdrop-blur-md relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 opacity-5">
+<span class="material-symbols-outlined text-9xl" data-icon="memory">memory</span>
+</div>
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary" data-icon="precision_manufacturing">precision_manufacturing</span>
+<h2 class="text-xl font-headline font-bold uppercase tracking-widest text-on-surface">Game Logic</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-6">
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<label class="text-xs font-headline font-bold uppercase text-on-surface-variant tracking-widest">Wave Difficulty</label>
+<span class="text-primary font-headline font-bold">LVL 08</span>
+</div>
+<input class="w-full" max="10" min="1" type="range" value="8"/>
+<div class="flex justify-between text-[10px] text-outline uppercase font-label">
+<span>Recruit</span>
+<span>Master</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<label class="text-xs font-headline font-bold uppercase text-on-surface-variant tracking-widest">Spawn Rate</label>
+<span class="text-primary font-headline font-bold">2.4/sec</span>
+</div>
+<input class="w-full" max="5" min="0" step="0.1" type="range" value="2.4"/>
+</div>
+</div>
+<div class="bg-surface-container-high p-5 rounded border border-outline-variant/20 flex flex-col justify-between">
+<div>
+<p class="text-xs font-headline font-bold text-secondary uppercase mb-2">Automated Scaling</p>
+<p class="text-sm text-on-surface-variant">Adaptive difficulty spikes based on viewer engagement and donation velocity.</p>
+</div>
+<div class="flex items-center justify-between mt-4">
+<span class="text-xs font-headline font-bold uppercase text-on-surface">Neural Adaptation</span>
+<button class="w-12 h-6 bg-surface-container-lowest rounded-full relative p-1 transition-colors hover:bg-black group/toggle">
+<div class="w-4 h-4 bg-primary rounded-full neon-glow-primary translate-x-6"></div>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Server Control Panel -->
+<section class="col-span-12 lg:col-span-4 bg-surface-container-low p-6 rounded-lg border-l-4 border-error flex flex-col">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-error" data-icon="terminal">terminal</span>
+<h2 class="text-xl font-headline font-bold uppercase tracking-widest text-on-surface">Server Control</h2>
+</div>
+<div class="space-y-4 flex-1">
+<button class="w-full py-4 bg-surface-container-lowest border border-error/30 text-error font-headline font-black text-sm uppercase tracking-widest hover:bg-error hover:text-on-error transition-all group flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-lg" data-icon="history">history</span>
+                        RESET GAME
+                    </button>
+<button class="w-full py-4 bg-surface-container-lowest border border-primary/30 text-primary font-headline font-black text-sm uppercase tracking-widest hover:bg-primary hover:text-on-primary-container transition-all group flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-lg" data-icon="bolt">bolt</span>
+                        FORCE WAVE
+                    </button>
+<button class="w-full py-4 bg-secondary-container text-on-secondary-container font-headline font-black text-sm uppercase tracking-widest hover:bg-secondary hover:shadow-[0_0_20px_#ff51fa] transition-all group flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-lg" data-icon="star">star</span>
+                        TRIGGER MEGA PET
+                    </button>
+</div>
+<div class="mt-6 pt-6 border-t border-outline-variant/20">
+<div class="flex justify-between items-center text-[10px] uppercase font-headline">
+<span class="text-on-surface-variant">Uptime</span>
+<span class="text-primary">12:45:02</span>
+</div>
+</div>
+</section>
+<!-- TikTok Integration -->
+<section class="col-span-12 md:col-span-6 bg-surface-container-low p-6 rounded-lg">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#99f7ff]" data-icon="share">share</span>
+<h2 class="text-xl font-headline font-bold uppercase tracking-widest text-on-surface">TikTok Link</h2>
+</div>
+<span class="px-2 py-1 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest animate-pulse">Connected</span>
+</div>
+<div class="space-y-6">
+<div class="space-y-2">
+<label class="text-[10px] font-headline font-bold uppercase text-on-surface-variant tracking-widest">Comment Keywords</label>
+<div class="flex gap-2">
+<input class="flex-1 bg-surface-container-lowest border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 font-body" placeholder="!spawn, !heal, !attack" type="text"/>
+<button class="bg-surface-container-high px-4 text-primary hover:bg-primary hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container-high rounded text-[10px] font-bold text-primary flex items-center gap-2">!spawn <span class="material-symbols-outlined text-[12px] cursor-pointer" data-icon="close">close</span></span>
+<span class="px-3 py-1 bg-surface-container-high rounded text-[10px] font-bold text-primary flex items-center gap-2">!mega <span class="material-symbols-outlined text-[12px] cursor-pointer" data-icon="close">close</span></span>
+<span class="px-3 py-1 bg-surface-container-high rounded text-[10px] font-bold text-primary flex items-center gap-2">!gift <span class="material-symbols-outlined text-[12px] cursor-pointer" data-icon="close">close</span></span>
+</div>
+</div>
+</section>
+<!-- Visuals & Audio Bento -->
+<section class="col-span-12 md:col-span-6 grid grid-rows-2 gap-6">
+<!-- Visuals -->
+<div class="bg-surface-container-low p-6 rounded-lg">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-secondary" data-icon="auto_awesome">auto_awesome</span>
+<h2 class="text-xl font-headline font-bold uppercase tracking-widest text-on-surface">Visuals</h2>
+</div>
+<div class="flex gap-4">
+<div class="flex-1">
+<label class="text-[10px] font-headline font-bold uppercase text-on-surface-variant block mb-2">Particle Intensity</label>
+<div class="grid grid-cols-3 gap-1">
+<button class="py-2 bg-surface-container-high text-[10px] font-bold uppercase text-on-surface hover:bg-secondary/20 transition-all">Low</button>
+<button class="py-2 bg-secondary text-on-secondary text-[10px] font-bold uppercase neon-glow-secondary">High</button>
+<button class="py-2 bg-surface-container-high text-[10px] font-bold uppercase text-on-surface hover:bg-secondary/20 transition-all">Ultra</button>
+</div>
+</div>
+<div class="w-1/3">
+<label class="text-[10px] font-headline font-bold uppercase text-on-surface-variant block mb-2">UI Opacity</label>
+<input class="w-full mt-2" type="range"/>
+</div>
+</div>
+</div>
+<!-- Audio -->
+<div class="bg-surface-container-low p-6 rounded-lg">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary" data-icon="volume_up">volume_up</span>
+<h2 class="text-xl font-headline font-bold uppercase tracking-widest text-on-surface">Audio</h2>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="music_note">music_note</span>
+<div class="flex-1">
+<div class="flex justify-between text-[8px] uppercase font-bold mb-1">
+<span>Music</span>
+<span>65%</span>
+</div>
+<div class="h-1 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%] shadow-[0_0_5px_#99f7ff]"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="campaign">campaign</span>
+<div class="flex-1">
+<div class="flex justify-between text-[8px] uppercase font-bold mb-1">
+<span>SFX</span>
+<span>90%</span>
+</div>
+<div class="h-1 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[90%] shadow-[0_0_5px_#99f7ff]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<footer class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 bg-[#000000]/90 h-12 border-t border-[#99f7ff]/10 shadow-[0_-4px_20px_rgba(0,0,0,0.8)]">
+<div class="flex flex-col items-center justify-center cursor-pointer group transition-all brightness-125">
+<span class="material-symbols-outlined text-[#99f7ff] [text-shadow:0_0_10px_#99f7ff]" data-icon="dns">dns</span>
+<span class="font-headline font-bold text-[10px] text-[#99f7ff] [text-shadow:0_0_10px_#99f7ff]">Server Status</span>
+</div>
+<div class="flex flex-col items-center justify-center cursor-pointer group transition-all hover:text-[#f1dfff]">
+<span class="material-symbols-outlined text-[#51425f] group-hover:text-[#f1dfff]" data-icon="terminal">terminal</span>
+<span class="font-headline font-bold text-[10px] text-[#51425f] group-hover:text-[#f1dfff]">Admin Console</span>
+</div>
+</footer>
+</body></html>

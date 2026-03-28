@@ -35,6 +35,7 @@ class PetBattleArenaServer {
         this.supabaseUrl = process.env.SUPABASE_URL || '';
         this.supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
         this.supabaseTable = process.env.SUPABASE_LEADERBOARD_TABLE || 'leaderboard_scores';
+        this.supabaseUserProgressTable = process.env.SUPABASE_USER_PROGRESS_TABLE || 'user_pet_progress';
         this.adminTokenTable = process.env.SUPABASE_ADMIN_TOKENS_TABLE || 'admin_room_tokens';
         this.adminTokenPepper = process.env.ADMIN_TOKEN_PEPPER || '';
 
@@ -202,13 +203,19 @@ class PetBattleArenaServer {
                 room.eventProcessor.processPetSpawn(data || {});
             });
 
-            socket.on('likes:add', (count) => {
+            socket.on('likes:add', (countOrPayload) => {
                 const roomId = socket.currentRoomId;
                 if (!roomId) return;
-                const likes = Number(count) || 0;
+                const payload = (countOrPayload && typeof countOrPayload === 'object')
+                    ? countOrPayload
+                    : { likeCount: Number(countOrPayload) || 0 };
+                const likes = Number(payload.likeCount) || 0;
                 if (likes <= 0) return;
                 const room = this.ensureRoom(roomId, { activate: true });
-                room.eventProcessor.processLikes(likes);
+                room.eventProcessor.processLikes({
+                    likeCount: likes,
+                    username: payload.username || payload.owner || 'demo_user'
+                });
             });
 
             socket.on('gift:send', (data) => {
@@ -291,11 +298,14 @@ class PetBattleArenaServer {
                 lpmIntervalRef: null,
                 leaderboardFlushTimer: null,
                 pendingLeaderboardFlush: new Map(),
+                userProgressFlushTimer: null,
+                pendingUserProgressFlush: new Map(),
                 lastStateBroadcastAt: 0,
                 gameState: {
                     pets: new Map(),
                     enemies: new Map(),
                     leaderboard: new Map(),
+                    userProgress: new Map(),
                     wave: 0,
                     waveTimer: 0,
                     likesPerMinute: 0,
@@ -313,6 +323,7 @@ class PetBattleArenaServer {
                 io: { emit: (event, payload) => this.emitToRoom(normalizedId, event, payload) },
                 addPet: (pet) => this.addPet(normalizedId, pet),
                 removePet: (petId) => this.removePet(normalizedId, petId),
+                upsertUserProgress: (username, level) => this.upsertUserProgress(normalizedId, username, level),
                 activateMegaPet: (donorName, duration) => this.activateMegaPet(normalizedId, donorName, duration)
             };
             room.eventProcessor = new EventProcessor(roomAdapter);
@@ -743,8 +754,17 @@ class PetBattleArenaServer {
 
         this.stopRoomIntervals(roomId);
         if (room.leaderboardFlushTimer) clearTimeout(room.leaderboardFlushTimer);
-        room.pendingLeaderboardFlush.clear();
-        this.rooms.delete(roomId);
+        if (room.userProgressFlushTimer) clearTimeout(room.userProgressFlushTimer);
+        Promise.allSettled([
+            this.flushLeaderboardToSupabase(roomId),
+            this.flushUserProgressToSupabase(roomId)
+        ]).finally(() => {
+            const currentRoom = this.rooms.get(roomId);
+            if (!currentRoom) return;
+            currentRoom.pendingLeaderboardFlush.clear();
+            currentRoom.pendingUserProgressFlush.clear();
+            this.rooms.delete(roomId);
+        });
     }
 
     isSupabaseConfigured() {
@@ -798,6 +818,41 @@ class PetBattleArenaServer {
             console.log(`[Servidor] Leaderboards cargados desde Supabase (${rows.length} registros)`);
         } catch (error) {
             console.error('[Servidor] Error cargando leaderboard desde Supabase:', error.message);
+        }
+
+        try {
+            const select = 'room_id,username,level,updated_at';
+            const url = this.getSupabaseRestUrl(
+                `${this.supabaseUserProgressTable}?select=${encodeURIComponent(select)}&order=updated_at.desc&limit=10000`
+            );
+
+            const response = await fetch(url, {
+                headers: {
+                    apikey: this.supabaseServiceRoleKey,
+                    Authorization: `Bearer ${this.supabaseServiceRoleKey}`
+                }
+            });
+            if (!response.ok) {
+                const body = await response.text();
+                throw new Error(`Supabase user progress load failed: ${response.status} ${body}`);
+            }
+
+            const rows = await response.json();
+            rows.forEach((row) => {
+                const roomId = this.normalizeRoomId(row.room_id || 'default_room');
+                const room = this.ensureRoom(roomId, { activate: false });
+                const username = String(row.username || '').trim().toLowerCase();
+                if (!username) return;
+
+                room.gameState.userProgress.set(username, {
+                    level: Math.max(1, Number(row.level) || 1),
+                    updatedAt: row.updated_at ? Date.parse(row.updated_at) : Date.now()
+                });
+            });
+
+            console.log(`[Servidor] Progreso de usuarios cargado desde Supabase (${rows.length} registros)`);
+        } catch (error) {
+            console.error('[Servidor] Error cargando progreso de usuarios desde Supabase:', error.message);
         }
     }
 
@@ -859,6 +914,77 @@ class PetBattleArenaServer {
             }
         } catch (error) {
             console.error('[Servidor] Error guardando leaderboard en Supabase:', error.message);
+        }
+    }
+
+    upsertUserProgress(roomId, username, level) {
+        const room = this.rooms.get(roomId);
+        if (!room) return;
+        const normalizedUsername = String(username || '').trim().toLowerCase();
+        if (!normalizedUsername) return;
+
+        const safeLevel = Math.max(1, Number(level) || 1);
+        const existing = room.gameState.userProgress.get(normalizedUsername) || { level: 1, updatedAt: Date.now() };
+        const nextLevel = Math.max(existing.level || 1, safeLevel);
+        const updatedAt = Date.now();
+
+        room.gameState.userProgress.set(normalizedUsername, { level: nextLevel, updatedAt });
+        this.scheduleUserProgressFlush(roomId, normalizedUsername, nextLevel, updatedAt);
+    }
+
+    scheduleUserProgressFlush(roomId, username, level, updatedAt = Date.now()) {
+        if (!this.isSupabaseConfigured()) return;
+
+        const room = this.rooms.get(roomId);
+        if (!room) return;
+
+        room.pendingUserProgressFlush.set(username, {
+            room_id: roomId,
+            username,
+            level: Math.max(1, Number(level) || 1),
+            updated_at: new Date(updatedAt).toISOString()
+        });
+
+        if (room.userProgressFlushTimer) return;
+
+        room.userProgressFlushTimer = setTimeout(() => {
+            this.flushUserProgressToSupabase(roomId);
+        }, 1200);
+    }
+
+    async flushUserProgressToSupabase(roomId) {
+        if (!this.isSupabaseConfigured()) return;
+        const room = this.rooms.get(roomId);
+        if (!room) return;
+
+        if (room.pendingUserProgressFlush.size === 0) {
+            room.userProgressFlushTimer = null;
+            return;
+        }
+
+        const payload = Array.from(room.pendingUserProgressFlush.values());
+        room.pendingUserProgressFlush.clear();
+        room.userProgressFlushTimer = null;
+
+        try {
+            const url = this.getSupabaseRestUrl(`${this.supabaseUserProgressTable}?on_conflict=room_id,username`);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    apikey: this.supabaseServiceRoleKey,
+                    Authorization: `Bearer ${this.supabaseServiceRoleKey}`,
+                    Prefer: 'resolution=merge-duplicates,return=minimal'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const body = await response.text();
+                throw new Error(`Supabase user progress upsert failed: ${response.status} ${body}`);
+            }
+        } catch (error) {
+            console.error('[Servidor] Error guardando progreso de usuario en Supabase:', error.message);
         }
     }
 
@@ -1008,6 +1134,9 @@ class PetBattleArenaServer {
             room.pendingLeaderboardFlush.clear();
             if (room.leaderboardFlushTimer) clearTimeout(room.leaderboardFlushTimer);
             room.leaderboardFlushTimer = null;
+            room.pendingUserProgressFlush.clear();
+            if (room.userProgressFlushTimer) clearTimeout(room.userProgressFlushTimer);
+            room.userProgressFlushTimer = null;
         }
 
         if (!this.isSupabaseConfigured()) return;
@@ -1045,7 +1174,9 @@ class PetBattleArenaServer {
                 room.tiktokConnector.disconnect();
             }
             if (room.leaderboardFlushTimer) clearTimeout(room.leaderboardFlushTimer);
+            if (room.userProgressFlushTimer) clearTimeout(room.userProgressFlushTimer);
             await this.flushLeaderboardToSupabase(roomId);
+            await this.flushUserProgressToSupabase(roomId);
         }
 
         this.io.close(() => {

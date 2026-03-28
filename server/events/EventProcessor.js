@@ -50,6 +50,7 @@ class EventProcessor {
 
         // Seguimiento de enfriamiento por usuario
         this.userCooldowns = new Map();
+        this.userLikeBuckets = new Map();
         this.GLOBAL_COOLDOWN = 1000; // 1 segundo entre generaciones por usuario
     }
 
@@ -58,16 +59,60 @@ class EventProcessor {
     }
 
     checkCooldown(userId) {
-        const lastSpawn = this.userCooldowns.get(userId);
+        const normalizedUser = String(userId || '').trim().toLowerCase() || 'anonymous';
+        const lastSpawn = this.userCooldowns.get(normalizedUser);
         if (lastSpawn && (Date.now() - lastSpawn) < this.GLOBAL_COOLDOWN) {
             return false;
         }
-        this.userCooldowns.set(userId, Date.now());
+        this.userCooldowns.set(normalizedUser, Date.now());
         return true;
     }
 
+    normalizeOwner(ownerUsername) {
+        return String(ownerUsername || '').trim().toLowerCase() || 'anonymous';
+    }
+
+    getOwnerProgress(ownerUsername) {
+        const owner = this.normalizeOwner(ownerUsername);
+        const progressMap = this.server.gameState.userProgress;
+        if (!progressMap.has(owner)) {
+            progressMap.set(owner, { level: 1 });
+        }
+        return progressMap.get(owner);
+    }
+
+    increaseOwnerLevel(ownerUsername, levels) {
+        const owner = this.normalizeOwner(ownerUsername);
+        const progress = this.getOwnerProgress(ownerUsername);
+        progress.level = Math.max(1, (progress.level || 1) + levels);
+        if (typeof this.server.upsertUserProgress === 'function') {
+            this.server.upsertUserProgress(owner, progress.level);
+        }
+        return progress.level;
+    }
+
+    syncOwnerProgressFromPet(pet) {
+        if (!pet) return;
+        const owner = this.normalizeOwner(pet.owner);
+        const progress = this.getOwnerProgress(owner);
+        progress.level = Math.max(progress.level || 1, pet.level || 1);
+        if (typeof this.server.upsertUserProgress === 'function') {
+            this.server.upsertUserProgress(owner, progress.level);
+        }
+    }
+
+    hasActivePetForOwner(ownerUsername) {
+        const normalizedOwner = String(ownerUsername || '').trim().toLowerCase();
+        if (!normalizedOwner) return false;
+        return Array.from(this.server.gameState.pets.values()).some(
+            (pet) => String(pet.owner || '').trim().toLowerCase() === normalizedOwner
+        );
+    }
+
     processComment(comment) {
-        const { username, text, nickname } = comment;
+        const username = String(comment?.username || '').trim().toLowerCase() || 'anonymous';
+        const text = String(comment?.text || '');
+        const nickname = comment?.nickname || username;
         
         // Normalizar texto
         const normalizedText = text.toLowerCase().trim();
@@ -75,7 +120,8 @@ class EventProcessor {
         // Verificar disparadores de tipo de mascota
         for (const [trigger, config] of Object.entries(this.petTypes)) {
             if (normalizedText.includes(trigger)) {
-                if (this.checkCooldown(username)) {
+                const hasActivePet = this.hasActivePetForOwner(username);
+                if (!hasActivePet || this.checkCooldown(username)) {
                     this.spawnPet({
                         owner: username,
                         ownerName: nickname,
@@ -141,22 +187,27 @@ class EventProcessor {
 
     spawnPet(config) {
         const id = this.generatePetId();
+        const normalizedOwner = this.normalizeOwner(config.owner);
+        const ownerProgress = this.getOwnerProgress(normalizedOwner);
+        const spawnLevel = Math.max(1, Number(ownerProgress.level) || 1);
+        const hpAtLevel = config.hp + (spawnLevel - 1) * 10;
+        const damageAtLevel = config.damage + (spawnLevel - 1) * 5;
         
         const pet = {
             id: id,
-            owner: config.owner,
-            ownerName: config.ownerName,
+            owner: normalizedOwner,
+            ownerName: config.ownerName || normalizedOwner,
             type: config.type,
             name: config.name,
-            hp: config.hp,
-            maxHp: config.hp,
-            damage: config.damage,
+            hp: hpAtLevel,
+            maxHp: hpAtLevel,
+            damage: damageAtLevel,
             speed: config.speed,
             color: config.color,
             emoji: config.emoji,
             scale: config.scale,
             special: config.special || null,
-            level: 1,
+            level: spawnLevel,
             xp: 0,
             // Posición será establecida por el cliente
             x: 0,
@@ -169,6 +220,7 @@ class EventProcessor {
             isDead: false
         };
 
+        this.syncOwnerProgressFromPet(pet);
         this.server.addPet(pet);
         return pet;
     }
@@ -224,16 +276,68 @@ class EventProcessor {
         }
     }
 
-    processLikes(count) {
-        this.server.gameState.totalLikes += count;
-        this.server.gameState.likesCurrentMinute += count;
-        
-        // Cada 50 likes, mejorar todas las mascotas ligeramente
-        const likesMod = this.server.gameState.totalLikes % 50;
-        if (likesMod < count) {
-            this.upgradeAllPets(1);
-            console.log(`[Likes] Mejora de mascotas activada en ${this.server.gameState.totalLikes} likes totales`);
+    processLikes(payload) {
+        const likeCount = Math.max(
+            0,
+            Number(typeof payload === 'object' ? payload?.likeCount : payload) || 0
+        );
+        if (likeCount <= 0) return;
+
+        const usernameRaw = typeof payload === 'object' ? (payload?.username || payload?.owner) : '';
+        const username = String(usernameRaw || '').trim().toLowerCase();
+
+        this.server.gameState.totalLikes += likeCount;
+        this.server.gameState.likesCurrentMinute += likeCount;
+
+        // Regla principal: cada 50 likes del mismo usuario, sube su(s) mascota(s).
+        if (username) {
+            const accumulated = (this.userLikeBuckets.get(username) || 0) + likeCount;
+            const levelUps = Math.floor(accumulated / 50);
+            const remaining = accumulated % 50;
+            this.userLikeBuckets.set(username, remaining);
+
+            if (levelUps > 0) {
+                const upgradedCount = this.upgradePetsByOwner(username, levelUps);
+                if (upgradedCount > 0) {
+                    console.log(`[Likes] ${username} subio ${upgradedCount} mascota(s) +${levelUps} nivel(es) por likes.`);
+                }
+            }
         }
+    }
+
+    upgradePetsByOwner(ownerUsername, levels) {
+        if (!ownerUsername || levels <= 0) return 0;
+        const normalizedOwner = this.normalizeOwner(ownerUsername);
+        this.increaseOwnerLevel(normalizedOwner, levels);
+
+        const pets = Array.from(this.server.gameState.pets.values()).filter(
+            (pet) => this.normalizeOwner(pet.owner) === normalizedOwner
+        );
+
+        pets.forEach((pet) => {
+            pet.level += levels;
+            pet.hp += levels * 10;
+            pet.maxHp += levels * 10;
+            pet.damage += levels * 5;
+            this.syncOwnerProgressFromPet(pet);
+            this.server.io.emit('pet:updated', {
+                id: pet.id,
+                hp: pet.hp,
+                maxHp: pet.maxHp,
+                level: pet.level,
+                damage: pet.damage
+            });
+        });
+
+        if (pets.length > 0) {
+            this.server.io.emit('pets:upgrade', {
+                levelsGained: levels,
+                petCount: pets.length,
+                owner: normalizedOwner
+            });
+        }
+
+        return pets.length;
     }
 
     processFollow(subscriber) {
@@ -272,6 +376,7 @@ class EventProcessor {
             pet.hp += levels * 10;
             pet.maxHp += levels * 10;
             pet.damage += levels * 5;
+            this.syncOwnerProgressFromPet(pet);
             this.server.io.emit('pet:updated', {
                 id: pet.id,
                 hp: pet.hp,
